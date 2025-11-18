@@ -5,17 +5,17 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
 	big "math/big"
 )
 
-type AgentInterruptRequest struct {
+type AgentManagementInterruptRequest struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (a *AgentInterruptRequest) require(field *big.Int) {
+func (a *AgentManagementInterruptRequest) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -23,66 +23,15 @@ func (a *AgentInterruptRequest) require(field *big.Int) {
 }
 
 var (
-	agentSpeakRequestFieldText          = big.NewInt(1 << 0)
-	agentSpeakRequestFieldPriority      = big.NewInt(1 << 1)
-	agentSpeakRequestFieldInterruptable = big.NewInt(1 << 2)
+	agentManagementListRequestFieldChannel  = big.NewInt(1 << 0)
+	agentManagementListRequestFieldFromTime = big.NewInt(1 << 1)
+	agentManagementListRequestFieldToTime   = big.NewInt(1 << 2)
+	agentManagementListRequestFieldState    = big.NewInt(1 << 3)
+	agentManagementListRequestFieldLimit    = big.NewInt(1 << 4)
+	agentManagementListRequestFieldCursor   = big.NewInt(1 << 5)
 )
 
-type AgentSpeakRequest struct {
-	// The broadcast message text. The maximum length of the text content is 512 bytes.
-	Text string `json:"text" url:"-"`
-	// Sets the priority of the message broadcast:
-	// - `INTERRUPT`: High priority. The agent immediately interrupts the current interaction to announce the message.
-	// - `APPEND`: Medium priority. The agent announces the message after the current interaction ends.
-	// - `IGNORE`: Low priority. If the agent is busy interacting, it ignores and discards the broadcast; the message is only announced if the agent is not interacting.
-	Priority *AgentSpeakRequestPriority `json:"priority,omitempty" url:"-"`
-	// Whether to allow users to interrupt the agent's broadcast by speaking:
-	// - `true`: Allow
-	// - `false`: Don't allow
-	Interruptable *bool `json:"interruptable,omitempty" url:"-"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-}
-
-func (a *AgentSpeakRequest) require(field *big.Int) {
-	if a.explicitFields == nil {
-		a.explicitFields = big.NewInt(0)
-	}
-	a.explicitFields.Or(a.explicitFields, field)
-}
-
-// SetText sets the Text field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakRequest) SetText(text string) {
-	a.Text = text
-	a.require(agentSpeakRequestFieldText)
-}
-
-// SetPriority sets the Priority field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakRequest) SetPriority(priority *AgentSpeakRequestPriority) {
-	a.Priority = priority
-	a.require(agentSpeakRequestFieldPriority)
-}
-
-// SetInterruptable sets the Interruptable field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakRequest) SetInterruptable(interruptable *bool) {
-	a.Interruptable = interruptable
-	a.require(agentSpeakRequestFieldInterruptable)
-}
-
-var (
-	listAgentsRequestFieldChannel  = big.NewInt(1 << 0)
-	listAgentsRequestFieldFromTime = big.NewInt(1 << 1)
-	listAgentsRequestFieldToTime   = big.NewInt(1 << 2)
-	listAgentsRequestFieldState    = big.NewInt(1 << 3)
-	listAgentsRequestFieldLimit    = big.NewInt(1 << 4)
-	listAgentsRequestFieldCursor   = big.NewInt(1 << 5)
-)
-
-type ListAgentsRequest struct {
+type AgentManagementListRequest struct {
 	// The channel to query for a list of agents.
 	Channel *string `json:"-" url:"channel,omitempty"`
 	// The start timestamp (in seconds) for the query. Default is 2 hours ago.
@@ -97,7 +46,7 @@ type ListAgentsRequest struct {
 	// - `STOPPED` (4): The agent has exited.
 	// - `RECOVERING` (5): The agent is recovering.
 	// - `FAILED` (6): The agent failed to execute.
-	State *ListAgentsRequestState `json:"-" url:"state,omitempty"`
+	State *AgentManagementListRequestState `json:"-" url:"state,omitempty"`
 	// The maximum number of entries returned per page.
 	Limit *int `json:"-" url:"limit,omitempty"`
 	// The paging cursor, indicating the starting position (`agent_id`) of the next page of results.
@@ -107,98 +56,594 @@ type ListAgentsRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (l *ListAgentsRequest) require(field *big.Int) {
-	if l.explicitFields == nil {
-		l.explicitFields = big.NewInt(0)
+func (a *AgentManagementListRequest) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	l.explicitFields.Or(l.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetChannel(channel *string) {
-	l.Channel = channel
-	l.require(listAgentsRequestFieldChannel)
+func (a *AgentManagementListRequest) SetChannel(channel *string) {
+	a.Channel = channel
+	a.require(agentManagementListRequestFieldChannel)
 }
 
 // SetFromTime sets the FromTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetFromTime(fromTime *float64) {
-	l.FromTime = fromTime
-	l.require(listAgentsRequestFieldFromTime)
+func (a *AgentManagementListRequest) SetFromTime(fromTime *float64) {
+	a.FromTime = fromTime
+	a.require(agentManagementListRequestFieldFromTime)
 }
 
 // SetToTime sets the ToTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetToTime(toTime *float64) {
-	l.ToTime = toTime
-	l.require(listAgentsRequestFieldToTime)
+func (a *AgentManagementListRequest) SetToTime(toTime *float64) {
+	a.ToTime = toTime
+	a.require(agentManagementListRequestFieldToTime)
 }
 
 // SetState sets the State field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetState(state *ListAgentsRequestState) {
-	l.State = state
-	l.require(listAgentsRequestFieldState)
+func (a *AgentManagementListRequest) SetState(state *AgentManagementListRequestState) {
+	a.State = state
+	a.require(agentManagementListRequestFieldState)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetLimit(limit *int) {
-	l.Limit = limit
-	l.require(listAgentsRequestFieldLimit)
+func (a *AgentManagementListRequest) SetLimit(limit *int) {
+	a.Limit = limit
+	a.require(agentManagementListRequestFieldLimit)
 }
 
 // SetCursor sets the Cursor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsRequest) SetCursor(cursor *string) {
-	l.Cursor = cursor
-	l.require(listAgentsRequestFieldCursor)
+func (a *AgentManagementListRequest) SetCursor(cursor *string) {
+	a.Cursor = cursor
+	a.require(agentManagementListRequestFieldCursor)
 }
 
 var (
-	startAgentRequestFieldName       = big.NewInt(1 << 0)
-	startAgentRequestFieldProperties = big.NewInt(1 << 1)
+	agentManagementSpeakRequestFieldText          = big.NewInt(1 << 0)
+	agentManagementSpeakRequestFieldPriority      = big.NewInt(1 << 1)
+	agentManagementSpeakRequestFieldInterruptable = big.NewInt(1 << 2)
 )
 
-type StartAgentRequest struct {
-	// The unique identifier of the agent. The same identifier cannot be used repeatedly.
-	Name string `json:"name" url:"-"`
-	// Configuration details of the agent.
-	Properties *StartAgentRequestProperties `json:"properties,omitempty" url:"-"`
+type AgentManagementSpeakRequest struct {
+	// The broadcast message text. The maximum length of the text content is 512 bytes.
+	Text string `json:"text" url:"-"`
+	// Sets the priority of the message broadcast:
+	// - `INTERRUPT`: High priority. The agent immediately interrupts the current interaction to announce the message.
+	// - `APPEND`: Medium priority. The agent announces the message after the current interaction ends.
+	// - `IGNORE`: Low priority. If the agent is busy interacting, it ignores and discards the broadcast; the message is only announced if the agent is not interacting.
+	Priority *AgentManagementSpeakRequestPriority `json:"priority,omitempty" url:"-"`
+	// Whether to allow users to interrupt the agent's broadcast by speaking:
+	// - `true`: Allow
+	// - `false`: Don't allow
+	Interruptable *bool `json:"interruptable,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (s *StartAgentRequest) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementSpeakRequest) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementSpeakRequest) SetText(text string) {
+	a.Text = text
+	a.require(agentManagementSpeakRequestFieldText)
+}
+
+// SetPriority sets the Priority field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementSpeakRequest) SetPriority(priority *AgentManagementSpeakRequestPriority) {
+	a.Priority = priority
+	a.require(agentManagementSpeakRequestFieldPriority)
+}
+
+// SetInterruptable sets the Interruptable field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementSpeakRequest) SetInterruptable(interruptable *bool) {
+	a.Interruptable = interruptable
+	a.require(agentManagementSpeakRequestFieldInterruptable)
+}
+
+var (
+	agentManagementStartRequestFieldName       = big.NewInt(1 << 0)
+	agentManagementStartRequestFieldProperties = big.NewInt(1 << 1)
+)
+
+type AgentManagementStartRequest struct {
+	// The unique identifier of the agent. The same identifier cannot be used repeatedly.
+	Name string `json:"name" url:"-"`
+	// Configuration details of the agent.
+	Properties *AgentManagementStartRequestProperties `json:"properties,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (a *AgentManagementStartRequest) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequest) SetName(name string) {
-	s.Name = name
-	s.require(startAgentRequestFieldName)
+func (a *AgentManagementStartRequest) SetName(name string) {
+	a.Name = name
+	a.require(agentManagementStartRequestFieldName)
 }
 
 // SetProperties sets the Properties field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequest) SetProperties(properties *StartAgentRequestProperties) {
-	s.Properties = properties
-	s.require(startAgentRequestFieldProperties)
+func (a *AgentManagementStartRequest) SetProperties(properties *AgentManagementStartRequestProperties) {
+	a.Properties = properties
+	a.require(agentManagementStartRequestFieldProperties)
 }
 
 var (
-	agentInterruptResponseFieldAgentID = big.NewInt(1 << 0)
-	agentInterruptResponseFieldChannel = big.NewInt(1 << 1)
-	agentInterruptResponseFieldStartTs = big.NewInt(1 << 2)
+	agentManagementGetHistoryResponseFieldAgentID  = big.NewInt(1 << 0)
+	agentManagementGetHistoryResponseFieldStartTs  = big.NewInt(1 << 1)
+	agentManagementGetHistoryResponseFieldStatus   = big.NewInt(1 << 2)
+	agentManagementGetHistoryResponseFieldContents = big.NewInt(1 << 3)
 )
 
-type AgentInterruptResponse struct {
+type AgentManagementGetHistoryResponse struct {
+	// Unique identifier of the agent.
+	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
+	// Agent creation timestamp.
+	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
+	// Agent status. Only supports querying the running agent.
+	Status *string `json:"status,omitempty" url:"status,omitempty"`
+	// Agent history.
+	Contents []*AgentManagementGetHistoryResponseContentsItem `json:"contents,omitempty" url:"contents,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementGetHistoryResponse) GetAgentID() *string {
+	if a == nil {
+		return nil
+	}
+	return a.AgentID
+}
+
+func (a *AgentManagementGetHistoryResponse) GetStartTs() *int {
+	if a == nil {
+		return nil
+	}
+	return a.StartTs
+}
+
+func (a *AgentManagementGetHistoryResponse) GetContents() []*AgentManagementGetHistoryResponseContentsItem {
+	if a == nil {
+		return nil
+	}
+	return a.Contents
+}
+
+func (a *AgentManagementGetHistoryResponse) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementGetHistoryResponse) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponse) SetAgentID(agentID *string) {
+	a.AgentID = agentID
+	a.require(agentManagementGetHistoryResponseFieldAgentID)
+}
+
+// SetStartTs sets the StartTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponse) SetStartTs(startTs *int) {
+	a.StartTs = startTs
+	a.require(agentManagementGetHistoryResponseFieldStartTs)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponse) SetStatus(status *string) {
+	a.Status = status
+	a.require(agentManagementGetHistoryResponseFieldStatus)
+}
+
+// SetContents sets the Contents field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponse) SetContents(contents []*AgentManagementGetHistoryResponseContentsItem) {
+	a.Contents = contents
+	a.require(agentManagementGetHistoryResponseFieldContents)
+}
+
+func (a *AgentManagementGetHistoryResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementGetHistoryResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementGetHistoryResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementGetHistoryResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementGetHistoryResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementGetHistoryResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+var (
+	agentManagementGetHistoryResponseContentsItemFieldRole    = big.NewInt(1 << 0)
+	agentManagementGetHistoryResponseContentsItemFieldContent = big.NewInt(1 << 1)
+)
+
+type AgentManagementGetHistoryResponseContentsItem struct {
+	// The message sender:
+	// - `user`: User
+	// - `assistant`: AI agent
+	Role *AgentManagementGetHistoryResponseContentsItemRole `json:"role,omitempty" url:"role,omitempty"`
+	// Message content.
+	Content *string `json:"content,omitempty" url:"content,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) GetRole() *AgentManagementGetHistoryResponseContentsItemRole {
+	if a == nil {
+		return nil
+	}
+	return a.Role
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) GetContent() *string {
+	if a == nil {
+		return nil
+	}
+	return a.Content
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponseContentsItem) SetRole(role *AgentManagementGetHistoryResponseContentsItemRole) {
+	a.Role = role
+	a.require(agentManagementGetHistoryResponseContentsItemFieldRole)
+}
+
+// SetContent sets the Content field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetHistoryResponseContentsItem) SetContent(content *string) {
+	a.Content = content
+	a.require(agentManagementGetHistoryResponseContentsItemFieldContent)
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementGetHistoryResponseContentsItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementGetHistoryResponseContentsItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementGetHistoryResponseContentsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementGetHistoryResponseContentsItem) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// The message sender:
+// - `user`: User
+// - `assistant`: AI agent
+type AgentManagementGetHistoryResponseContentsItemRole string
+
+const (
+	AgentManagementGetHistoryResponseContentsItemRoleUser      AgentManagementGetHistoryResponseContentsItemRole = "user"
+	AgentManagementGetHistoryResponseContentsItemRoleAssistant AgentManagementGetHistoryResponseContentsItemRole = "assistant"
+)
+
+func NewAgentManagementGetHistoryResponseContentsItemRoleFromString(s string) (AgentManagementGetHistoryResponseContentsItemRole, error) {
+	switch s {
+	case "user":
+		return AgentManagementGetHistoryResponseContentsItemRoleUser, nil
+	case "assistant":
+		return AgentManagementGetHistoryResponseContentsItemRoleAssistant, nil
+	}
+	var t AgentManagementGetHistoryResponseContentsItemRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AgentManagementGetHistoryResponseContentsItemRole) Ptr() *AgentManagementGetHistoryResponseContentsItemRole {
+	return &a
+}
+
+var (
+	agentManagementGetResponseFieldMessage = big.NewInt(1 << 0)
+	agentManagementGetResponseFieldStartTs = big.NewInt(1 << 1)
+	agentManagementGetResponseFieldStopTs  = big.NewInt(1 << 2)
+	agentManagementGetResponseFieldStatus  = big.NewInt(1 << 3)
+	agentManagementGetResponseFieldAgentID = big.NewInt(1 << 4)
+)
+
+type AgentManagementGetResponse struct {
+	// Request message.
+	Message *string `json:"message,omitempty" url:"message,omitempty"`
+	// Agent creation timestamp.
+	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
+	// Agent stop timestamp.
+	StopTs *int `json:"stop_ts,omitempty" url:"stop_ts,omitempty"`
+	// Current status:
+	// - `IDLE` (0): Agent is idle.
+	// - `STARTING` (1): The agent is being started.
+	// - `RUNNING` (2): The agent is running.
+	// - `STOPPING` (3): The agent is stopping.
+	// - `STOPPED` (4): The agent has exited.
+	// - `RECOVERING` (5): The agent is recovering.
+	// - `FAILED` (6): The agent failed to execute.
+	Status *AgentManagementGetResponseStatus `json:"status,omitempty" url:"status,omitempty"`
+	// Unique id of the agent instance
+	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementGetResponse) GetMessage() *string {
+	if a == nil {
+		return nil
+	}
+	return a.Message
+}
+
+func (a *AgentManagementGetResponse) GetStartTs() *int {
+	if a == nil {
+		return nil
+	}
+	return a.StartTs
+}
+
+func (a *AgentManagementGetResponse) GetStopTs() *int {
+	if a == nil {
+		return nil
+	}
+	return a.StopTs
+}
+
+func (a *AgentManagementGetResponse) GetStatus() *AgentManagementGetResponseStatus {
+	if a == nil {
+		return nil
+	}
+	return a.Status
+}
+
+func (a *AgentManagementGetResponse) GetAgentID() *string {
+	if a == nil {
+		return nil
+	}
+	return a.AgentID
+}
+
+func (a *AgentManagementGetResponse) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementGetResponse) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetResponse) SetMessage(message *string) {
+	a.Message = message
+	a.require(agentManagementGetResponseFieldMessage)
+}
+
+// SetStartTs sets the StartTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetResponse) SetStartTs(startTs *int) {
+	a.StartTs = startTs
+	a.require(agentManagementGetResponseFieldStartTs)
+}
+
+// SetStopTs sets the StopTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetResponse) SetStopTs(stopTs *int) {
+	a.StopTs = stopTs
+	a.require(agentManagementGetResponseFieldStopTs)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetResponse) SetStatus(status *AgentManagementGetResponseStatus) {
+	a.Status = status
+	a.require(agentManagementGetResponseFieldStatus)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementGetResponse) SetAgentID(agentID *string) {
+	a.AgentID = agentID
+	a.require(agentManagementGetResponseFieldAgentID)
+}
+
+func (a *AgentManagementGetResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementGetResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementGetResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementGetResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementGetResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementGetResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// Current status:
+// - `IDLE` (0): Agent is idle.
+// - `STARTING` (1): The agent is being started.
+// - `RUNNING` (2): The agent is running.
+// - `STOPPING` (3): The agent is stopping.
+// - `STOPPED` (4): The agent has exited.
+// - `RECOVERING` (5): The agent is recovering.
+// - `FAILED` (6): The agent failed to execute.
+type AgentManagementGetResponseStatus string
+
+const (
+	AgentManagementGetResponseStatusIdle       AgentManagementGetResponseStatus = "IDLE"
+	AgentManagementGetResponseStatusStarting   AgentManagementGetResponseStatus = "STARTING"
+	AgentManagementGetResponseStatusRunning    AgentManagementGetResponseStatus = "RUNNING"
+	AgentManagementGetResponseStatusStopping   AgentManagementGetResponseStatus = "STOPPING"
+	AgentManagementGetResponseStatusStopped    AgentManagementGetResponseStatus = "STOPPED"
+	AgentManagementGetResponseStatusRecovering AgentManagementGetResponseStatus = "RECOVERING"
+	AgentManagementGetResponseStatusFailed     AgentManagementGetResponseStatus = "FAILED"
+)
+
+func NewAgentManagementGetResponseStatusFromString(s string) (AgentManagementGetResponseStatus, error) {
+	switch s {
+	case "IDLE":
+		return AgentManagementGetResponseStatusIdle, nil
+	case "STARTING":
+		return AgentManagementGetResponseStatusStarting, nil
+	case "RUNNING":
+		return AgentManagementGetResponseStatusRunning, nil
+	case "STOPPING":
+		return AgentManagementGetResponseStatusStopping, nil
+	case "STOPPED":
+		return AgentManagementGetResponseStatusStopped, nil
+	case "RECOVERING":
+		return AgentManagementGetResponseStatusRecovering, nil
+	case "FAILED":
+		return AgentManagementGetResponseStatusFailed, nil
+	}
+	var t AgentManagementGetResponseStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AgentManagementGetResponseStatus) Ptr() *AgentManagementGetResponseStatus {
+	return &a
+}
+
+var (
+	agentManagementInterruptResponseFieldAgentID = big.NewInt(1 << 0)
+	agentManagementInterruptResponseFieldChannel = big.NewInt(1 << 1)
+	agentManagementInterruptResponseFieldStartTs = big.NewInt(1 << 2)
+)
+
+type AgentManagementInterruptResponse struct {
 	// Unique id of the agent instance
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// The name of the channel
@@ -213,32 +658,32 @@ type AgentInterruptResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AgentInterruptResponse) GetAgentID() *string {
+func (a *AgentManagementInterruptResponse) GetAgentID() *string {
 	if a == nil {
 		return nil
 	}
 	return a.AgentID
 }
 
-func (a *AgentInterruptResponse) GetChannel() *string {
+func (a *AgentManagementInterruptResponse) GetChannel() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Channel
 }
 
-func (a *AgentInterruptResponse) GetStartTs() *int {
+func (a *AgentManagementInterruptResponse) GetStartTs() *int {
 	if a == nil {
 		return nil
 	}
 	return a.StartTs
 }
 
-func (a *AgentInterruptResponse) GetExtraProperties() map[string]interface{} {
+func (a *AgentManagementInterruptResponse) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AgentInterruptResponse) require(field *big.Int) {
+func (a *AgentManagementInterruptResponse) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -247,32 +692,32 @@ func (a *AgentInterruptResponse) require(field *big.Int) {
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentInterruptResponse) SetAgentID(agentID *string) {
+func (a *AgentManagementInterruptResponse) SetAgentID(agentID *string) {
 	a.AgentID = agentID
-	a.require(agentInterruptResponseFieldAgentID)
+	a.require(agentManagementInterruptResponseFieldAgentID)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentInterruptResponse) SetChannel(channel *string) {
+func (a *AgentManagementInterruptResponse) SetChannel(channel *string) {
 	a.Channel = channel
-	a.require(agentInterruptResponseFieldChannel)
+	a.require(agentManagementInterruptResponseFieldChannel)
 }
 
 // SetStartTs sets the StartTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentInterruptResponse) SetStartTs(startTs *int) {
+func (a *AgentManagementInterruptResponse) SetStartTs(startTs *int) {
 	a.StartTs = startTs
-	a.require(agentInterruptResponseFieldStartTs)
+	a.require(agentManagementInterruptResponseFieldStartTs)
 }
 
-func (a *AgentInterruptResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler AgentInterruptResponse
+func (a *AgentManagementInterruptResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementInterruptResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AgentInterruptResponse(value)
+	*a = AgentManagementInterruptResponse(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -282,8 +727,8 @@ func (a *AgentInterruptResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (a *AgentInterruptResponse) MarshalJSON() ([]byte, error) {
-	type embed AgentInterruptResponse
+func (a *AgentManagementInterruptResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementInterruptResponse
 	var marshaler = struct {
 		embed
 	}{
@@ -293,7 +738,502 @@ func (a *AgentInterruptResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AgentInterruptResponse) String() string {
+func (a *AgentManagementInterruptResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+type AgentManagementListRequestState string
+
+const (
+	AgentManagementListRequestStateZero  AgentManagementListRequestState = "0"
+	AgentManagementListRequestStateOne   AgentManagementListRequestState = "1"
+	AgentManagementListRequestStateTwo   AgentManagementListRequestState = "2"
+	AgentManagementListRequestStateThree AgentManagementListRequestState = "3"
+	AgentManagementListRequestStateFour  AgentManagementListRequestState = "4"
+	AgentManagementListRequestStateFive  AgentManagementListRequestState = "5"
+	AgentManagementListRequestStateSix   AgentManagementListRequestState = "6"
+)
+
+func NewAgentManagementListRequestStateFromString(s string) (AgentManagementListRequestState, error) {
+	switch s {
+	case "0":
+		return AgentManagementListRequestStateZero, nil
+	case "1":
+		return AgentManagementListRequestStateOne, nil
+	case "2":
+		return AgentManagementListRequestStateTwo, nil
+	case "3":
+		return AgentManagementListRequestStateThree, nil
+	case "4":
+		return AgentManagementListRequestStateFour, nil
+	case "5":
+		return AgentManagementListRequestStateFive, nil
+	case "6":
+		return AgentManagementListRequestStateSix, nil
+	}
+	var t AgentManagementListRequestState
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AgentManagementListRequestState) Ptr() *AgentManagementListRequestState {
+	return &a
+}
+
+var (
+	agentManagementListResponseFieldData   = big.NewInt(1 << 0)
+	agentManagementListResponseFieldMeta   = big.NewInt(1 << 1)
+	agentManagementListResponseFieldStatus = big.NewInt(1 << 2)
+)
+
+type AgentManagementListResponse struct {
+	// Agent data.
+	Data *AgentManagementListResponseData `json:"data,omitempty" url:"data,omitempty"`
+	// Returns meta information about the list.
+	Meta *AgentManagementListResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// Request status.
+	Status *string `json:"status,omitempty" url:"status,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementListResponse) GetData() *AgentManagementListResponseData {
+	if a == nil {
+		return nil
+	}
+	return a.Data
+}
+
+func (a *AgentManagementListResponse) GetMeta() *AgentManagementListResponseMeta {
+	if a == nil {
+		return nil
+	}
+	return a.Meta
+}
+
+func (a *AgentManagementListResponse) GetStatus() *string {
+	if a == nil {
+		return nil
+	}
+	return a.Status
+}
+
+func (a *AgentManagementListResponse) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementListResponse) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponse) SetData(data *AgentManagementListResponseData) {
+	a.Data = data
+	a.require(agentManagementListResponseFieldData)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponse) SetMeta(meta *AgentManagementListResponseMeta) {
+	a.Meta = meta
+	a.require(agentManagementListResponseFieldMeta)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponse) SetStatus(status *string) {
+	a.Status = status
+	a.require(agentManagementListResponseFieldStatus)
+}
+
+func (a *AgentManagementListResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementListResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementListResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementListResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementListResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementListResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// Agent data.
+var (
+	agentManagementListResponseDataFieldCount = big.NewInt(1 << 0)
+	agentManagementListResponseDataFieldList  = big.NewInt(1 << 1)
+)
+
+type AgentManagementListResponseData struct {
+	// The number of agents returned.
+	Count *int `json:"count,omitempty" url:"count,omitempty"`
+	// A list of agents that meets the criteria.
+	List []*AgentManagementListResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementListResponseData) GetCount() *int {
+	if a == nil {
+		return nil
+	}
+	return a.Count
+}
+
+func (a *AgentManagementListResponseData) GetList() []*AgentManagementListResponseDataListItem {
+	if a == nil {
+		return nil
+	}
+	return a.List
+}
+
+func (a *AgentManagementListResponseData) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementListResponseData) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetCount sets the Count field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseData) SetCount(count *int) {
+	a.Count = count
+	a.require(agentManagementListResponseDataFieldCount)
+}
+
+// SetList sets the List field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseData) SetList(list []*AgentManagementListResponseDataListItem) {
+	a.List = list
+	a.require(agentManagementListResponseDataFieldList)
+}
+
+func (a *AgentManagementListResponseData) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementListResponseData
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementListResponseData(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementListResponseData) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementListResponseData
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementListResponseData) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+var (
+	agentManagementListResponseDataListItemFieldStartTs = big.NewInt(1 << 0)
+	agentManagementListResponseDataListItemFieldStatus  = big.NewInt(1 << 1)
+	agentManagementListResponseDataListItemFieldAgentID = big.NewInt(1 << 2)
+)
+
+type AgentManagementListResponseDataListItem struct {
+	// Agent creation timestamp.
+	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
+	// The current state of the agent.
+	Status *AgentManagementListResponseDataListItemStatus `json:"status,omitempty" url:"status,omitempty"`
+	// The agent ID.
+	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementListResponseDataListItem) GetStartTs() *int {
+	if a == nil {
+		return nil
+	}
+	return a.StartTs
+}
+
+func (a *AgentManagementListResponseDataListItem) GetStatus() *AgentManagementListResponseDataListItemStatus {
+	if a == nil {
+		return nil
+	}
+	return a.Status
+}
+
+func (a *AgentManagementListResponseDataListItem) GetAgentID() *string {
+	if a == nil {
+		return nil
+	}
+	return a.AgentID
+}
+
+func (a *AgentManagementListResponseDataListItem) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementListResponseDataListItem) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetStartTs sets the StartTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseDataListItem) SetStartTs(startTs *int) {
+	a.StartTs = startTs
+	a.require(agentManagementListResponseDataListItemFieldStartTs)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseDataListItem) SetStatus(status *AgentManagementListResponseDataListItemStatus) {
+	a.Status = status
+	a.require(agentManagementListResponseDataListItemFieldStatus)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseDataListItem) SetAgentID(agentID *string) {
+	a.AgentID = agentID
+	a.require(agentManagementListResponseDataListItemFieldAgentID)
+}
+
+func (a *AgentManagementListResponseDataListItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementListResponseDataListItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementListResponseDataListItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementListResponseDataListItem) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementListResponseDataListItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementListResponseDataListItem) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// The current state of the agent.
+type AgentManagementListResponseDataListItemStatus string
+
+const (
+	AgentManagementListResponseDataListItemStatusIdle       AgentManagementListResponseDataListItemStatus = "IDLE"
+	AgentManagementListResponseDataListItemStatusStarting   AgentManagementListResponseDataListItemStatus = "STARTING"
+	AgentManagementListResponseDataListItemStatusRunning    AgentManagementListResponseDataListItemStatus = "RUNNING"
+	AgentManagementListResponseDataListItemStatusStopping   AgentManagementListResponseDataListItemStatus = "STOPPING"
+	AgentManagementListResponseDataListItemStatusStopped    AgentManagementListResponseDataListItemStatus = "STOPPED"
+	AgentManagementListResponseDataListItemStatusRecovering AgentManagementListResponseDataListItemStatus = "RECOVERING"
+	AgentManagementListResponseDataListItemStatusFailed     AgentManagementListResponseDataListItemStatus = "FAILED"
+)
+
+func NewAgentManagementListResponseDataListItemStatusFromString(s string) (AgentManagementListResponseDataListItemStatus, error) {
+	switch s {
+	case "IDLE":
+		return AgentManagementListResponseDataListItemStatusIdle, nil
+	case "STARTING":
+		return AgentManagementListResponseDataListItemStatusStarting, nil
+	case "RUNNING":
+		return AgentManagementListResponseDataListItemStatusRunning, nil
+	case "STOPPING":
+		return AgentManagementListResponseDataListItemStatusStopping, nil
+	case "STOPPED":
+		return AgentManagementListResponseDataListItemStatusStopped, nil
+	case "RECOVERING":
+		return AgentManagementListResponseDataListItemStatusRecovering, nil
+	case "FAILED":
+		return AgentManagementListResponseDataListItemStatusFailed, nil
+	}
+	var t AgentManagementListResponseDataListItemStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AgentManagementListResponseDataListItemStatus) Ptr() *AgentManagementListResponseDataListItemStatus {
+	return &a
+}
+
+// Returns meta information about the list.
+var (
+	agentManagementListResponseMetaFieldCursor = big.NewInt(1 << 0)
+	agentManagementListResponseMetaFieldTotal  = big.NewInt(1 << 1)
+)
+
+type AgentManagementListResponseMeta struct {
+	// Paging cursor.
+	Cursor *string `json:"cursor,omitempty" url:"cursor,omitempty"`
+	// The total number of agents that meet the query conditions.
+	Total *int `json:"total,omitempty" url:"total,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AgentManagementListResponseMeta) GetCursor() *string {
+	if a == nil {
+		return nil
+	}
+	return a.Cursor
+}
+
+func (a *AgentManagementListResponseMeta) GetTotal() *int {
+	if a == nil {
+		return nil
+	}
+	return a.Total
+}
+
+func (a *AgentManagementListResponseMeta) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AgentManagementListResponseMeta) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetCursor sets the Cursor field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseMeta) SetCursor(cursor *string) {
+	a.Cursor = cursor
+	a.require(agentManagementListResponseMetaFieldCursor)
+}
+
+// SetTotal sets the Total field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AgentManagementListResponseMeta) SetTotal(total *int) {
+	a.Total = total
+	a.require(agentManagementListResponseMetaFieldTotal)
+}
+
+func (a *AgentManagementListResponseMeta) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementListResponseMeta
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AgentManagementListResponseMeta(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AgentManagementListResponseMeta) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementListResponseMeta
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AgentManagementListResponseMeta) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -309,38 +1249,38 @@ func (a *AgentInterruptResponse) String() string {
 // - `INTERRUPT`: High priority. The agent immediately interrupts the current interaction to announce the message.
 // - `APPEND`: Medium priority. The agent announces the message after the current interaction ends.
 // - `IGNORE`: Low priority. If the agent is busy interacting, it ignores and discards the broadcast; the message is only announced if the agent is not interacting.
-type AgentSpeakRequestPriority string
+type AgentManagementSpeakRequestPriority string
 
 const (
-	AgentSpeakRequestPriorityInterrupt AgentSpeakRequestPriority = "INTERRUPT"
-	AgentSpeakRequestPriorityAppend    AgentSpeakRequestPriority = "APPEND"
-	AgentSpeakRequestPriorityIgnore    AgentSpeakRequestPriority = "IGNORE"
+	AgentManagementSpeakRequestPriorityInterrupt AgentManagementSpeakRequestPriority = "INTERRUPT"
+	AgentManagementSpeakRequestPriorityAppend    AgentManagementSpeakRequestPriority = "APPEND"
+	AgentManagementSpeakRequestPriorityIgnore    AgentManagementSpeakRequestPriority = "IGNORE"
 )
 
-func NewAgentSpeakRequestPriorityFromString(s string) (AgentSpeakRequestPriority, error) {
+func NewAgentManagementSpeakRequestPriorityFromString(s string) (AgentManagementSpeakRequestPriority, error) {
 	switch s {
 	case "INTERRUPT":
-		return AgentSpeakRequestPriorityInterrupt, nil
+		return AgentManagementSpeakRequestPriorityInterrupt, nil
 	case "APPEND":
-		return AgentSpeakRequestPriorityAppend, nil
+		return AgentManagementSpeakRequestPriorityAppend, nil
 	case "IGNORE":
-		return AgentSpeakRequestPriorityIgnore, nil
+		return AgentManagementSpeakRequestPriorityIgnore, nil
 	}
-	var t AgentSpeakRequestPriority
+	var t AgentManagementSpeakRequestPriority
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (a AgentSpeakRequestPriority) Ptr() *AgentSpeakRequestPriority {
+func (a AgentManagementSpeakRequestPriority) Ptr() *AgentManagementSpeakRequestPriority {
 	return &a
 }
 
 var (
-	agentSpeakResponseFieldAgentID = big.NewInt(1 << 0)
-	agentSpeakResponseFieldChannel = big.NewInt(1 << 1)
-	agentSpeakResponseFieldStartTs = big.NewInt(1 << 2)
+	agentManagementSpeakResponseFieldAgentID = big.NewInt(1 << 0)
+	agentManagementSpeakResponseFieldChannel = big.NewInt(1 << 1)
+	agentManagementSpeakResponseFieldStartTs = big.NewInt(1 << 2)
 )
 
-type AgentSpeakResponse struct {
+type AgentManagementSpeakResponse struct {
 	// Unique id of the agent instance
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// The name of the channel
@@ -355,32 +1295,32 @@ type AgentSpeakResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AgentSpeakResponse) GetAgentID() *string {
+func (a *AgentManagementSpeakResponse) GetAgentID() *string {
 	if a == nil {
 		return nil
 	}
 	return a.AgentID
 }
 
-func (a *AgentSpeakResponse) GetChannel() *string {
+func (a *AgentManagementSpeakResponse) GetChannel() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Channel
 }
 
-func (a *AgentSpeakResponse) GetStartTs() *int {
+func (a *AgentManagementSpeakResponse) GetStartTs() *int {
 	if a == nil {
 		return nil
 	}
 	return a.StartTs
 }
 
-func (a *AgentSpeakResponse) GetExtraProperties() map[string]interface{} {
+func (a *AgentManagementSpeakResponse) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AgentSpeakResponse) require(field *big.Int) {
+func (a *AgentManagementSpeakResponse) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -389,32 +1329,32 @@ func (a *AgentSpeakResponse) require(field *big.Int) {
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakResponse) SetAgentID(agentID *string) {
+func (a *AgentManagementSpeakResponse) SetAgentID(agentID *string) {
 	a.AgentID = agentID
-	a.require(agentSpeakResponseFieldAgentID)
+	a.require(agentManagementSpeakResponseFieldAgentID)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakResponse) SetChannel(channel *string) {
+func (a *AgentManagementSpeakResponse) SetChannel(channel *string) {
 	a.Channel = channel
-	a.require(agentSpeakResponseFieldChannel)
+	a.require(agentManagementSpeakResponseFieldChannel)
 }
 
 // SetStartTs sets the StartTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AgentSpeakResponse) SetStartTs(startTs *int) {
+func (a *AgentManagementSpeakResponse) SetStartTs(startTs *int) {
 	a.StartTs = startTs
-	a.require(agentSpeakResponseFieldStartTs)
+	a.require(agentManagementSpeakResponseFieldStartTs)
 }
 
-func (a *AgentSpeakResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler AgentSpeakResponse
+func (a *AgentManagementSpeakResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementSpeakResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AgentSpeakResponse(value)
+	*a = AgentManagementSpeakResponse(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -424,8 +1364,8 @@ func (a *AgentSpeakResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (a *AgentSpeakResponse) MarshalJSON() ([]byte, error) {
-	type embed AgentSpeakResponse
+func (a *AgentManagementSpeakResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementSpeakResponse
 	var marshaler = struct {
 		embed
 	}{
@@ -435,7 +1375,7 @@ func (a *AgentSpeakResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AgentSpeakResponse) String() string {
+func (a *AgentManagementSpeakResponse) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -447,966 +1387,26 @@ func (a *AgentSpeakResponse) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
-var (
-	getAgentHistoryResponseFieldAgentID  = big.NewInt(1 << 0)
-	getAgentHistoryResponseFieldStartTs  = big.NewInt(1 << 1)
-	getAgentHistoryResponseFieldStatus   = big.NewInt(1 << 2)
-	getAgentHistoryResponseFieldContents = big.NewInt(1 << 3)
-)
-
-type GetAgentHistoryResponse struct {
-	// Unique identifier of the agent.
-	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
-	// Agent creation timestamp.
-	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
-	// Agent status. Only supports querying the running agent.
-	Status *string `json:"status,omitempty" url:"status,omitempty"`
-	// Agent history.
-	Contents []*GetAgentHistoryResponseContentsItem `json:"contents,omitempty" url:"contents,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GetAgentHistoryResponse) GetAgentID() *string {
-	if g == nil {
-		return nil
-	}
-	return g.AgentID
-}
-
-func (g *GetAgentHistoryResponse) GetStartTs() *int {
-	if g == nil {
-		return nil
-	}
-	return g.StartTs
-}
-
-func (g *GetAgentHistoryResponse) GetContents() []*GetAgentHistoryResponseContentsItem {
-	if g == nil {
-		return nil
-	}
-	return g.Contents
-}
-
-func (g *GetAgentHistoryResponse) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GetAgentHistoryResponse) require(field *big.Int) {
-	if g.explicitFields == nil {
-		g.explicitFields = big.NewInt(0)
-	}
-	g.explicitFields.Or(g.explicitFields, field)
-}
-
-// SetAgentID sets the AgentID field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponse) SetAgentID(agentID *string) {
-	g.AgentID = agentID
-	g.require(getAgentHistoryResponseFieldAgentID)
-}
-
-// SetStartTs sets the StartTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponse) SetStartTs(startTs *int) {
-	g.StartTs = startTs
-	g.require(getAgentHistoryResponseFieldStartTs)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponse) SetStatus(status *string) {
-	g.Status = status
-	g.require(getAgentHistoryResponseFieldStatus)
-}
-
-// SetContents sets the Contents field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponse) SetContents(contents []*GetAgentHistoryResponseContentsItem) {
-	g.Contents = contents
-	g.require(getAgentHistoryResponseFieldContents)
-}
-
-func (g *GetAgentHistoryResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetAgentHistoryResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GetAgentHistoryResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GetAgentHistoryResponse) MarshalJSON() ([]byte, error) {
-	type embed GetAgentHistoryResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*g),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (g *GetAgentHistoryResponse) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-var (
-	getAgentHistoryResponseContentsItemFieldRole    = big.NewInt(1 << 0)
-	getAgentHistoryResponseContentsItemFieldContent = big.NewInt(1 << 1)
-)
-
-type GetAgentHistoryResponseContentsItem struct {
-	// The message sender:
-	// - `user`: User
-	// - `assistant`: AI agent
-	Role *GetAgentHistoryResponseContentsItemRole `json:"role,omitempty" url:"role,omitempty"`
-	// Message content.
-	Content *string `json:"content,omitempty" url:"content,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GetAgentHistoryResponseContentsItem) GetRole() *GetAgentHistoryResponseContentsItemRole {
-	if g == nil {
-		return nil
-	}
-	return g.Role
-}
-
-func (g *GetAgentHistoryResponseContentsItem) GetContent() *string {
-	if g == nil {
-		return nil
-	}
-	return g.Content
-}
-
-func (g *GetAgentHistoryResponseContentsItem) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GetAgentHistoryResponseContentsItem) require(field *big.Int) {
-	if g.explicitFields == nil {
-		g.explicitFields = big.NewInt(0)
-	}
-	g.explicitFields.Or(g.explicitFields, field)
-}
-
-// SetRole sets the Role field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponseContentsItem) SetRole(role *GetAgentHistoryResponseContentsItemRole) {
-	g.Role = role
-	g.require(getAgentHistoryResponseContentsItemFieldRole)
-}
-
-// SetContent sets the Content field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetAgentHistoryResponseContentsItem) SetContent(content *string) {
-	g.Content = content
-	g.require(getAgentHistoryResponseContentsItemFieldContent)
-}
-
-func (g *GetAgentHistoryResponseContentsItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetAgentHistoryResponseContentsItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GetAgentHistoryResponseContentsItem(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GetAgentHistoryResponseContentsItem) MarshalJSON() ([]byte, error) {
-	type embed GetAgentHistoryResponseContentsItem
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*g),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (g *GetAgentHistoryResponseContentsItem) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-// The message sender:
-// - `user`: User
-// - `assistant`: AI agent
-type GetAgentHistoryResponseContentsItemRole string
-
-const (
-	GetAgentHistoryResponseContentsItemRoleUser      GetAgentHistoryResponseContentsItemRole = "user"
-	GetAgentHistoryResponseContentsItemRoleAssistant GetAgentHistoryResponseContentsItemRole = "assistant"
-)
-
-func NewGetAgentHistoryResponseContentsItemRoleFromString(s string) (GetAgentHistoryResponseContentsItemRole, error) {
-	switch s {
-	case "user":
-		return GetAgentHistoryResponseContentsItemRoleUser, nil
-	case "assistant":
-		return GetAgentHistoryResponseContentsItemRoleAssistant, nil
-	}
-	var t GetAgentHistoryResponseContentsItemRole
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (g GetAgentHistoryResponseContentsItemRole) Ptr() *GetAgentHistoryResponseContentsItemRole {
-	return &g
-}
-
-type ListAgentsRequestState string
-
-const (
-	ListAgentsRequestStateZero  ListAgentsRequestState = "0"
-	ListAgentsRequestStateOne   ListAgentsRequestState = "1"
-	ListAgentsRequestStateTwo   ListAgentsRequestState = "2"
-	ListAgentsRequestStateThree ListAgentsRequestState = "3"
-	ListAgentsRequestStateFour  ListAgentsRequestState = "4"
-	ListAgentsRequestStateFive  ListAgentsRequestState = "5"
-	ListAgentsRequestStateSix   ListAgentsRequestState = "6"
-)
-
-func NewListAgentsRequestStateFromString(s string) (ListAgentsRequestState, error) {
-	switch s {
-	case "0":
-		return ListAgentsRequestStateZero, nil
-	case "1":
-		return ListAgentsRequestStateOne, nil
-	case "2":
-		return ListAgentsRequestStateTwo, nil
-	case "3":
-		return ListAgentsRequestStateThree, nil
-	case "4":
-		return ListAgentsRequestStateFour, nil
-	case "5":
-		return ListAgentsRequestStateFive, nil
-	case "6":
-		return ListAgentsRequestStateSix, nil
-	}
-	var t ListAgentsRequestState
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (l ListAgentsRequestState) Ptr() *ListAgentsRequestState {
-	return &l
-}
-
-var (
-	listAgentsResponseFieldData   = big.NewInt(1 << 0)
-	listAgentsResponseFieldMeta   = big.NewInt(1 << 1)
-	listAgentsResponseFieldStatus = big.NewInt(1 << 2)
-)
-
-type ListAgentsResponse struct {
-	// Agent data.
-	Data *ListAgentsResponseData `json:"data,omitempty" url:"data,omitempty"`
-	// Returns meta information about the list.
-	Meta *ListAgentsResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
-	// Request status.
-	Status *string `json:"status,omitempty" url:"status,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (l *ListAgentsResponse) GetData() *ListAgentsResponseData {
-	if l == nil {
-		return nil
-	}
-	return l.Data
-}
-
-func (l *ListAgentsResponse) GetMeta() *ListAgentsResponseMeta {
-	if l == nil {
-		return nil
-	}
-	return l.Meta
-}
-
-func (l *ListAgentsResponse) GetStatus() *string {
-	if l == nil {
-		return nil
-	}
-	return l.Status
-}
-
-func (l *ListAgentsResponse) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListAgentsResponse) require(field *big.Int) {
-	if l.explicitFields == nil {
-		l.explicitFields = big.NewInt(0)
-	}
-	l.explicitFields.Or(l.explicitFields, field)
-}
-
-// SetData sets the Data field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponse) SetData(data *ListAgentsResponseData) {
-	l.Data = data
-	l.require(listAgentsResponseFieldData)
-}
-
-// SetMeta sets the Meta field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponse) SetMeta(meta *ListAgentsResponseMeta) {
-	l.Meta = meta
-	l.require(listAgentsResponseFieldMeta)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponse) SetStatus(status *string) {
-	l.Status = status
-	l.require(listAgentsResponseFieldStatus)
-}
-
-func (l *ListAgentsResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListAgentsResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListAgentsResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-	l.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListAgentsResponse) MarshalJSON() ([]byte, error) {
-	type embed ListAgentsResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*l),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (l *ListAgentsResponse) String() string {
-	if len(l.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-// Agent data.
-var (
-	listAgentsResponseDataFieldCount = big.NewInt(1 << 0)
-	listAgentsResponseDataFieldList  = big.NewInt(1 << 1)
-)
-
-type ListAgentsResponseData struct {
-	// The number of agents returned.
-	Count *int `json:"count,omitempty" url:"count,omitempty"`
-	// A list of agents that meets the criteria.
-	List []*ListAgentsResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (l *ListAgentsResponseData) GetCount() *int {
-	if l == nil {
-		return nil
-	}
-	return l.Count
-}
-
-func (l *ListAgentsResponseData) GetList() []*ListAgentsResponseDataListItem {
-	if l == nil {
-		return nil
-	}
-	return l.List
-}
-
-func (l *ListAgentsResponseData) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListAgentsResponseData) require(field *big.Int) {
-	if l.explicitFields == nil {
-		l.explicitFields = big.NewInt(0)
-	}
-	l.explicitFields.Or(l.explicitFields, field)
-}
-
-// SetCount sets the Count field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseData) SetCount(count *int) {
-	l.Count = count
-	l.require(listAgentsResponseDataFieldCount)
-}
-
-// SetList sets the List field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseData) SetList(list []*ListAgentsResponseDataListItem) {
-	l.List = list
-	l.require(listAgentsResponseDataFieldList)
-}
-
-func (l *ListAgentsResponseData) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListAgentsResponseData
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListAgentsResponseData(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-	l.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListAgentsResponseData) MarshalJSON() ([]byte, error) {
-	type embed ListAgentsResponseData
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*l),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (l *ListAgentsResponseData) String() string {
-	if len(l.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-var (
-	listAgentsResponseDataListItemFieldStartTs = big.NewInt(1 << 0)
-	listAgentsResponseDataListItemFieldStatus  = big.NewInt(1 << 1)
-	listAgentsResponseDataListItemFieldAgentID = big.NewInt(1 << 2)
-)
-
-type ListAgentsResponseDataListItem struct {
-	// Agent creation timestamp.
-	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
-	// The current state of the agent.
-	Status *ListAgentsResponseDataListItemStatus `json:"status,omitempty" url:"status,omitempty"`
-	// The agent ID.
-	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (l *ListAgentsResponseDataListItem) GetStartTs() *int {
-	if l == nil {
-		return nil
-	}
-	return l.StartTs
-}
-
-func (l *ListAgentsResponseDataListItem) GetStatus() *ListAgentsResponseDataListItemStatus {
-	if l == nil {
-		return nil
-	}
-	return l.Status
-}
-
-func (l *ListAgentsResponseDataListItem) GetAgentID() *string {
-	if l == nil {
-		return nil
-	}
-	return l.AgentID
-}
-
-func (l *ListAgentsResponseDataListItem) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListAgentsResponseDataListItem) require(field *big.Int) {
-	if l.explicitFields == nil {
-		l.explicitFields = big.NewInt(0)
-	}
-	l.explicitFields.Or(l.explicitFields, field)
-}
-
-// SetStartTs sets the StartTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseDataListItem) SetStartTs(startTs *int) {
-	l.StartTs = startTs
-	l.require(listAgentsResponseDataListItemFieldStartTs)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseDataListItem) SetStatus(status *ListAgentsResponseDataListItemStatus) {
-	l.Status = status
-	l.require(listAgentsResponseDataListItemFieldStatus)
-}
-
-// SetAgentID sets the AgentID field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseDataListItem) SetAgentID(agentID *string) {
-	l.AgentID = agentID
-	l.require(listAgentsResponseDataListItemFieldAgentID)
-}
-
-func (l *ListAgentsResponseDataListItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListAgentsResponseDataListItem
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListAgentsResponseDataListItem(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-	l.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListAgentsResponseDataListItem) MarshalJSON() ([]byte, error) {
-	type embed ListAgentsResponseDataListItem
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*l),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (l *ListAgentsResponseDataListItem) String() string {
-	if len(l.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-// The current state of the agent.
-type ListAgentsResponseDataListItemStatus string
-
-const (
-	ListAgentsResponseDataListItemStatusIdle       ListAgentsResponseDataListItemStatus = "IDLE"
-	ListAgentsResponseDataListItemStatusStarting   ListAgentsResponseDataListItemStatus = "STARTING"
-	ListAgentsResponseDataListItemStatusRunning    ListAgentsResponseDataListItemStatus = "RUNNING"
-	ListAgentsResponseDataListItemStatusStopping   ListAgentsResponseDataListItemStatus = "STOPPING"
-	ListAgentsResponseDataListItemStatusStopped    ListAgentsResponseDataListItemStatus = "STOPPED"
-	ListAgentsResponseDataListItemStatusRecovering ListAgentsResponseDataListItemStatus = "RECOVERING"
-	ListAgentsResponseDataListItemStatusFailed     ListAgentsResponseDataListItemStatus = "FAILED"
-)
-
-func NewListAgentsResponseDataListItemStatusFromString(s string) (ListAgentsResponseDataListItemStatus, error) {
-	switch s {
-	case "IDLE":
-		return ListAgentsResponseDataListItemStatusIdle, nil
-	case "STARTING":
-		return ListAgentsResponseDataListItemStatusStarting, nil
-	case "RUNNING":
-		return ListAgentsResponseDataListItemStatusRunning, nil
-	case "STOPPING":
-		return ListAgentsResponseDataListItemStatusStopping, nil
-	case "STOPPED":
-		return ListAgentsResponseDataListItemStatusStopped, nil
-	case "RECOVERING":
-		return ListAgentsResponseDataListItemStatusRecovering, nil
-	case "FAILED":
-		return ListAgentsResponseDataListItemStatusFailed, nil
-	}
-	var t ListAgentsResponseDataListItemStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (l ListAgentsResponseDataListItemStatus) Ptr() *ListAgentsResponseDataListItemStatus {
-	return &l
-}
-
-// Returns meta information about the list.
-var (
-	listAgentsResponseMetaFieldCursor = big.NewInt(1 << 0)
-	listAgentsResponseMetaFieldTotal  = big.NewInt(1 << 1)
-)
-
-type ListAgentsResponseMeta struct {
-	// Paging cursor.
-	Cursor *string `json:"cursor,omitempty" url:"cursor,omitempty"`
-	// The total number of agents that meet the query conditions.
-	Total *int `json:"total,omitempty" url:"total,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (l *ListAgentsResponseMeta) GetCursor() *string {
-	if l == nil {
-		return nil
-	}
-	return l.Cursor
-}
-
-func (l *ListAgentsResponseMeta) GetTotal() *int {
-	if l == nil {
-		return nil
-	}
-	return l.Total
-}
-
-func (l *ListAgentsResponseMeta) GetExtraProperties() map[string]interface{} {
-	return l.extraProperties
-}
-
-func (l *ListAgentsResponseMeta) require(field *big.Int) {
-	if l.explicitFields == nil {
-		l.explicitFields = big.NewInt(0)
-	}
-	l.explicitFields.Or(l.explicitFields, field)
-}
-
-// SetCursor sets the Cursor field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseMeta) SetCursor(cursor *string) {
-	l.Cursor = cursor
-	l.require(listAgentsResponseMetaFieldCursor)
-}
-
-// SetTotal sets the Total field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListAgentsResponseMeta) SetTotal(total *int) {
-	l.Total = total
-	l.require(listAgentsResponseMetaFieldTotal)
-}
-
-func (l *ListAgentsResponseMeta) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListAgentsResponseMeta
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*l = ListAgentsResponseMeta(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *l)
-	if err != nil {
-		return err
-	}
-	l.extraProperties = extraProperties
-	l.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (l *ListAgentsResponseMeta) MarshalJSON() ([]byte, error) {
-	type embed ListAgentsResponseMeta
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*l),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (l *ListAgentsResponseMeta) String() string {
-	if len(l.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(l); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", l)
-}
-
-var (
-	queryAgentStatusResponseFieldMessage = big.NewInt(1 << 0)
-	queryAgentStatusResponseFieldStartTs = big.NewInt(1 << 1)
-	queryAgentStatusResponseFieldStopTs  = big.NewInt(1 << 2)
-	queryAgentStatusResponseFieldStatus  = big.NewInt(1 << 3)
-	queryAgentStatusResponseFieldAgentID = big.NewInt(1 << 4)
-)
-
-type QueryAgentStatusResponse struct {
-	// Request message.
-	Message *string `json:"message,omitempty" url:"message,omitempty"`
-	// Agent creation timestamp.
-	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
-	// Agent stop timestamp.
-	StopTs *int `json:"stop_ts,omitempty" url:"stop_ts,omitempty"`
-	// Current status:
-	// - `IDLE` (0): Agent is idle.
-	// - `STARTING` (1): The agent is being started.
-	// - `RUNNING` (2): The agent is running.
-	// - `STOPPING` (3): The agent is stopping.
-	// - `STOPPED` (4): The agent has exited.
-	// - `RECOVERING` (5): The agent is recovering.
-	// - `FAILED` (6): The agent failed to execute.
-	Status *QueryAgentStatusResponseStatus `json:"status,omitempty" url:"status,omitempty"`
-	// Unique id of the agent instance
-	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (q *QueryAgentStatusResponse) GetMessage() *string {
-	if q == nil {
-		return nil
-	}
-	return q.Message
-}
-
-func (q *QueryAgentStatusResponse) GetStartTs() *int {
-	if q == nil {
-		return nil
-	}
-	return q.StartTs
-}
-
-func (q *QueryAgentStatusResponse) GetStopTs() *int {
-	if q == nil {
-		return nil
-	}
-	return q.StopTs
-}
-
-func (q *QueryAgentStatusResponse) GetStatus() *QueryAgentStatusResponseStatus {
-	if q == nil {
-		return nil
-	}
-	return q.Status
-}
-
-func (q *QueryAgentStatusResponse) GetAgentID() *string {
-	if q == nil {
-		return nil
-	}
-	return q.AgentID
-}
-
-func (q *QueryAgentStatusResponse) GetExtraProperties() map[string]interface{} {
-	return q.extraProperties
-}
-
-func (q *QueryAgentStatusResponse) require(field *big.Int) {
-	if q.explicitFields == nil {
-		q.explicitFields = big.NewInt(0)
-	}
-	q.explicitFields.Or(q.explicitFields, field)
-}
-
-// SetMessage sets the Message field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (q *QueryAgentStatusResponse) SetMessage(message *string) {
-	q.Message = message
-	q.require(queryAgentStatusResponseFieldMessage)
-}
-
-// SetStartTs sets the StartTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (q *QueryAgentStatusResponse) SetStartTs(startTs *int) {
-	q.StartTs = startTs
-	q.require(queryAgentStatusResponseFieldStartTs)
-}
-
-// SetStopTs sets the StopTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (q *QueryAgentStatusResponse) SetStopTs(stopTs *int) {
-	q.StopTs = stopTs
-	q.require(queryAgentStatusResponseFieldStopTs)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (q *QueryAgentStatusResponse) SetStatus(status *QueryAgentStatusResponseStatus) {
-	q.Status = status
-	q.require(queryAgentStatusResponseFieldStatus)
-}
-
-// SetAgentID sets the AgentID field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (q *QueryAgentStatusResponse) SetAgentID(agentID *string) {
-	q.AgentID = agentID
-	q.require(queryAgentStatusResponseFieldAgentID)
-}
-
-func (q *QueryAgentStatusResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler QueryAgentStatusResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*q = QueryAgentStatusResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *q)
-	if err != nil {
-		return err
-	}
-	q.extraProperties = extraProperties
-	q.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (q *QueryAgentStatusResponse) MarshalJSON() ([]byte, error) {
-	type embed QueryAgentStatusResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*q),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, q.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (q *QueryAgentStatusResponse) String() string {
-	if len(q.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(q.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(q); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", q)
-}
-
-// Current status:
-// - `IDLE` (0): Agent is idle.
-// - `STARTING` (1): The agent is being started.
-// - `RUNNING` (2): The agent is running.
-// - `STOPPING` (3): The agent is stopping.
-// - `STOPPED` (4): The agent has exited.
-// - `RECOVERING` (5): The agent is recovering.
-// - `FAILED` (6): The agent failed to execute.
-type QueryAgentStatusResponseStatus string
-
-const (
-	QueryAgentStatusResponseStatusIdle       QueryAgentStatusResponseStatus = "IDLE"
-	QueryAgentStatusResponseStatusStarting   QueryAgentStatusResponseStatus = "STARTING"
-	QueryAgentStatusResponseStatusRunning    QueryAgentStatusResponseStatus = "RUNNING"
-	QueryAgentStatusResponseStatusStopping   QueryAgentStatusResponseStatus = "STOPPING"
-	QueryAgentStatusResponseStatusStopped    QueryAgentStatusResponseStatus = "STOPPED"
-	QueryAgentStatusResponseStatusRecovering QueryAgentStatusResponseStatus = "RECOVERING"
-	QueryAgentStatusResponseStatusFailed     QueryAgentStatusResponseStatus = "FAILED"
-)
-
-func NewQueryAgentStatusResponseStatusFromString(s string) (QueryAgentStatusResponseStatus, error) {
-	switch s {
-	case "IDLE":
-		return QueryAgentStatusResponseStatusIdle, nil
-	case "STARTING":
-		return QueryAgentStatusResponseStatusStarting, nil
-	case "RUNNING":
-		return QueryAgentStatusResponseStatusRunning, nil
-	case "STOPPING":
-		return QueryAgentStatusResponseStatusStopping, nil
-	case "STOPPED":
-		return QueryAgentStatusResponseStatusStopped, nil
-	case "RECOVERING":
-		return QueryAgentStatusResponseStatusRecovering, nil
-	case "FAILED":
-		return QueryAgentStatusResponseStatusFailed, nil
-	}
-	var t QueryAgentStatusResponseStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (q QueryAgentStatusResponseStatus) Ptr() *QueryAgentStatusResponseStatus {
-	return &q
-}
-
 // Configuration details of the agent.
 var (
-	startAgentRequestPropertiesFieldChannel          = big.NewInt(1 << 0)
-	startAgentRequestPropertiesFieldToken            = big.NewInt(1 << 1)
-	startAgentRequestPropertiesFieldAgentRtcUID      = big.NewInt(1 << 2)
-	startAgentRequestPropertiesFieldRemoteRtcUIDs    = big.NewInt(1 << 3)
-	startAgentRequestPropertiesFieldEnableStringUID  = big.NewInt(1 << 4)
-	startAgentRequestPropertiesFieldIdleTimeout      = big.NewInt(1 << 5)
-	startAgentRequestPropertiesFieldAdvancedFeatures = big.NewInt(1 << 6)
-	startAgentRequestPropertiesFieldAsr              = big.NewInt(1 << 7)
-	startAgentRequestPropertiesFieldTts              = big.NewInt(1 << 8)
-	startAgentRequestPropertiesFieldLlm              = big.NewInt(1 << 9)
-	startAgentRequestPropertiesFieldMllm             = big.NewInt(1 << 10)
-	startAgentRequestPropertiesFieldAvatar           = big.NewInt(1 << 11)
-	startAgentRequestPropertiesFieldTurnDetection    = big.NewInt(1 << 12)
-	startAgentRequestPropertiesFieldSal              = big.NewInt(1 << 13)
-	startAgentRequestPropertiesFieldParameters       = big.NewInt(1 << 14)
+	agentManagementStartRequestPropertiesFieldChannel          = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesFieldToken            = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesFieldAgentRtcUID      = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesFieldRemoteRtcUIDs    = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesFieldEnableStringUID  = big.NewInt(1 << 4)
+	agentManagementStartRequestPropertiesFieldIdleTimeout      = big.NewInt(1 << 5)
+	agentManagementStartRequestPropertiesFieldAdvancedFeatures = big.NewInt(1 << 6)
+	agentManagementStartRequestPropertiesFieldAsr              = big.NewInt(1 << 7)
+	agentManagementStartRequestPropertiesFieldTts              = big.NewInt(1 << 8)
+	agentManagementStartRequestPropertiesFieldLlm              = big.NewInt(1 << 9)
+	agentManagementStartRequestPropertiesFieldMllm             = big.NewInt(1 << 10)
+	agentManagementStartRequestPropertiesFieldAvatar           = big.NewInt(1 << 11)
+	agentManagementStartRequestPropertiesFieldTurnDetection    = big.NewInt(1 << 12)
+	agentManagementStartRequestPropertiesFieldSal              = big.NewInt(1 << 13)
+	agentManagementStartRequestPropertiesFieldParameters       = big.NewInt(1 << 14)
 )
 
-type StartAgentRequestProperties struct {
+type AgentManagementStartRequestProperties struct {
 	// The name of the channel to join.
 	Channel string `json:"channel" url:"channel"`
 	// The authentication token used by the agent to join the channel.
@@ -1422,23 +1422,23 @@ type StartAgentRequestProperties struct {
 	// Sets the timeout after all the users specified in `remote_rtc_uids` are detected to have left the channel. When the timeout value is exceeded, the agent automatically stops and exits the channel. A value of `0` means that the agent does not exit until it is stopped manually.
 	IdleTimeout *int `json:"idle_timeout,omitempty" url:"idle_timeout,omitempty"`
 	// Advanced features configuration.
-	AdvancedFeatures *StartAgentRequestPropertiesAdvancedFeatures `json:"advanced_features,omitempty" url:"advanced_features,omitempty"`
+	AdvancedFeatures *AgentManagementStartRequestPropertiesAdvancedFeatures `json:"advanced_features,omitempty" url:"advanced_features,omitempty"`
 	// Automatic Speech Recognition (ASR) configuration.
-	Asr *StartAgentRequestPropertiesAsr `json:"asr,omitempty" url:"asr,omitempty"`
+	Asr *AgentManagementStartRequestPropertiesAsr `json:"asr,omitempty" url:"asr,omitempty"`
 	// Text-to-speech (TTS) module configuration.
-	Tts *StartAgentRequestPropertiesTts `json:"tts" url:"tts"`
+	Tts *AgentManagementStartRequestPropertiesTts `json:"tts" url:"tts"`
 	// Large language model (LLM) configuration.
-	Llm *StartAgentRequestPropertiesLlm `json:"llm" url:"llm"`
+	Llm *AgentManagementStartRequestPropertiesLlm `json:"llm" url:"llm"`
 	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
-	Mllm *StartAgentRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
+	Mllm *AgentManagementStartRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
 	// Avatar configuration.
-	Avatar *StartAgentRequestPropertiesAvatar `json:"avatar,omitempty" url:"avatar,omitempty"`
+	Avatar *AgentManagementStartRequestPropertiesAvatar `json:"avatar,omitempty" url:"avatar,omitempty"`
 	// Conversation turn detection settings.
-	TurnDetection *StartAgentRequestPropertiesTurnDetection `json:"turn_detection,omitempty" url:"turn_detection,omitempty"`
+	TurnDetection *AgentManagementStartRequestPropertiesTurnDetection `json:"turn_detection,omitempty" url:"turn_detection,omitempty"`
 	// Selective Attention Locking (SAL) configuration.
-	Sal *StartAgentRequestPropertiesSal `json:"sal,omitempty" url:"sal,omitempty"`
+	Sal *AgentManagementStartRequestPropertiesSal `json:"sal,omitempty" url:"sal,omitempty"`
 	// Agent configuration parameters.
-	Parameters *StartAgentRequestPropertiesParameters `json:"parameters,omitempty" url:"parameters,omitempty"`
+	Parameters *AgentManagementStartRequestPropertiesParameters `json:"parameters,omitempty" url:"parameters,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1447,275 +1447,275 @@ type StartAgentRequestProperties struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestProperties) GetChannel() string {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetChannel() string {
+	if a == nil {
 		return ""
 	}
-	return s.Channel
+	return a.Channel
 }
 
-func (s *StartAgentRequestProperties) GetToken() string {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetToken() string {
+	if a == nil {
 		return ""
 	}
-	return s.Token
+	return a.Token
 }
 
-func (s *StartAgentRequestProperties) GetAgentRtcUID() string {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetAgentRtcUID() string {
+	if a == nil {
 		return ""
 	}
-	return s.AgentRtcUID
+	return a.AgentRtcUID
 }
 
-func (s *StartAgentRequestProperties) GetRemoteRtcUIDs() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetRemoteRtcUIDs() []string {
+	if a == nil {
 		return nil
 	}
-	return s.RemoteRtcUIDs
+	return a.RemoteRtcUIDs
 }
 
-func (s *StartAgentRequestProperties) GetEnableStringUID() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetEnableStringUID() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableStringUID
+	return a.EnableStringUID
 }
 
-func (s *StartAgentRequestProperties) GetIdleTimeout() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetIdleTimeout() *int {
+	if a == nil {
 		return nil
 	}
-	return s.IdleTimeout
+	return a.IdleTimeout
 }
 
-func (s *StartAgentRequestProperties) GetAdvancedFeatures() *StartAgentRequestPropertiesAdvancedFeatures {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetAdvancedFeatures() *AgentManagementStartRequestPropertiesAdvancedFeatures {
+	if a == nil {
 		return nil
 	}
-	return s.AdvancedFeatures
+	return a.AdvancedFeatures
 }
 
-func (s *StartAgentRequestProperties) GetAsr() *StartAgentRequestPropertiesAsr {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetAsr() *AgentManagementStartRequestPropertiesAsr {
+	if a == nil {
 		return nil
 	}
-	return s.Asr
+	return a.Asr
 }
 
-func (s *StartAgentRequestProperties) GetTts() *StartAgentRequestPropertiesTts {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetTts() *AgentManagementStartRequestPropertiesTts {
+	if a == nil {
 		return nil
 	}
-	return s.Tts
+	return a.Tts
 }
 
-func (s *StartAgentRequestProperties) GetLlm() *StartAgentRequestPropertiesLlm {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetLlm() *AgentManagementStartRequestPropertiesLlm {
+	if a == nil {
 		return nil
 	}
-	return s.Llm
+	return a.Llm
 }
 
-func (s *StartAgentRequestProperties) GetMllm() *StartAgentRequestPropertiesMllm {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetMllm() *AgentManagementStartRequestPropertiesMllm {
+	if a == nil {
 		return nil
 	}
-	return s.Mllm
+	return a.Mllm
 }
 
-func (s *StartAgentRequestProperties) GetAvatar() *StartAgentRequestPropertiesAvatar {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetAvatar() *AgentManagementStartRequestPropertiesAvatar {
+	if a == nil {
 		return nil
 	}
-	return s.Avatar
+	return a.Avatar
 }
 
-func (s *StartAgentRequestProperties) GetTurnDetection() *StartAgentRequestPropertiesTurnDetection {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetTurnDetection() *AgentManagementStartRequestPropertiesTurnDetection {
+	if a == nil {
 		return nil
 	}
-	return s.TurnDetection
+	return a.TurnDetection
 }
 
-func (s *StartAgentRequestProperties) GetSal() *StartAgentRequestPropertiesSal {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetSal() *AgentManagementStartRequestPropertiesSal {
+	if a == nil {
 		return nil
 	}
-	return s.Sal
+	return a.Sal
 }
 
-func (s *StartAgentRequestProperties) GetParameters() *StartAgentRequestPropertiesParameters {
-	if s == nil {
+func (a *AgentManagementStartRequestProperties) GetParameters() *AgentManagementStartRequestPropertiesParameters {
+	if a == nil {
 		return nil
 	}
-	return s.Parameters
+	return a.Parameters
 }
 
-func (s *StartAgentRequestProperties) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestProperties) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestProperties) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestProperties) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetChannel(channel string) {
-	s.Channel = channel
-	s.require(startAgentRequestPropertiesFieldChannel)
+func (a *AgentManagementStartRequestProperties) SetChannel(channel string) {
+	a.Channel = channel
+	a.require(agentManagementStartRequestPropertiesFieldChannel)
 }
 
 // SetToken sets the Token field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetToken(token string) {
-	s.Token = token
-	s.require(startAgentRequestPropertiesFieldToken)
+func (a *AgentManagementStartRequestProperties) SetToken(token string) {
+	a.Token = token
+	a.require(agentManagementStartRequestPropertiesFieldToken)
 }
 
 // SetAgentRtcUID sets the AgentRtcUID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetAgentRtcUID(agentRtcUID string) {
-	s.AgentRtcUID = agentRtcUID
-	s.require(startAgentRequestPropertiesFieldAgentRtcUID)
+func (a *AgentManagementStartRequestProperties) SetAgentRtcUID(agentRtcUID string) {
+	a.AgentRtcUID = agentRtcUID
+	a.require(agentManagementStartRequestPropertiesFieldAgentRtcUID)
 }
 
 // SetRemoteRtcUIDs sets the RemoteRtcUIDs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetRemoteRtcUIDs(remoteRtcUIDs []string) {
-	s.RemoteRtcUIDs = remoteRtcUIDs
-	s.require(startAgentRequestPropertiesFieldRemoteRtcUIDs)
+func (a *AgentManagementStartRequestProperties) SetRemoteRtcUIDs(remoteRtcUIDs []string) {
+	a.RemoteRtcUIDs = remoteRtcUIDs
+	a.require(agentManagementStartRequestPropertiesFieldRemoteRtcUIDs)
 }
 
 // SetEnableStringUID sets the EnableStringUID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetEnableStringUID(enableStringUID *bool) {
-	s.EnableStringUID = enableStringUID
-	s.require(startAgentRequestPropertiesFieldEnableStringUID)
+func (a *AgentManagementStartRequestProperties) SetEnableStringUID(enableStringUID *bool) {
+	a.EnableStringUID = enableStringUID
+	a.require(agentManagementStartRequestPropertiesFieldEnableStringUID)
 }
 
 // SetIdleTimeout sets the IdleTimeout field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetIdleTimeout(idleTimeout *int) {
-	s.IdleTimeout = idleTimeout
-	s.require(startAgentRequestPropertiesFieldIdleTimeout)
+func (a *AgentManagementStartRequestProperties) SetIdleTimeout(idleTimeout *int) {
+	a.IdleTimeout = idleTimeout
+	a.require(agentManagementStartRequestPropertiesFieldIdleTimeout)
 }
 
 // SetAdvancedFeatures sets the AdvancedFeatures field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetAdvancedFeatures(advancedFeatures *StartAgentRequestPropertiesAdvancedFeatures) {
-	s.AdvancedFeatures = advancedFeatures
-	s.require(startAgentRequestPropertiesFieldAdvancedFeatures)
+func (a *AgentManagementStartRequestProperties) SetAdvancedFeatures(advancedFeatures *AgentManagementStartRequestPropertiesAdvancedFeatures) {
+	a.AdvancedFeatures = advancedFeatures
+	a.require(agentManagementStartRequestPropertiesFieldAdvancedFeatures)
 }
 
 // SetAsr sets the Asr field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetAsr(asr *StartAgentRequestPropertiesAsr) {
-	s.Asr = asr
-	s.require(startAgentRequestPropertiesFieldAsr)
+func (a *AgentManagementStartRequestProperties) SetAsr(asr *AgentManagementStartRequestPropertiesAsr) {
+	a.Asr = asr
+	a.require(agentManagementStartRequestPropertiesFieldAsr)
 }
 
 // SetTts sets the Tts field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetTts(tts *StartAgentRequestPropertiesTts) {
-	s.Tts = tts
-	s.require(startAgentRequestPropertiesFieldTts)
+func (a *AgentManagementStartRequestProperties) SetTts(tts *AgentManagementStartRequestPropertiesTts) {
+	a.Tts = tts
+	a.require(agentManagementStartRequestPropertiesFieldTts)
 }
 
 // SetLlm sets the Llm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetLlm(llm *StartAgentRequestPropertiesLlm) {
-	s.Llm = llm
-	s.require(startAgentRequestPropertiesFieldLlm)
+func (a *AgentManagementStartRequestProperties) SetLlm(llm *AgentManagementStartRequestPropertiesLlm) {
+	a.Llm = llm
+	a.require(agentManagementStartRequestPropertiesFieldLlm)
 }
 
 // SetMllm sets the Mllm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetMllm(mllm *StartAgentRequestPropertiesMllm) {
-	s.Mllm = mllm
-	s.require(startAgentRequestPropertiesFieldMllm)
+func (a *AgentManagementStartRequestProperties) SetMllm(mllm *AgentManagementStartRequestPropertiesMllm) {
+	a.Mllm = mllm
+	a.require(agentManagementStartRequestPropertiesFieldMllm)
 }
 
 // SetAvatar sets the Avatar field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetAvatar(avatar *StartAgentRequestPropertiesAvatar) {
-	s.Avatar = avatar
-	s.require(startAgentRequestPropertiesFieldAvatar)
+func (a *AgentManagementStartRequestProperties) SetAvatar(avatar *AgentManagementStartRequestPropertiesAvatar) {
+	a.Avatar = avatar
+	a.require(agentManagementStartRequestPropertiesFieldAvatar)
 }
 
 // SetTurnDetection sets the TurnDetection field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetTurnDetection(turnDetection *StartAgentRequestPropertiesTurnDetection) {
-	s.TurnDetection = turnDetection
-	s.require(startAgentRequestPropertiesFieldTurnDetection)
+func (a *AgentManagementStartRequestProperties) SetTurnDetection(turnDetection *AgentManagementStartRequestPropertiesTurnDetection) {
+	a.TurnDetection = turnDetection
+	a.require(agentManagementStartRequestPropertiesFieldTurnDetection)
 }
 
 // SetSal sets the Sal field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetSal(sal *StartAgentRequestPropertiesSal) {
-	s.Sal = sal
-	s.require(startAgentRequestPropertiesFieldSal)
+func (a *AgentManagementStartRequestProperties) SetSal(sal *AgentManagementStartRequestPropertiesSal) {
+	a.Sal = sal
+	a.require(agentManagementStartRequestPropertiesFieldSal)
 }
 
 // SetParameters sets the Parameters field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestProperties) SetParameters(parameters *StartAgentRequestPropertiesParameters) {
-	s.Parameters = parameters
-	s.require(startAgentRequestPropertiesFieldParameters)
+func (a *AgentManagementStartRequestProperties) SetParameters(parameters *AgentManagementStartRequestPropertiesParameters) {
+	a.Parameters = parameters
+	a.require(agentManagementStartRequestPropertiesFieldParameters)
 }
 
-func (s *StartAgentRequestProperties) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestProperties
+func (a *AgentManagementStartRequestProperties) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestProperties
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestProperties(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestProperties(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestProperties) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestProperties
+func (a *AgentManagementStartRequestProperties) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestProperties
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestProperties) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestProperties) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Advanced features configuration.
 var (
-	startAgentRequestPropertiesAdvancedFeaturesFieldEnableAivad = big.NewInt(1 << 0)
-	startAgentRequestPropertiesAdvancedFeaturesFieldEnableMllm  = big.NewInt(1 << 1)
-	startAgentRequestPropertiesAdvancedFeaturesFieldEnableRtm   = big.NewInt(1 << 2)
-	startAgentRequestPropertiesAdvancedFeaturesFieldEnableSal   = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableAivad = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableMllm  = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableRtm   = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableSal   = big.NewInt(1 << 3)
 )
 
-type StartAgentRequestPropertiesAdvancedFeatures struct {
+type AgentManagementStartRequestPropertiesAdvancedFeatures struct {
 	// Whether to enable the intelligent interruption handling function (AIVAD). This feature is currently available only for English.
 	EnableAivad *bool `json:"enable_aivad,omitempty" url:"enable_aivad,omitempty"`
 	// Enable Multimodal Large Language Model. Enabling MLLM automatically disables ASR, LLM, and TTS. When you set this parameter to true, `enable_aivad` is also disabled.
@@ -1732,120 +1732,120 @@ type StartAgentRequestPropertiesAdvancedFeatures struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) GetEnableAivad() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) GetEnableAivad() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableAivad
+	return a.EnableAivad
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) GetEnableMllm() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) GetEnableMllm() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableMllm
+	return a.EnableMllm
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) GetEnableRtm() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) GetEnableRtm() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableRtm
+	return a.EnableRtm
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) GetEnableSal() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) GetEnableSal() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableSal
+	return a.EnableSal
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetEnableAivad sets the EnableAivad field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAdvancedFeatures) SetEnableAivad(enableAivad *bool) {
-	s.EnableAivad = enableAivad
-	s.require(startAgentRequestPropertiesAdvancedFeaturesFieldEnableAivad)
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) SetEnableAivad(enableAivad *bool) {
+	a.EnableAivad = enableAivad
+	a.require(agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableAivad)
 }
 
 // SetEnableMllm sets the EnableMllm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAdvancedFeatures) SetEnableMllm(enableMllm *bool) {
-	s.EnableMllm = enableMllm
-	s.require(startAgentRequestPropertiesAdvancedFeaturesFieldEnableMllm)
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) SetEnableMllm(enableMllm *bool) {
+	a.EnableMllm = enableMllm
+	a.require(agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableMllm)
 }
 
 // SetEnableRtm sets the EnableRtm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAdvancedFeatures) SetEnableRtm(enableRtm *bool) {
-	s.EnableRtm = enableRtm
-	s.require(startAgentRequestPropertiesAdvancedFeaturesFieldEnableRtm)
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) SetEnableRtm(enableRtm *bool) {
+	a.EnableRtm = enableRtm
+	a.require(agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableRtm)
 }
 
 // SetEnableSal sets the EnableSal field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAdvancedFeatures) SetEnableSal(enableSal *bool) {
-	s.EnableSal = enableSal
-	s.require(startAgentRequestPropertiesAdvancedFeaturesFieldEnableSal)
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) SetEnableSal(enableSal *bool) {
+	a.EnableSal = enableSal
+	a.require(agentManagementStartRequestPropertiesAdvancedFeaturesFieldEnableSal)
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesAdvancedFeatures
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesAdvancedFeatures
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesAdvancedFeatures(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesAdvancedFeatures(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesAdvancedFeatures
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesAdvancedFeatures
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesAdvancedFeatures) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesAdvancedFeatures) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Automatic Speech Recognition (ASR) configuration.
 var (
-	startAgentRequestPropertiesAsrFieldLanguage = big.NewInt(1 << 0)
-	startAgentRequestPropertiesAsrFieldVendor   = big.NewInt(1 << 1)
-	startAgentRequestPropertiesAsrFieldParams   = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesAsrFieldLanguage = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesAsrFieldVendor   = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesAsrFieldParams   = big.NewInt(1 << 2)
 )
 
-type StartAgentRequestPropertiesAsr struct {
+type AgentManagementStartRequestPropertiesAsr struct {
 	// The BCP-47 language tag identifying the primary language used for agent interaction. If `params` contains a vendor-specific language code, it takes precedence over this setting.
 	Language *string `json:"language,omitempty" url:"language,omitempty"`
 	// ASR provider:
@@ -1857,7 +1857,7 @@ type StartAgentRequestPropertiesAsr struct {
 	// - `assemblyai`: AssemblyAI (Beta)
 	// - `amazon`: Amazon Transcribe (Beta)
 	// - `google`: Google (Beta)
-	Vendor *StartAgentRequestPropertiesAsrVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
+	Vendor *AgentManagementStartRequestPropertiesAsrVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The configuration parameters for the ASR vendor. See [ASR Overview](https://docs.agora.io/en/conversational-ai/models/asr/overview) for details.
 	Params map[string]interface{} `json:"params,omitempty" url:"params,omitempty"`
 
@@ -1868,96 +1868,96 @@ type StartAgentRequestPropertiesAsr struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesAsr) GetLanguage() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAsr) GetLanguage() *string {
+	if a == nil {
 		return nil
 	}
-	return s.Language
+	return a.Language
 }
 
-func (s *StartAgentRequestPropertiesAsr) GetVendor() *StartAgentRequestPropertiesAsrVendor {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAsr) GetVendor() *AgentManagementStartRequestPropertiesAsrVendor {
+	if a == nil {
 		return nil
 	}
-	return s.Vendor
+	return a.Vendor
 }
 
-func (s *StartAgentRequestPropertiesAsr) GetParams() map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAsr) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Params
+	return a.Params
 }
 
-func (s *StartAgentRequestPropertiesAsr) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesAsr) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesAsr) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesAsr) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetLanguage sets the Language field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAsr) SetLanguage(language *string) {
-	s.Language = language
-	s.require(startAgentRequestPropertiesAsrFieldLanguage)
+func (a *AgentManagementStartRequestPropertiesAsr) SetLanguage(language *string) {
+	a.Language = language
+	a.require(agentManagementStartRequestPropertiesAsrFieldLanguage)
 }
 
 // SetVendor sets the Vendor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAsr) SetVendor(vendor_ *StartAgentRequestPropertiesAsrVendor) {
-	s.Vendor = vendor_
-	s.require(startAgentRequestPropertiesAsrFieldVendor)
+func (a *AgentManagementStartRequestPropertiesAsr) SetVendor(vendor_ *AgentManagementStartRequestPropertiesAsrVendor) {
+	a.Vendor = vendor_
+	a.require(agentManagementStartRequestPropertiesAsrFieldVendor)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAsr) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentRequestPropertiesAsrFieldParams)
+func (a *AgentManagementStartRequestPropertiesAsr) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementStartRequestPropertiesAsrFieldParams)
 }
 
-func (s *StartAgentRequestPropertiesAsr) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesAsr
+func (a *AgentManagementStartRequestPropertiesAsr) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesAsr
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesAsr(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesAsr(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesAsr) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesAsr
+func (a *AgentManagementStartRequestPropertiesAsr) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesAsr
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesAsr) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesAsr) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // ASR provider:
@@ -1969,60 +1969,60 @@ func (s *StartAgentRequestPropertiesAsr) String() string {
 // - `assemblyai`: AssemblyAI (Beta)
 // - `amazon`: Amazon Transcribe (Beta)
 // - `google`: Google (Beta)
-type StartAgentRequestPropertiesAsrVendor string
+type AgentManagementStartRequestPropertiesAsrVendor string
 
 const (
-	StartAgentRequestPropertiesAsrVendorAres         StartAgentRequestPropertiesAsrVendor = "ares"
-	StartAgentRequestPropertiesAsrVendorMicrosoft    StartAgentRequestPropertiesAsrVendor = "microsoft"
-	StartAgentRequestPropertiesAsrVendorDeepgram     StartAgentRequestPropertiesAsrVendor = "deepgram"
-	StartAgentRequestPropertiesAsrVendorOpenai       StartAgentRequestPropertiesAsrVendor = "openai"
-	StartAgentRequestPropertiesAsrVendorGoogle       StartAgentRequestPropertiesAsrVendor = "google"
-	StartAgentRequestPropertiesAsrVendorAmazon       StartAgentRequestPropertiesAsrVendor = "amazon"
-	StartAgentRequestPropertiesAsrVendorAssemblyai   StartAgentRequestPropertiesAsrVendor = "assemblyai"
-	StartAgentRequestPropertiesAsrVendorSpeechmatics StartAgentRequestPropertiesAsrVendor = "speechmatics"
+	AgentManagementStartRequestPropertiesAsrVendorAres         AgentManagementStartRequestPropertiesAsrVendor = "ares"
+	AgentManagementStartRequestPropertiesAsrVendorMicrosoft    AgentManagementStartRequestPropertiesAsrVendor = "microsoft"
+	AgentManagementStartRequestPropertiesAsrVendorDeepgram     AgentManagementStartRequestPropertiesAsrVendor = "deepgram"
+	AgentManagementStartRequestPropertiesAsrVendorOpenai       AgentManagementStartRequestPropertiesAsrVendor = "openai"
+	AgentManagementStartRequestPropertiesAsrVendorGoogle       AgentManagementStartRequestPropertiesAsrVendor = "google"
+	AgentManagementStartRequestPropertiesAsrVendorAmazon       AgentManagementStartRequestPropertiesAsrVendor = "amazon"
+	AgentManagementStartRequestPropertiesAsrVendorAssemblyai   AgentManagementStartRequestPropertiesAsrVendor = "assemblyai"
+	AgentManagementStartRequestPropertiesAsrVendorSpeechmatics AgentManagementStartRequestPropertiesAsrVendor = "speechmatics"
 )
 
-func NewStartAgentRequestPropertiesAsrVendorFromString(s string) (StartAgentRequestPropertiesAsrVendor, error) {
+func NewAgentManagementStartRequestPropertiesAsrVendorFromString(s string) (AgentManagementStartRequestPropertiesAsrVendor, error) {
 	switch s {
 	case "ares":
-		return StartAgentRequestPropertiesAsrVendorAres, nil
+		return AgentManagementStartRequestPropertiesAsrVendorAres, nil
 	case "microsoft":
-		return StartAgentRequestPropertiesAsrVendorMicrosoft, nil
+		return AgentManagementStartRequestPropertiesAsrVendorMicrosoft, nil
 	case "deepgram":
-		return StartAgentRequestPropertiesAsrVendorDeepgram, nil
+		return AgentManagementStartRequestPropertiesAsrVendorDeepgram, nil
 	case "openai":
-		return StartAgentRequestPropertiesAsrVendorOpenai, nil
+		return AgentManagementStartRequestPropertiesAsrVendorOpenai, nil
 	case "google":
-		return StartAgentRequestPropertiesAsrVendorGoogle, nil
+		return AgentManagementStartRequestPropertiesAsrVendorGoogle, nil
 	case "amazon":
-		return StartAgentRequestPropertiesAsrVendorAmazon, nil
+		return AgentManagementStartRequestPropertiesAsrVendorAmazon, nil
 	case "assemblyai":
-		return StartAgentRequestPropertiesAsrVendorAssemblyai, nil
+		return AgentManagementStartRequestPropertiesAsrVendorAssemblyai, nil
 	case "speechmatics":
-		return StartAgentRequestPropertiesAsrVendorSpeechmatics, nil
+		return AgentManagementStartRequestPropertiesAsrVendorSpeechmatics, nil
 	}
-	var t StartAgentRequestPropertiesAsrVendor
+	var t AgentManagementStartRequestPropertiesAsrVendor
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesAsrVendor) Ptr() *StartAgentRequestPropertiesAsrVendor {
-	return &s
+func (a AgentManagementStartRequestPropertiesAsrVendor) Ptr() *AgentManagementStartRequestPropertiesAsrVendor {
+	return &a
 }
 
 // Avatar configuration.
 var (
-	startAgentRequestPropertiesAvatarFieldEnable = big.NewInt(1 << 0)
-	startAgentRequestPropertiesAvatarFieldVendor = big.NewInt(1 << 1)
-	startAgentRequestPropertiesAvatarFieldParams = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesAvatarFieldEnable = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesAvatarFieldVendor = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesAvatarFieldParams = big.NewInt(1 << 2)
 )
 
-type StartAgentRequestPropertiesAvatar struct {
+type AgentManagementStartRequestPropertiesAvatar struct {
 	// Whether to enable the avatar function for the agent. To enable, set to `true` and configure the `vendor` and `params` fields.
 	Enable *bool `json:"enable,omitempty" url:"enable,omitempty"`
 	// Avatar vendor. Supports the following values:
 	// - `akool`: Akool (Beta)
 	// - `heygen`: HeyGen (Beta)
-	Vendor *StartAgentRequestPropertiesAvatarVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
+	Vendor *AgentManagementStartRequestPropertiesAvatarVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The configuration parameters for the avatar vendor. See [AI Avatar Overview](https://docs.agora.io/en/conversational-ai/models/avatar/overview) for details.
 	Params map[string]interface{} `json:"params,omitempty" url:"params,omitempty"`
 
@@ -2033,139 +2033,139 @@ type StartAgentRequestPropertiesAvatar struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesAvatar) GetEnable() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAvatar) GetEnable() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.Enable
+	return a.Enable
 }
 
-func (s *StartAgentRequestPropertiesAvatar) GetVendor() *StartAgentRequestPropertiesAvatarVendor {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAvatar) GetVendor() *AgentManagementStartRequestPropertiesAvatarVendor {
+	if a == nil {
 		return nil
 	}
-	return s.Vendor
+	return a.Vendor
 }
 
-func (s *StartAgentRequestPropertiesAvatar) GetParams() map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesAvatar) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Params
+	return a.Params
 }
 
-func (s *StartAgentRequestPropertiesAvatar) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesAvatar) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesAvatar) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesAvatar) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetEnable sets the Enable field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAvatar) SetEnable(enable *bool) {
-	s.Enable = enable
-	s.require(startAgentRequestPropertiesAvatarFieldEnable)
+func (a *AgentManagementStartRequestPropertiesAvatar) SetEnable(enable *bool) {
+	a.Enable = enable
+	a.require(agentManagementStartRequestPropertiesAvatarFieldEnable)
 }
 
 // SetVendor sets the Vendor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAvatar) SetVendor(vendor_ *StartAgentRequestPropertiesAvatarVendor) {
-	s.Vendor = vendor_
-	s.require(startAgentRequestPropertiesAvatarFieldVendor)
+func (a *AgentManagementStartRequestPropertiesAvatar) SetVendor(vendor_ *AgentManagementStartRequestPropertiesAvatarVendor) {
+	a.Vendor = vendor_
+	a.require(agentManagementStartRequestPropertiesAvatarFieldVendor)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesAvatar) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentRequestPropertiesAvatarFieldParams)
+func (a *AgentManagementStartRequestPropertiesAvatar) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementStartRequestPropertiesAvatarFieldParams)
 }
 
-func (s *StartAgentRequestPropertiesAvatar) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesAvatar
+func (a *AgentManagementStartRequestPropertiesAvatar) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesAvatar
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesAvatar(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesAvatar(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesAvatar) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesAvatar
+func (a *AgentManagementStartRequestPropertiesAvatar) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesAvatar
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesAvatar) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesAvatar) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Avatar vendor. Supports the following values:
 // - `akool`: Akool (Beta)
 // - `heygen`: HeyGen (Beta)
-type StartAgentRequestPropertiesAvatarVendor string
+type AgentManagementStartRequestPropertiesAvatarVendor string
 
 const (
-	StartAgentRequestPropertiesAvatarVendorAkool  StartAgentRequestPropertiesAvatarVendor = "akool"
-	StartAgentRequestPropertiesAvatarVendorHeygen StartAgentRequestPropertiesAvatarVendor = "heygen"
+	AgentManagementStartRequestPropertiesAvatarVendorAkool  AgentManagementStartRequestPropertiesAvatarVendor = "akool"
+	AgentManagementStartRequestPropertiesAvatarVendorHeygen AgentManagementStartRequestPropertiesAvatarVendor = "heygen"
 )
 
-func NewStartAgentRequestPropertiesAvatarVendorFromString(s string) (StartAgentRequestPropertiesAvatarVendor, error) {
+func NewAgentManagementStartRequestPropertiesAvatarVendorFromString(s string) (AgentManagementStartRequestPropertiesAvatarVendor, error) {
 	switch s {
 	case "akool":
-		return StartAgentRequestPropertiesAvatarVendorAkool, nil
+		return AgentManagementStartRequestPropertiesAvatarVendorAkool, nil
 	case "heygen":
-		return StartAgentRequestPropertiesAvatarVendorHeygen, nil
+		return AgentManagementStartRequestPropertiesAvatarVendorHeygen, nil
 	}
-	var t StartAgentRequestPropertiesAvatarVendor
+	var t AgentManagementStartRequestPropertiesAvatarVendor
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesAvatarVendor) Ptr() *StartAgentRequestPropertiesAvatarVendor {
-	return &s
+func (a AgentManagementStartRequestPropertiesAvatarVendor) Ptr() *AgentManagementStartRequestPropertiesAvatarVendor {
+	return &a
 }
 
 // Large language model (LLM) configuration.
 var (
-	startAgentRequestPropertiesLlmFieldURL              = big.NewInt(1 << 0)
-	startAgentRequestPropertiesLlmFieldAPIKey           = big.NewInt(1 << 1)
-	startAgentRequestPropertiesLlmFieldSystemMessages   = big.NewInt(1 << 2)
-	startAgentRequestPropertiesLlmFieldParams           = big.NewInt(1 << 3)
-	startAgentRequestPropertiesLlmFieldMaxHistory       = big.NewInt(1 << 4)
-	startAgentRequestPropertiesLlmFieldInputModalities  = big.NewInt(1 << 5)
-	startAgentRequestPropertiesLlmFieldOutputModalities = big.NewInt(1 << 6)
-	startAgentRequestPropertiesLlmFieldGreetingMessage  = big.NewInt(1 << 7)
-	startAgentRequestPropertiesLlmFieldFailureMessage   = big.NewInt(1 << 8)
-	startAgentRequestPropertiesLlmFieldVendor           = big.NewInt(1 << 9)
-	startAgentRequestPropertiesLlmFieldStyle            = big.NewInt(1 << 10)
+	agentManagementStartRequestPropertiesLlmFieldURL              = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesLlmFieldAPIKey           = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesLlmFieldSystemMessages   = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesLlmFieldParams           = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesLlmFieldMaxHistory       = big.NewInt(1 << 4)
+	agentManagementStartRequestPropertiesLlmFieldInputModalities  = big.NewInt(1 << 5)
+	agentManagementStartRequestPropertiesLlmFieldOutputModalities = big.NewInt(1 << 6)
+	agentManagementStartRequestPropertiesLlmFieldGreetingMessage  = big.NewInt(1 << 7)
+	agentManagementStartRequestPropertiesLlmFieldFailureMessage   = big.NewInt(1 << 8)
+	agentManagementStartRequestPropertiesLlmFieldVendor           = big.NewInt(1 << 9)
+	agentManagementStartRequestPropertiesLlmFieldStyle            = big.NewInt(1 << 10)
 )
 
-type StartAgentRequestPropertiesLlm struct {
+type AgentManagementStartRequestPropertiesLlm struct {
 	// The LLM callback address.
 	URL string `json:"url" url:"url"`
 	// The LLM verification API key. The default value is an empty string. Ensure that you enable the API key in a production environment.
@@ -2201,7 +2201,7 @@ type StartAgentRequestPropertiesLlm struct {
 	// - `gemini`: For Google Gemini and Google Vertex API format
 	// - `anthropic`: For Anthropic Claude API format
 	// - `dify`: For Dify API format
-	Style *StartAgentRequestPropertiesLlmStyle `json:"style,omitempty" url:"style,omitempty"`
+	Style *AgentManagementStartRequestPropertiesLlmStyle `json:"style,omitempty" url:"style,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2210,208 +2210,208 @@ type StartAgentRequestPropertiesLlm struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetURL() string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetURL() string {
+	if a == nil {
 		return ""
 	}
-	return s.URL
+	return a.URL
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetAPIKey() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetAPIKey() *string {
+	if a == nil {
 		return nil
 	}
-	return s.APIKey
+	return a.APIKey
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetSystemMessages() []map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetSystemMessages() []map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.SystemMessages
+	return a.SystemMessages
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetParams() map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Params
+	return a.Params
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetMaxHistory() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetMaxHistory() *int {
+	if a == nil {
 		return nil
 	}
-	return s.MaxHistory
+	return a.MaxHistory
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetInputModalities() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetInputModalities() []string {
+	if a == nil {
 		return nil
 	}
-	return s.InputModalities
+	return a.InputModalities
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetOutputModalities() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetOutputModalities() []string {
+	if a == nil {
 		return nil
 	}
-	return s.OutputModalities
+	return a.OutputModalities
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetGreetingMessage() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetGreetingMessage() *string {
+	if a == nil {
 		return nil
 	}
-	return s.GreetingMessage
+	return a.GreetingMessage
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetFailureMessage() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetFailureMessage() *string {
+	if a == nil {
 		return nil
 	}
-	return s.FailureMessage
+	return a.FailureMessage
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetVendor() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetVendor() *string {
+	if a == nil {
 		return nil
 	}
-	return s.Vendor
+	return a.Vendor
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetStyle() *StartAgentRequestPropertiesLlmStyle {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) GetStyle() *AgentManagementStartRequestPropertiesLlmStyle {
+	if a == nil {
 		return nil
 	}
-	return s.Style
+	return a.Style
 }
 
-func (s *StartAgentRequestPropertiesLlm) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesLlm) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesLlm) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesLlm) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetURL sets the URL field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetURL(url string) {
-	s.URL = url
-	s.require(startAgentRequestPropertiesLlmFieldURL)
+func (a *AgentManagementStartRequestPropertiesLlm) SetURL(url string) {
+	a.URL = url
+	a.require(agentManagementStartRequestPropertiesLlmFieldURL)
 }
 
 // SetAPIKey sets the APIKey field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetAPIKey(apiKey *string) {
-	s.APIKey = apiKey
-	s.require(startAgentRequestPropertiesLlmFieldAPIKey)
+func (a *AgentManagementStartRequestPropertiesLlm) SetAPIKey(apiKey *string) {
+	a.APIKey = apiKey
+	a.require(agentManagementStartRequestPropertiesLlmFieldAPIKey)
 }
 
 // SetSystemMessages sets the SystemMessages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetSystemMessages(systemMessages []map[string]interface{}) {
-	s.SystemMessages = systemMessages
-	s.require(startAgentRequestPropertiesLlmFieldSystemMessages)
+func (a *AgentManagementStartRequestPropertiesLlm) SetSystemMessages(systemMessages []map[string]interface{}) {
+	a.SystemMessages = systemMessages
+	a.require(agentManagementStartRequestPropertiesLlmFieldSystemMessages)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentRequestPropertiesLlmFieldParams)
+func (a *AgentManagementStartRequestPropertiesLlm) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementStartRequestPropertiesLlmFieldParams)
 }
 
 // SetMaxHistory sets the MaxHistory field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetMaxHistory(maxHistory *int) {
-	s.MaxHistory = maxHistory
-	s.require(startAgentRequestPropertiesLlmFieldMaxHistory)
+func (a *AgentManagementStartRequestPropertiesLlm) SetMaxHistory(maxHistory *int) {
+	a.MaxHistory = maxHistory
+	a.require(agentManagementStartRequestPropertiesLlmFieldMaxHistory)
 }
 
 // SetInputModalities sets the InputModalities field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetInputModalities(inputModalities []string) {
-	s.InputModalities = inputModalities
-	s.require(startAgentRequestPropertiesLlmFieldInputModalities)
+func (a *AgentManagementStartRequestPropertiesLlm) SetInputModalities(inputModalities []string) {
+	a.InputModalities = inputModalities
+	a.require(agentManagementStartRequestPropertiesLlmFieldInputModalities)
 }
 
 // SetOutputModalities sets the OutputModalities field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetOutputModalities(outputModalities []string) {
-	s.OutputModalities = outputModalities
-	s.require(startAgentRequestPropertiesLlmFieldOutputModalities)
+func (a *AgentManagementStartRequestPropertiesLlm) SetOutputModalities(outputModalities []string) {
+	a.OutputModalities = outputModalities
+	a.require(agentManagementStartRequestPropertiesLlmFieldOutputModalities)
 }
 
 // SetGreetingMessage sets the GreetingMessage field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetGreetingMessage(greetingMessage *string) {
-	s.GreetingMessage = greetingMessage
-	s.require(startAgentRequestPropertiesLlmFieldGreetingMessage)
+func (a *AgentManagementStartRequestPropertiesLlm) SetGreetingMessage(greetingMessage *string) {
+	a.GreetingMessage = greetingMessage
+	a.require(agentManagementStartRequestPropertiesLlmFieldGreetingMessage)
 }
 
 // SetFailureMessage sets the FailureMessage field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetFailureMessage(failureMessage *string) {
-	s.FailureMessage = failureMessage
-	s.require(startAgentRequestPropertiesLlmFieldFailureMessage)
+func (a *AgentManagementStartRequestPropertiesLlm) SetFailureMessage(failureMessage *string) {
+	a.FailureMessage = failureMessage
+	a.require(agentManagementStartRequestPropertiesLlmFieldFailureMessage)
 }
 
 // SetVendor sets the Vendor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetVendor(vendor_ *string) {
-	s.Vendor = vendor_
-	s.require(startAgentRequestPropertiesLlmFieldVendor)
+func (a *AgentManagementStartRequestPropertiesLlm) SetVendor(vendor_ *string) {
+	a.Vendor = vendor_
+	a.require(agentManagementStartRequestPropertiesLlmFieldVendor)
 }
 
 // SetStyle sets the Style field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesLlm) SetStyle(style *StartAgentRequestPropertiesLlmStyle) {
-	s.Style = style
-	s.require(startAgentRequestPropertiesLlmFieldStyle)
+func (a *AgentManagementStartRequestPropertiesLlm) SetStyle(style *AgentManagementStartRequestPropertiesLlmStyle) {
+	a.Style = style
+	a.require(agentManagementStartRequestPropertiesLlmFieldStyle)
 }
 
-func (s *StartAgentRequestPropertiesLlm) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesLlm
+func (a *AgentManagementStartRequestPropertiesLlm) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesLlm
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesLlm(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesLlm(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesLlm) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesLlm
+func (a *AgentManagementStartRequestPropertiesLlm) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesLlm
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesLlm) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesLlm) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // The request style for chat completion:
@@ -2419,48 +2419,48 @@ func (s *StartAgentRequestPropertiesLlm) String() string {
 // - `gemini`: For Google Gemini and Google Vertex API format
 // - `anthropic`: For Anthropic Claude API format
 // - `dify`: For Dify API format
-type StartAgentRequestPropertiesLlmStyle string
+type AgentManagementStartRequestPropertiesLlmStyle string
 
 const (
-	StartAgentRequestPropertiesLlmStyleOpenai    StartAgentRequestPropertiesLlmStyle = "openai"
-	StartAgentRequestPropertiesLlmStyleGemini    StartAgentRequestPropertiesLlmStyle = "gemini"
-	StartAgentRequestPropertiesLlmStyleAnthropic StartAgentRequestPropertiesLlmStyle = "anthropic"
-	StartAgentRequestPropertiesLlmStyleDify      StartAgentRequestPropertiesLlmStyle = "dify"
+	AgentManagementStartRequestPropertiesLlmStyleOpenai    AgentManagementStartRequestPropertiesLlmStyle = "openai"
+	AgentManagementStartRequestPropertiesLlmStyleGemini    AgentManagementStartRequestPropertiesLlmStyle = "gemini"
+	AgentManagementStartRequestPropertiesLlmStyleAnthropic AgentManagementStartRequestPropertiesLlmStyle = "anthropic"
+	AgentManagementStartRequestPropertiesLlmStyleDify      AgentManagementStartRequestPropertiesLlmStyle = "dify"
 )
 
-func NewStartAgentRequestPropertiesLlmStyleFromString(s string) (StartAgentRequestPropertiesLlmStyle, error) {
+func NewAgentManagementStartRequestPropertiesLlmStyleFromString(s string) (AgentManagementStartRequestPropertiesLlmStyle, error) {
 	switch s {
 	case "openai":
-		return StartAgentRequestPropertiesLlmStyleOpenai, nil
+		return AgentManagementStartRequestPropertiesLlmStyleOpenai, nil
 	case "gemini":
-		return StartAgentRequestPropertiesLlmStyleGemini, nil
+		return AgentManagementStartRequestPropertiesLlmStyleGemini, nil
 	case "anthropic":
-		return StartAgentRequestPropertiesLlmStyleAnthropic, nil
+		return AgentManagementStartRequestPropertiesLlmStyleAnthropic, nil
 	case "dify":
-		return StartAgentRequestPropertiesLlmStyleDify, nil
+		return AgentManagementStartRequestPropertiesLlmStyleDify, nil
 	}
-	var t StartAgentRequestPropertiesLlmStyle
+	var t AgentManagementStartRequestPropertiesLlmStyle
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesLlmStyle) Ptr() *StartAgentRequestPropertiesLlmStyle {
-	return &s
+func (a AgentManagementStartRequestPropertiesLlmStyle) Ptr() *AgentManagementStartRequestPropertiesLlmStyle {
+	return &a
 }
 
 // Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
 var (
-	startAgentRequestPropertiesMllmFieldURL              = big.NewInt(1 << 0)
-	startAgentRequestPropertiesMllmFieldAPIKey           = big.NewInt(1 << 1)
-	startAgentRequestPropertiesMllmFieldMessages         = big.NewInt(1 << 2)
-	startAgentRequestPropertiesMllmFieldParams           = big.NewInt(1 << 3)
-	startAgentRequestPropertiesMllmFieldInputModalities  = big.NewInt(1 << 4)
-	startAgentRequestPropertiesMllmFieldOutputModalities = big.NewInt(1 << 5)
-	startAgentRequestPropertiesMllmFieldGreetingMessage  = big.NewInt(1 << 6)
-	startAgentRequestPropertiesMllmFieldVendor           = big.NewInt(1 << 7)
-	startAgentRequestPropertiesMllmFieldStyle            = big.NewInt(1 << 8)
+	agentManagementStartRequestPropertiesMllmFieldURL              = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesMllmFieldAPIKey           = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesMllmFieldMessages         = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesMllmFieldParams           = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesMllmFieldInputModalities  = big.NewInt(1 << 4)
+	agentManagementStartRequestPropertiesMllmFieldOutputModalities = big.NewInt(1 << 5)
+	agentManagementStartRequestPropertiesMllmFieldGreetingMessage  = big.NewInt(1 << 6)
+	agentManagementStartRequestPropertiesMllmFieldVendor           = big.NewInt(1 << 7)
+	agentManagementStartRequestPropertiesMllmFieldStyle            = big.NewInt(1 << 8)
 )
 
-type StartAgentRequestPropertiesMllm struct {
+type AgentManagementStartRequestPropertiesMllm struct {
 	// The MLLM WebSocket URL for real-time communication.
 	URL *string `json:"url,omitempty" url:"url,omitempty"`
 	// The API key used for MLLM authentication.
@@ -2481,7 +2481,7 @@ type StartAgentRequestPropertiesMllm struct {
 	// MLLM provider. Currently supports:
 	// - `openai`: OpenAI Realtime API
 	// - `vertexai`: Use this for Google Gemini Live
-	Vendor *StartAgentRequestPropertiesMllmVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
+	Vendor *AgentManagementStartRequestPropertiesMllmVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The request style for MLLM completion:
 	// - `openai`: For OpenAI Realtime API format
 	Style *string `json:"style,omitempty" url:"style,omitempty"`
@@ -2493,218 +2493,218 @@ type StartAgentRequestPropertiesMllm struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetURL() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetURL() *string {
+	if a == nil {
 		return nil
 	}
-	return s.URL
+	return a.URL
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetAPIKey() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetAPIKey() *string {
+	if a == nil {
 		return nil
 	}
-	return s.APIKey
+	return a.APIKey
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetMessages() []map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetMessages() []map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Messages
+	return a.Messages
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetParams() map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Params
+	return a.Params
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetInputModalities() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetInputModalities() []string {
+	if a == nil {
 		return nil
 	}
-	return s.InputModalities
+	return a.InputModalities
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetOutputModalities() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetOutputModalities() []string {
+	if a == nil {
 		return nil
 	}
-	return s.OutputModalities
+	return a.OutputModalities
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetGreetingMessage() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetGreetingMessage() *string {
+	if a == nil {
 		return nil
 	}
-	return s.GreetingMessage
+	return a.GreetingMessage
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetVendor() *StartAgentRequestPropertiesMllmVendor {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) GetVendor() *AgentManagementStartRequestPropertiesMllmVendor {
+	if a == nil {
 		return nil
 	}
-	return s.Vendor
+	return a.Vendor
 }
 
-func (s *StartAgentRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesMllm) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesMllm) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetURL sets the URL field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetURL(url *string) {
-	s.URL = url
-	s.require(startAgentRequestPropertiesMllmFieldURL)
+func (a *AgentManagementStartRequestPropertiesMllm) SetURL(url *string) {
+	a.URL = url
+	a.require(agentManagementStartRequestPropertiesMllmFieldURL)
 }
 
 // SetAPIKey sets the APIKey field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetAPIKey(apiKey *string) {
-	s.APIKey = apiKey
-	s.require(startAgentRequestPropertiesMllmFieldAPIKey)
+func (a *AgentManagementStartRequestPropertiesMllm) SetAPIKey(apiKey *string) {
+	a.APIKey = apiKey
+	a.require(agentManagementStartRequestPropertiesMllmFieldAPIKey)
 }
 
 // SetMessages sets the Messages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetMessages(messages []map[string]interface{}) {
-	s.Messages = messages
-	s.require(startAgentRequestPropertiesMllmFieldMessages)
+func (a *AgentManagementStartRequestPropertiesMllm) SetMessages(messages []map[string]interface{}) {
+	a.Messages = messages
+	a.require(agentManagementStartRequestPropertiesMllmFieldMessages)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentRequestPropertiesMllmFieldParams)
+func (a *AgentManagementStartRequestPropertiesMllm) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementStartRequestPropertiesMllmFieldParams)
 }
 
 // SetInputModalities sets the InputModalities field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetInputModalities(inputModalities []string) {
-	s.InputModalities = inputModalities
-	s.require(startAgentRequestPropertiesMllmFieldInputModalities)
+func (a *AgentManagementStartRequestPropertiesMllm) SetInputModalities(inputModalities []string) {
+	a.InputModalities = inputModalities
+	a.require(agentManagementStartRequestPropertiesMllmFieldInputModalities)
 }
 
 // SetOutputModalities sets the OutputModalities field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetOutputModalities(outputModalities []string) {
-	s.OutputModalities = outputModalities
-	s.require(startAgentRequestPropertiesMllmFieldOutputModalities)
+func (a *AgentManagementStartRequestPropertiesMllm) SetOutputModalities(outputModalities []string) {
+	a.OutputModalities = outputModalities
+	a.require(agentManagementStartRequestPropertiesMllmFieldOutputModalities)
 }
 
 // SetGreetingMessage sets the GreetingMessage field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetGreetingMessage(greetingMessage *string) {
-	s.GreetingMessage = greetingMessage
-	s.require(startAgentRequestPropertiesMllmFieldGreetingMessage)
+func (a *AgentManagementStartRequestPropertiesMllm) SetGreetingMessage(greetingMessage *string) {
+	a.GreetingMessage = greetingMessage
+	a.require(agentManagementStartRequestPropertiesMllmFieldGreetingMessage)
 }
 
 // SetVendor sets the Vendor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetVendor(vendor_ *StartAgentRequestPropertiesMllmVendor) {
-	s.Vendor = vendor_
-	s.require(startAgentRequestPropertiesMllmFieldVendor)
+func (a *AgentManagementStartRequestPropertiesMllm) SetVendor(vendor_ *AgentManagementStartRequestPropertiesMllmVendor) {
+	a.Vendor = vendor_
+	a.require(agentManagementStartRequestPropertiesMllmFieldVendor)
 }
 
 // SetStyle sets the Style field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesMllm) SetStyle(style *string) {
-	s.Style = style
-	s.require(startAgentRequestPropertiesMllmFieldStyle)
+func (a *AgentManagementStartRequestPropertiesMllm) SetStyle(style *string) {
+	a.Style = style
+	a.require(agentManagementStartRequestPropertiesMllmFieldStyle)
 }
 
-func (s *StartAgentRequestPropertiesMllm) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesMllm
+func (a *AgentManagementStartRequestPropertiesMllm) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesMllm
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesMllm(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesMllm(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesMllm
+func (a *AgentManagementStartRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesMllm
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesMllm) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesMllm) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // MLLM provider. Currently supports:
 // - `openai`: OpenAI Realtime API
 // - `vertexai`: Use this for Google Gemini Live
-type StartAgentRequestPropertiesMllmVendor string
+type AgentManagementStartRequestPropertiesMllmVendor string
 
 const (
-	StartAgentRequestPropertiesMllmVendorOpenai   StartAgentRequestPropertiesMllmVendor = "openai"
-	StartAgentRequestPropertiesMllmVendorVertexai StartAgentRequestPropertiesMllmVendor = "vertexai"
+	AgentManagementStartRequestPropertiesMllmVendorOpenai   AgentManagementStartRequestPropertiesMllmVendor = "openai"
+	AgentManagementStartRequestPropertiesMllmVendorVertexai AgentManagementStartRequestPropertiesMllmVendor = "vertexai"
 )
 
-func NewStartAgentRequestPropertiesMllmVendorFromString(s string) (StartAgentRequestPropertiesMllmVendor, error) {
+func NewAgentManagementStartRequestPropertiesMllmVendorFromString(s string) (AgentManagementStartRequestPropertiesMllmVendor, error) {
 	switch s {
 	case "openai":
-		return StartAgentRequestPropertiesMllmVendorOpenai, nil
+		return AgentManagementStartRequestPropertiesMllmVendorOpenai, nil
 	case "vertexai":
-		return StartAgentRequestPropertiesMllmVendorVertexai, nil
+		return AgentManagementStartRequestPropertiesMllmVendorVertexai, nil
 	}
-	var t StartAgentRequestPropertiesMllmVendor
+	var t AgentManagementStartRequestPropertiesMllmVendor
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesMllmVendor) Ptr() *StartAgentRequestPropertiesMllmVendor {
-	return &s
+func (a AgentManagementStartRequestPropertiesMllmVendor) Ptr() *AgentManagementStartRequestPropertiesMllmVendor {
+	return &a
 }
 
 // Agent configuration parameters.
 var (
-	startAgentRequestPropertiesParametersFieldSilenceConfig      = big.NewInt(1 << 0)
-	startAgentRequestPropertiesParametersFieldFarewellConfig     = big.NewInt(1 << 1)
-	startAgentRequestPropertiesParametersFieldDataChannel        = big.NewInt(1 << 2)
-	startAgentRequestPropertiesParametersFieldEnableMetrics      = big.NewInt(1 << 3)
-	startAgentRequestPropertiesParametersFieldEnableErrorMessage = big.NewInt(1 << 4)
+	agentManagementStartRequestPropertiesParametersFieldSilenceConfig      = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesParametersFieldFarewellConfig     = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesParametersFieldDataChannel        = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesParametersFieldEnableMetrics      = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesParametersFieldEnableErrorMessage = big.NewInt(1 << 4)
 )
 
-type StartAgentRequestPropertiesParameters struct {
+type AgentManagementStartRequestPropertiesParameters struct {
 	// Settings related to agent silence behavior. Does not apply when you integrate a `mllm`.
-	SilenceConfig *StartAgentRequestPropertiesParametersSilenceConfig `json:"silence_config,omitempty" url:"silence_config,omitempty"`
+	SilenceConfig *AgentManagementStartRequestPropertiesParametersSilenceConfig `json:"silence_config,omitempty" url:"silence_config,omitempty"`
 	// Graceful hang-up settings for the agent.
-	FarewellConfig *StartAgentRequestPropertiesParametersFarewellConfig `json:"farewell_config,omitempty" url:"farewell_config,omitempty"`
+	FarewellConfig *AgentManagementStartRequestPropertiesParametersFarewellConfig `json:"farewell_config,omitempty" url:"farewell_config,omitempty"`
 	// Agent data transmission channel:
 	// - `rtm`: Use RTM transmission. This configuration takes effect only when `advanced_features.enable_rtm` is `true`.
 	// - `datastream`: Use RTC data stream transport.
-	DataChannel *StartAgentRequestPropertiesParametersDataChannel `json:"data_channel,omitempty" url:"data_channel,omitempty"`
+	DataChannel *AgentManagementStartRequestPropertiesParametersDataChannel `json:"data_channel,omitempty" url:"data_channel,omitempty"`
 	// Whether to receive agent performance data. This setting only takes effect when `advanced_features.enable_rtm` is `true`.
 	EnableMetrics *bool `json:"enable_metrics,omitempty" url:"enable_metrics,omitempty"`
 	// Whether to receive agent error events. This setting only takes effect when `advanced_features.enable_rtm` is `true`.
@@ -2717,158 +2717,158 @@ type StartAgentRequestPropertiesParameters struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetSilenceConfig() *StartAgentRequestPropertiesParametersSilenceConfig {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) GetSilenceConfig() *AgentManagementStartRequestPropertiesParametersSilenceConfig {
+	if a == nil {
 		return nil
 	}
-	return s.SilenceConfig
+	return a.SilenceConfig
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetFarewellConfig() *StartAgentRequestPropertiesParametersFarewellConfig {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) GetFarewellConfig() *AgentManagementStartRequestPropertiesParametersFarewellConfig {
+	if a == nil {
 		return nil
 	}
-	return s.FarewellConfig
+	return a.FarewellConfig
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetDataChannel() *StartAgentRequestPropertiesParametersDataChannel {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) GetDataChannel() *AgentManagementStartRequestPropertiesParametersDataChannel {
+	if a == nil {
 		return nil
 	}
-	return s.DataChannel
+	return a.DataChannel
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetEnableMetrics() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) GetEnableMetrics() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableMetrics
+	return a.EnableMetrics
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetEnableErrorMessage() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) GetEnableErrorMessage() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.EnableErrorMessage
+	return a.EnableErrorMessage
 }
 
-func (s *StartAgentRequestPropertiesParameters) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesParameters) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesParameters) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesParameters) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetSilenceConfig sets the SilenceConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParameters) SetSilenceConfig(silenceConfig *StartAgentRequestPropertiesParametersSilenceConfig) {
-	s.SilenceConfig = silenceConfig
-	s.require(startAgentRequestPropertiesParametersFieldSilenceConfig)
+func (a *AgentManagementStartRequestPropertiesParameters) SetSilenceConfig(silenceConfig *AgentManagementStartRequestPropertiesParametersSilenceConfig) {
+	a.SilenceConfig = silenceConfig
+	a.require(agentManagementStartRequestPropertiesParametersFieldSilenceConfig)
 }
 
 // SetFarewellConfig sets the FarewellConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParameters) SetFarewellConfig(farewellConfig *StartAgentRequestPropertiesParametersFarewellConfig) {
-	s.FarewellConfig = farewellConfig
-	s.require(startAgentRequestPropertiesParametersFieldFarewellConfig)
+func (a *AgentManagementStartRequestPropertiesParameters) SetFarewellConfig(farewellConfig *AgentManagementStartRequestPropertiesParametersFarewellConfig) {
+	a.FarewellConfig = farewellConfig
+	a.require(agentManagementStartRequestPropertiesParametersFieldFarewellConfig)
 }
 
 // SetDataChannel sets the DataChannel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParameters) SetDataChannel(dataChannel *StartAgentRequestPropertiesParametersDataChannel) {
-	s.DataChannel = dataChannel
-	s.require(startAgentRequestPropertiesParametersFieldDataChannel)
+func (a *AgentManagementStartRequestPropertiesParameters) SetDataChannel(dataChannel *AgentManagementStartRequestPropertiesParametersDataChannel) {
+	a.DataChannel = dataChannel
+	a.require(agentManagementStartRequestPropertiesParametersFieldDataChannel)
 }
 
 // SetEnableMetrics sets the EnableMetrics field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParameters) SetEnableMetrics(enableMetrics *bool) {
-	s.EnableMetrics = enableMetrics
-	s.require(startAgentRequestPropertiesParametersFieldEnableMetrics)
+func (a *AgentManagementStartRequestPropertiesParameters) SetEnableMetrics(enableMetrics *bool) {
+	a.EnableMetrics = enableMetrics
+	a.require(agentManagementStartRequestPropertiesParametersFieldEnableMetrics)
 }
 
 // SetEnableErrorMessage sets the EnableErrorMessage field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParameters) SetEnableErrorMessage(enableErrorMessage *bool) {
-	s.EnableErrorMessage = enableErrorMessage
-	s.require(startAgentRequestPropertiesParametersFieldEnableErrorMessage)
+func (a *AgentManagementStartRequestPropertiesParameters) SetEnableErrorMessage(enableErrorMessage *bool) {
+	a.EnableErrorMessage = enableErrorMessage
+	a.require(agentManagementStartRequestPropertiesParametersFieldEnableErrorMessage)
 }
 
-func (s *StartAgentRequestPropertiesParameters) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesParameters
+func (a *AgentManagementStartRequestPropertiesParameters) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesParameters
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesParameters(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesParameters(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesParameters) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesParameters
+func (a *AgentManagementStartRequestPropertiesParameters) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesParameters
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesParameters) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesParameters) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Agent data transmission channel:
 // - `rtm`: Use RTM transmission. This configuration takes effect only when `advanced_features.enable_rtm` is `true`.
 // - `datastream`: Use RTC data stream transport.
-type StartAgentRequestPropertiesParametersDataChannel string
+type AgentManagementStartRequestPropertiesParametersDataChannel string
 
 const (
-	StartAgentRequestPropertiesParametersDataChannelRtm        StartAgentRequestPropertiesParametersDataChannel = "rtm"
-	StartAgentRequestPropertiesParametersDataChannelDatastream StartAgentRequestPropertiesParametersDataChannel = "datastream"
+	AgentManagementStartRequestPropertiesParametersDataChannelRtm        AgentManagementStartRequestPropertiesParametersDataChannel = "rtm"
+	AgentManagementStartRequestPropertiesParametersDataChannelDatastream AgentManagementStartRequestPropertiesParametersDataChannel = "datastream"
 )
 
-func NewStartAgentRequestPropertiesParametersDataChannelFromString(s string) (StartAgentRequestPropertiesParametersDataChannel, error) {
+func NewAgentManagementStartRequestPropertiesParametersDataChannelFromString(s string) (AgentManagementStartRequestPropertiesParametersDataChannel, error) {
 	switch s {
 	case "rtm":
-		return StartAgentRequestPropertiesParametersDataChannelRtm, nil
+		return AgentManagementStartRequestPropertiesParametersDataChannelRtm, nil
 	case "datastream":
-		return StartAgentRequestPropertiesParametersDataChannelDatastream, nil
+		return AgentManagementStartRequestPropertiesParametersDataChannelDatastream, nil
 	}
-	var t StartAgentRequestPropertiesParametersDataChannel
+	var t AgentManagementStartRequestPropertiesParametersDataChannel
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesParametersDataChannel) Ptr() *StartAgentRequestPropertiesParametersDataChannel {
-	return &s
+func (a AgentManagementStartRequestPropertiesParametersDataChannel) Ptr() *AgentManagementStartRequestPropertiesParametersDataChannel {
+	return &a
 }
 
 // Graceful hang-up settings for the agent.
 var (
-	startAgentRequestPropertiesParametersFarewellConfigFieldGracefulEnabled        = big.NewInt(1 << 0)
-	startAgentRequestPropertiesParametersFarewellConfigFieldGracefulTimeoutSeconds = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesParametersFarewellConfigFieldGracefulEnabled        = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesParametersFarewellConfigFieldGracefulTimeoutSeconds = big.NewInt(1 << 1)
 )
 
-type StartAgentRequestPropertiesParametersFarewellConfig struct {
+type AgentManagementStartRequestPropertiesParametersFarewellConfig struct {
 	// Enable graceful leave:
 	// - `true`: When enabled, calling the POST method to stop the agent ensures that the agent is in an `IDLE` state before leaving the channel.
 	// - `false`: Disabled.
@@ -2883,92 +2883,92 @@ type StartAgentRequestPropertiesParametersFarewellConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) GetGracefulEnabled() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) GetGracefulEnabled() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.GracefulEnabled
+	return a.GracefulEnabled
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) GetGracefulTimeoutSeconds() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) GetGracefulTimeoutSeconds() *int {
+	if a == nil {
 		return nil
 	}
-	return s.GracefulTimeoutSeconds
+	return a.GracefulTimeoutSeconds
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetGracefulEnabled sets the GracefulEnabled field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) SetGracefulEnabled(gracefulEnabled *bool) {
-	s.GracefulEnabled = gracefulEnabled
-	s.require(startAgentRequestPropertiesParametersFarewellConfigFieldGracefulEnabled)
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) SetGracefulEnabled(gracefulEnabled *bool) {
+	a.GracefulEnabled = gracefulEnabled
+	a.require(agentManagementStartRequestPropertiesParametersFarewellConfigFieldGracefulEnabled)
 }
 
 // SetGracefulTimeoutSeconds sets the GracefulTimeoutSeconds field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) SetGracefulTimeoutSeconds(gracefulTimeoutSeconds *int) {
-	s.GracefulTimeoutSeconds = gracefulTimeoutSeconds
-	s.require(startAgentRequestPropertiesParametersFarewellConfigFieldGracefulTimeoutSeconds)
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) SetGracefulTimeoutSeconds(gracefulTimeoutSeconds *int) {
+	a.GracefulTimeoutSeconds = gracefulTimeoutSeconds
+	a.require(agentManagementStartRequestPropertiesParametersFarewellConfigFieldGracefulTimeoutSeconds)
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesParametersFarewellConfig
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesParametersFarewellConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesParametersFarewellConfig(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesParametersFarewellConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesParametersFarewellConfig
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesParametersFarewellConfig
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesParametersFarewellConfig) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesParametersFarewellConfig) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Settings related to agent silence behavior. Does not apply when you integrate a `mllm`.
 var (
-	startAgentRequestPropertiesParametersSilenceConfigFieldTimeoutMs = big.NewInt(1 << 0)
-	startAgentRequestPropertiesParametersSilenceConfigFieldAction    = big.NewInt(1 << 1)
-	startAgentRequestPropertiesParametersSilenceConfigFieldContent   = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesParametersSilenceConfigFieldTimeoutMs = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesParametersSilenceConfigFieldAction    = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesParametersSilenceConfigFieldContent   = big.NewInt(1 << 2)
 )
 
-type StartAgentRequestPropertiesParametersSilenceConfig struct {
+type AgentManagementStartRequestPropertiesParametersSilenceConfig struct {
 	// Specifies the maximum duration (in milliseconds) that the agent can remain silent.
 	// - `0`: Disables the silent reminder feature.
 	// - `(0, 60000]`: Enables the silent reminder. You must also set `content`.
@@ -2976,7 +2976,7 @@ type StartAgentRequestPropertiesParametersSilenceConfig struct {
 	// Specifies how the agent behaves when the silent timeout is reached:
 	// - `speak`: Uses the TTS module to announce the silent prompt (`content`).
 	// - `think`: Appends the silent prompt (`content`) to the context and passes it to the LLM.
-	Action *StartAgentRequestPropertiesParametersSilenceConfigAction `json:"action,omitempty" url:"action,omitempty"`
+	Action *AgentManagementStartRequestPropertiesParametersSilenceConfigAction `json:"action,omitempty" url:"action,omitempty"`
 	// Specifies the silent prompt message. The message use depends on the value of `action` parameter.
 	Content *string `json:"content,omitempty" url:"content,omitempty"`
 
@@ -2987,137 +2987,137 @@ type StartAgentRequestPropertiesParametersSilenceConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) GetTimeoutMs() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) GetTimeoutMs() *int {
+	if a == nil {
 		return nil
 	}
-	return s.TimeoutMs
+	return a.TimeoutMs
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) GetAction() *StartAgentRequestPropertiesParametersSilenceConfigAction {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) GetAction() *AgentManagementStartRequestPropertiesParametersSilenceConfigAction {
+	if a == nil {
 		return nil
 	}
-	return s.Action
+	return a.Action
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) GetContent() *string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) GetContent() *string {
+	if a == nil {
 		return nil
 	}
-	return s.Content
+	return a.Content
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetTimeoutMs sets the TimeoutMs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) SetTimeoutMs(timeoutMs *int) {
-	s.TimeoutMs = timeoutMs
-	s.require(startAgentRequestPropertiesParametersSilenceConfigFieldTimeoutMs)
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) SetTimeoutMs(timeoutMs *int) {
+	a.TimeoutMs = timeoutMs
+	a.require(agentManagementStartRequestPropertiesParametersSilenceConfigFieldTimeoutMs)
 }
 
 // SetAction sets the Action field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) SetAction(action *StartAgentRequestPropertiesParametersSilenceConfigAction) {
-	s.Action = action
-	s.require(startAgentRequestPropertiesParametersSilenceConfigFieldAction)
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) SetAction(action *AgentManagementStartRequestPropertiesParametersSilenceConfigAction) {
+	a.Action = action
+	a.require(agentManagementStartRequestPropertiesParametersSilenceConfigFieldAction)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) SetContent(content *string) {
-	s.Content = content
-	s.require(startAgentRequestPropertiesParametersSilenceConfigFieldContent)
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) SetContent(content *string) {
+	a.Content = content
+	a.require(agentManagementStartRequestPropertiesParametersSilenceConfigFieldContent)
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesParametersSilenceConfig
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesParametersSilenceConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesParametersSilenceConfig(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesParametersSilenceConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesParametersSilenceConfig
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesParametersSilenceConfig
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesParametersSilenceConfig) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesParametersSilenceConfig) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Specifies how the agent behaves when the silent timeout is reached:
 // - `speak`: Uses the TTS module to announce the silent prompt (`content`).
 // - `think`: Appends the silent prompt (`content`) to the context and passes it to the LLM.
-type StartAgentRequestPropertiesParametersSilenceConfigAction string
+type AgentManagementStartRequestPropertiesParametersSilenceConfigAction string
 
 const (
-	StartAgentRequestPropertiesParametersSilenceConfigActionSpeak StartAgentRequestPropertiesParametersSilenceConfigAction = "speak"
-	StartAgentRequestPropertiesParametersSilenceConfigActionThink StartAgentRequestPropertiesParametersSilenceConfigAction = "think"
+	AgentManagementStartRequestPropertiesParametersSilenceConfigActionSpeak AgentManagementStartRequestPropertiesParametersSilenceConfigAction = "speak"
+	AgentManagementStartRequestPropertiesParametersSilenceConfigActionThink AgentManagementStartRequestPropertiesParametersSilenceConfigAction = "think"
 )
 
-func NewStartAgentRequestPropertiesParametersSilenceConfigActionFromString(s string) (StartAgentRequestPropertiesParametersSilenceConfigAction, error) {
+func NewAgentManagementStartRequestPropertiesParametersSilenceConfigActionFromString(s string) (AgentManagementStartRequestPropertiesParametersSilenceConfigAction, error) {
 	switch s {
 	case "speak":
-		return StartAgentRequestPropertiesParametersSilenceConfigActionSpeak, nil
+		return AgentManagementStartRequestPropertiesParametersSilenceConfigActionSpeak, nil
 	case "think":
-		return StartAgentRequestPropertiesParametersSilenceConfigActionThink, nil
+		return AgentManagementStartRequestPropertiesParametersSilenceConfigActionThink, nil
 	}
-	var t StartAgentRequestPropertiesParametersSilenceConfigAction
+	var t AgentManagementStartRequestPropertiesParametersSilenceConfigAction
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesParametersSilenceConfigAction) Ptr() *StartAgentRequestPropertiesParametersSilenceConfigAction {
-	return &s
+func (a AgentManagementStartRequestPropertiesParametersSilenceConfigAction) Ptr() *AgentManagementStartRequestPropertiesParametersSilenceConfigAction {
+	return &a
 }
 
 // Selective Attention Locking (SAL) configuration.
 var (
-	startAgentRequestPropertiesSalFieldSalMode    = big.NewInt(1 << 0)
-	startAgentRequestPropertiesSalFieldSampleURLs = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesSalFieldSalMode    = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesSalFieldSampleURLs = big.NewInt(1 << 1)
 )
 
-type StartAgentRequestPropertiesSal struct {
+type AgentManagementStartRequestPropertiesSal struct {
 	// Selective attention lock mode:
 	// - `locking`: Speaker Lock Mode. The agent locks onto the speaker, blocking 95% of ambient human voices and noise. You can enable this mode in two ways:
 	//   - Seamless mode: When a user speaks loudly and clearly at the beginning of a conversation, the intelligent agent automatically recognizes the user as the speaker.
 	//   - Personalized mode: When creating an agent, a speaker's voiceprint URL is pre-registered through the `sample_urls` field. The agent then locates the speaker based on the pre-registered voiceprint.
 	//
 	// - `recognition`: Voiceprint recognition mode. The agent identifies different speakers and suppresses other background voices and environmental noise.
-	SalMode *StartAgentRequestPropertiesSalSalMode `json:"sal_mode,omitempty" url:"sal_mode,omitempty"`
+	SalMode *AgentManagementStartRequestPropertiesSalSalMode `json:"sal_mode,omitempty" url:"sal_mode,omitempty"`
 	// The registered voiceprint URLs as key-value pairs, where each key is the voiceprint name and each value is the download URL for that speaker's voiceprint.
 	// > - Do not set the incoming voiceprint name to "unknown"; this is a reserved keyword used to identify unknown speakers.
 	// > - For a registered voiceprint, ensure that:
@@ -3134,82 +3134,82 @@ type StartAgentRequestPropertiesSal struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesSal) GetSalMode() *StartAgentRequestPropertiesSalSalMode {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesSal) GetSalMode() *AgentManagementStartRequestPropertiesSalSalMode {
+	if a == nil {
 		return nil
 	}
-	return s.SalMode
+	return a.SalMode
 }
 
-func (s *StartAgentRequestPropertiesSal) GetSampleURLs() map[string]string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesSal) GetSampleURLs() map[string]string {
+	if a == nil {
 		return nil
 	}
-	return s.SampleURLs
+	return a.SampleURLs
 }
 
-func (s *StartAgentRequestPropertiesSal) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesSal) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesSal) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesSal) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetSalMode sets the SalMode field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesSal) SetSalMode(salMode *StartAgentRequestPropertiesSalSalMode) {
-	s.SalMode = salMode
-	s.require(startAgentRequestPropertiesSalFieldSalMode)
+func (a *AgentManagementStartRequestPropertiesSal) SetSalMode(salMode *AgentManagementStartRequestPropertiesSalSalMode) {
+	a.SalMode = salMode
+	a.require(agentManagementStartRequestPropertiesSalFieldSalMode)
 }
 
 // SetSampleURLs sets the SampleURLs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesSal) SetSampleURLs(sampleURLs map[string]string) {
-	s.SampleURLs = sampleURLs
-	s.require(startAgentRequestPropertiesSalFieldSampleURLs)
+func (a *AgentManagementStartRequestPropertiesSal) SetSampleURLs(sampleURLs map[string]string) {
+	a.SampleURLs = sampleURLs
+	a.require(agentManagementStartRequestPropertiesSalFieldSampleURLs)
 }
 
-func (s *StartAgentRequestPropertiesSal) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesSal
+func (a *AgentManagementStartRequestPropertiesSal) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesSal
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesSal(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesSal(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesSal) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesSal
+func (a *AgentManagementStartRequestPropertiesSal) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesSal
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesSal) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesSal) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Selective attention lock mode:
@@ -3218,36 +3218,36 @@ func (s *StartAgentRequestPropertiesSal) String() string {
 //   - Personalized mode: When creating an agent, a speaker's voiceprint URL is pre-registered through the `sample_urls` field. The agent then locates the speaker based on the pre-registered voiceprint.
 //
 // - `recognition`: Voiceprint recognition mode. The agent identifies different speakers and suppresses other background voices and environmental noise.
-type StartAgentRequestPropertiesSalSalMode string
+type AgentManagementStartRequestPropertiesSalSalMode string
 
 const (
-	StartAgentRequestPropertiesSalSalModeLocking     StartAgentRequestPropertiesSalSalMode = "locking"
-	StartAgentRequestPropertiesSalSalModeRecognition StartAgentRequestPropertiesSalSalMode = "recognition"
+	AgentManagementStartRequestPropertiesSalSalModeLocking     AgentManagementStartRequestPropertiesSalSalMode = "locking"
+	AgentManagementStartRequestPropertiesSalSalModeRecognition AgentManagementStartRequestPropertiesSalSalMode = "recognition"
 )
 
-func NewStartAgentRequestPropertiesSalSalModeFromString(s string) (StartAgentRequestPropertiesSalSalMode, error) {
+func NewAgentManagementStartRequestPropertiesSalSalModeFromString(s string) (AgentManagementStartRequestPropertiesSalSalMode, error) {
 	switch s {
 	case "locking":
-		return StartAgentRequestPropertiesSalSalModeLocking, nil
+		return AgentManagementStartRequestPropertiesSalSalModeLocking, nil
 	case "recognition":
-		return StartAgentRequestPropertiesSalSalModeRecognition, nil
+		return AgentManagementStartRequestPropertiesSalSalModeRecognition, nil
 	}
-	var t StartAgentRequestPropertiesSalSalMode
+	var t AgentManagementStartRequestPropertiesSalSalMode
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesSalSalMode) Ptr() *StartAgentRequestPropertiesSalSalMode {
-	return &s
+func (a AgentManagementStartRequestPropertiesSalSalMode) Ptr() *AgentManagementStartRequestPropertiesSalSalMode {
+	return &a
 }
 
 // Text-to-speech (TTS) module configuration.
 var (
-	startAgentRequestPropertiesTtsFieldVendor       = big.NewInt(1 << 0)
-	startAgentRequestPropertiesTtsFieldParams       = big.NewInt(1 << 1)
-	startAgentRequestPropertiesTtsFieldSkipPatterns = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesTtsFieldVendor       = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesTtsFieldParams       = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesTtsFieldSkipPatterns = big.NewInt(1 << 2)
 )
 
-type StartAgentRequestPropertiesTts struct {
+type AgentManagementStartRequestPropertiesTts struct {
 	// TTS provider:
 	// - `microsoft`: Microsoft Azure
 	// - `elevenlabs`: ElevenLabs
@@ -3259,7 +3259,7 @@ type StartAgentRequestPropertiesTts struct {
 	// - `groq`: Groq (Beta)
 	// - `google`: Google (Beta)
 	// - `amazon`: Amazon Polly (Beta)
-	Vendor StartAgentRequestPropertiesTtsVendor `json:"vendor" url:"vendor"`
+	Vendor AgentManagementStartRequestPropertiesTtsVendor `json:"vendor" url:"vendor"`
 	// The configuration parameters for the TTS vendor. See [TTS Overview](https://docs.agora.io/en/conversational-ai/models/tts/overview) for details.
 	Params map[string]interface{} `json:"params" url:"params"`
 	// Controls whether the TTS module skips bracketed content when reading LLM response text. Enable this feature by specifying one or more values:
@@ -3281,96 +3281,96 @@ type StartAgentRequestPropertiesTts struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesTts) GetVendor() StartAgentRequestPropertiesTtsVendor {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTts) GetVendor() AgentManagementStartRequestPropertiesTtsVendor {
+	if a == nil {
 		return ""
 	}
-	return s.Vendor
+	return a.Vendor
 }
 
-func (s *StartAgentRequestPropertiesTts) GetParams() map[string]interface{} {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTts) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return s.Params
+	return a.Params
 }
 
-func (s *StartAgentRequestPropertiesTts) GetSkipPatterns() []int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTts) GetSkipPatterns() []int {
+	if a == nil {
 		return nil
 	}
-	return s.SkipPatterns
+	return a.SkipPatterns
 }
 
-func (s *StartAgentRequestPropertiesTts) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesTts) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesTts) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesTts) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetVendor sets the Vendor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTts) SetVendor(vendor_ StartAgentRequestPropertiesTtsVendor) {
-	s.Vendor = vendor_
-	s.require(startAgentRequestPropertiesTtsFieldVendor)
+func (a *AgentManagementStartRequestPropertiesTts) SetVendor(vendor_ AgentManagementStartRequestPropertiesTtsVendor) {
+	a.Vendor = vendor_
+	a.require(agentManagementStartRequestPropertiesTtsFieldVendor)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTts) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentRequestPropertiesTtsFieldParams)
+func (a *AgentManagementStartRequestPropertiesTts) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementStartRequestPropertiesTtsFieldParams)
 }
 
 // SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTts) SetSkipPatterns(skipPatterns []int) {
-	s.SkipPatterns = skipPatterns
-	s.require(startAgentRequestPropertiesTtsFieldSkipPatterns)
+func (a *AgentManagementStartRequestPropertiesTts) SetSkipPatterns(skipPatterns []int) {
+	a.SkipPatterns = skipPatterns
+	a.require(agentManagementStartRequestPropertiesTtsFieldSkipPatterns)
 }
 
-func (s *StartAgentRequestPropertiesTts) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesTts
+func (a *AgentManagementStartRequestPropertiesTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesTts
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesTts(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesTts) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesTts
+func (a *AgentManagementStartRequestPropertiesTts) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesTts
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesTts) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesTts) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // TTS provider:
@@ -3384,79 +3384,79 @@ func (s *StartAgentRequestPropertiesTts) String() string {
 // - `groq`: Groq (Beta)
 // - `google`: Google (Beta)
 // - `amazon`: Amazon Polly (Beta)
-type StartAgentRequestPropertiesTtsVendor string
+type AgentManagementStartRequestPropertiesTtsVendor string
 
 const (
-	StartAgentRequestPropertiesTtsVendorMicrosoft  StartAgentRequestPropertiesTtsVendor = "microsoft"
-	StartAgentRequestPropertiesTtsVendorElevenlabs StartAgentRequestPropertiesTtsVendor = "elevenlabs"
-	StartAgentRequestPropertiesTtsVendorCartesia   StartAgentRequestPropertiesTtsVendor = "cartesia"
-	StartAgentRequestPropertiesTtsVendorOpenai     StartAgentRequestPropertiesTtsVendor = "openai"
-	StartAgentRequestPropertiesTtsVendorHumeai     StartAgentRequestPropertiesTtsVendor = "humeai"
-	StartAgentRequestPropertiesTtsVendorRime       StartAgentRequestPropertiesTtsVendor = "rime"
-	StartAgentRequestPropertiesTtsVendorFishaudio  StartAgentRequestPropertiesTtsVendor = "fishaudio"
-	StartAgentRequestPropertiesTtsVendorGroq       StartAgentRequestPropertiesTtsVendor = "groq"
-	StartAgentRequestPropertiesTtsVendorGoogle     StartAgentRequestPropertiesTtsVendor = "google"
-	StartAgentRequestPropertiesTtsVendorAmazon     StartAgentRequestPropertiesTtsVendor = "amazon"
+	AgentManagementStartRequestPropertiesTtsVendorMicrosoft  AgentManagementStartRequestPropertiesTtsVendor = "microsoft"
+	AgentManagementStartRequestPropertiesTtsVendorElevenlabs AgentManagementStartRequestPropertiesTtsVendor = "elevenlabs"
+	AgentManagementStartRequestPropertiesTtsVendorCartesia   AgentManagementStartRequestPropertiesTtsVendor = "cartesia"
+	AgentManagementStartRequestPropertiesTtsVendorOpenai     AgentManagementStartRequestPropertiesTtsVendor = "openai"
+	AgentManagementStartRequestPropertiesTtsVendorHumeai     AgentManagementStartRequestPropertiesTtsVendor = "humeai"
+	AgentManagementStartRequestPropertiesTtsVendorRime       AgentManagementStartRequestPropertiesTtsVendor = "rime"
+	AgentManagementStartRequestPropertiesTtsVendorFishaudio  AgentManagementStartRequestPropertiesTtsVendor = "fishaudio"
+	AgentManagementStartRequestPropertiesTtsVendorGroq       AgentManagementStartRequestPropertiesTtsVendor = "groq"
+	AgentManagementStartRequestPropertiesTtsVendorGoogle     AgentManagementStartRequestPropertiesTtsVendor = "google"
+	AgentManagementStartRequestPropertiesTtsVendorAmazon     AgentManagementStartRequestPropertiesTtsVendor = "amazon"
 )
 
-func NewStartAgentRequestPropertiesTtsVendorFromString(s string) (StartAgentRequestPropertiesTtsVendor, error) {
+func NewAgentManagementStartRequestPropertiesTtsVendorFromString(s string) (AgentManagementStartRequestPropertiesTtsVendor, error) {
 	switch s {
 	case "microsoft":
-		return StartAgentRequestPropertiesTtsVendorMicrosoft, nil
+		return AgentManagementStartRequestPropertiesTtsVendorMicrosoft, nil
 	case "elevenlabs":
-		return StartAgentRequestPropertiesTtsVendorElevenlabs, nil
+		return AgentManagementStartRequestPropertiesTtsVendorElevenlabs, nil
 	case "cartesia":
-		return StartAgentRequestPropertiesTtsVendorCartesia, nil
+		return AgentManagementStartRequestPropertiesTtsVendorCartesia, nil
 	case "openai":
-		return StartAgentRequestPropertiesTtsVendorOpenai, nil
+		return AgentManagementStartRequestPropertiesTtsVendorOpenai, nil
 	case "humeai":
-		return StartAgentRequestPropertiesTtsVendorHumeai, nil
+		return AgentManagementStartRequestPropertiesTtsVendorHumeai, nil
 	case "rime":
-		return StartAgentRequestPropertiesTtsVendorRime, nil
+		return AgentManagementStartRequestPropertiesTtsVendorRime, nil
 	case "fishaudio":
-		return StartAgentRequestPropertiesTtsVendorFishaudio, nil
+		return AgentManagementStartRequestPropertiesTtsVendorFishaudio, nil
 	case "groq":
-		return StartAgentRequestPropertiesTtsVendorGroq, nil
+		return AgentManagementStartRequestPropertiesTtsVendorGroq, nil
 	case "google":
-		return StartAgentRequestPropertiesTtsVendorGoogle, nil
+		return AgentManagementStartRequestPropertiesTtsVendorGoogle, nil
 	case "amazon":
-		return StartAgentRequestPropertiesTtsVendorAmazon, nil
+		return AgentManagementStartRequestPropertiesTtsVendorAmazon, nil
 	}
-	var t StartAgentRequestPropertiesTtsVendor
+	var t AgentManagementStartRequestPropertiesTtsVendor
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesTtsVendor) Ptr() *StartAgentRequestPropertiesTtsVendor {
-	return &s
+func (a AgentManagementStartRequestPropertiesTtsVendor) Ptr() *AgentManagementStartRequestPropertiesTtsVendor {
+	return &a
 }
 
 // Conversation turn detection settings.
 var (
-	startAgentRequestPropertiesTurnDetectionFieldType                = big.NewInt(1 << 0)
-	startAgentRequestPropertiesTurnDetectionFieldInterruptMode       = big.NewInt(1 << 1)
-	startAgentRequestPropertiesTurnDetectionFieldInterruptDurationMs = big.NewInt(1 << 2)
-	startAgentRequestPropertiesTurnDetectionFieldInterruptKeywords   = big.NewInt(1 << 3)
-	startAgentRequestPropertiesTurnDetectionFieldPrefixPaddingMs     = big.NewInt(1 << 4)
-	startAgentRequestPropertiesTurnDetectionFieldSilenceDurationMs   = big.NewInt(1 << 5)
-	startAgentRequestPropertiesTurnDetectionFieldThreshold           = big.NewInt(1 << 6)
-	startAgentRequestPropertiesTurnDetectionFieldCreateResponse      = big.NewInt(1 << 7)
-	startAgentRequestPropertiesTurnDetectionFieldInterruptResponse   = big.NewInt(1 << 8)
-	startAgentRequestPropertiesTurnDetectionFieldEagerness           = big.NewInt(1 << 9)
+	agentManagementStartRequestPropertiesTurnDetectionFieldType                = big.NewInt(1 << 0)
+	agentManagementStartRequestPropertiesTurnDetectionFieldInterruptMode       = big.NewInt(1 << 1)
+	agentManagementStartRequestPropertiesTurnDetectionFieldInterruptDurationMs = big.NewInt(1 << 2)
+	agentManagementStartRequestPropertiesTurnDetectionFieldInterruptKeywords   = big.NewInt(1 << 3)
+	agentManagementStartRequestPropertiesTurnDetectionFieldPrefixPaddingMs     = big.NewInt(1 << 4)
+	agentManagementStartRequestPropertiesTurnDetectionFieldSilenceDurationMs   = big.NewInt(1 << 5)
+	agentManagementStartRequestPropertiesTurnDetectionFieldThreshold           = big.NewInt(1 << 6)
+	agentManagementStartRequestPropertiesTurnDetectionFieldCreateResponse      = big.NewInt(1 << 7)
+	agentManagementStartRequestPropertiesTurnDetectionFieldInterruptResponse   = big.NewInt(1 << 8)
+	agentManagementStartRequestPropertiesTurnDetectionFieldEagerness           = big.NewInt(1 << 9)
 )
 
-type StartAgentRequestPropertiesTurnDetection struct {
+type AgentManagementStartRequestPropertiesTurnDetection struct {
 	// Turn detection mechanism:
 	// - `agora_vad`: Agora VAD
 	// - `server_vad`: The model detects the start and end of speech based on audio volume. Only available when `mllm` is enabled and OpenAI is selected.
 	// - `semantic_vad`: Uses a turn detection model with VAD to semantically estimate whether the user has finished speaking. Only available when `mllm` is enabled and OpenAI is selected.
-	Type *StartAgentRequestPropertiesTurnDetectionType `json:"type,omitempty" url:"type,omitempty"`
+	Type *AgentManagementStartRequestPropertiesTurnDetectionType `json:"type,omitempty" url:"type,omitempty"`
 	// Sets the agent's behavior when human voice interrupts the agent while it is interacting (speaking or thinking):
 	// - `interrupt`: The agent immediately stops the current interaction and processes the human voice input.
 	// - `append`: The agent completes the current interaction, then processes the human voice input.
 	// - `ignore`: The agent discards the human voice input without processing or storing it in the context.
 	// - `keyword`: The agent stops its current interaction after detecting any of the keywords specified in `interrupt_keywords`.
 	// - `adaptive`: The agent dynamically increases the voice continuity threshold while speaking to reduce accidental interruptions.
-	InterruptMode *StartAgentRequestPropertiesTurnDetectionInterruptMode `json:"interrupt_mode,omitempty" url:"interrupt_mode,omitempty"`
+	InterruptMode *AgentManagementStartRequestPropertiesTurnDetectionInterruptMode `json:"interrupt_mode,omitempty" url:"interrupt_mode,omitempty"`
 	// The amount of time in milliseconds that the user's voice must exceed the VAD threshold before an interruption is triggered.
 	InterruptDurationMs *float64 `json:"interrupt_duration_ms,omitempty" url:"interrupt_duration_ms,omitempty"`
 	// Specifies the list of keywords that trigger an interruption when `interrupt_mode` is set to `keyword`. You can configure up to 128 keywords.
@@ -3477,7 +3477,7 @@ type StartAgentRequestPropertiesTurnDetection struct {
 	// - `high`: Respond more quickly
 	//
 	// Only available in `semantic_vad` mode when using OpenAI Realtime API.
-	Eagerness *StartAgentRequestPropertiesTurnDetectionEagerness `json:"eagerness,omitempty" url:"eagerness,omitempty"`
+	Eagerness *AgentManagementStartRequestPropertiesTurnDetectionEagerness `json:"eagerness,omitempty" url:"eagerness,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -3486,194 +3486,194 @@ type StartAgentRequestPropertiesTurnDetection struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetType() *StartAgentRequestPropertiesTurnDetectionType {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetType() *AgentManagementStartRequestPropertiesTurnDetectionType {
+	if a == nil {
 		return nil
 	}
-	return s.Type
+	return a.Type
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetInterruptMode() *StartAgentRequestPropertiesTurnDetectionInterruptMode {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetInterruptMode() *AgentManagementStartRequestPropertiesTurnDetectionInterruptMode {
+	if a == nil {
 		return nil
 	}
-	return s.InterruptMode
+	return a.InterruptMode
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetInterruptDurationMs() *float64 {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetInterruptDurationMs() *float64 {
+	if a == nil {
 		return nil
 	}
-	return s.InterruptDurationMs
+	return a.InterruptDurationMs
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetInterruptKeywords() []string {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetInterruptKeywords() []string {
+	if a == nil {
 		return nil
 	}
-	return s.InterruptKeywords
+	return a.InterruptKeywords
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetPrefixPaddingMs() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetPrefixPaddingMs() *int {
+	if a == nil {
 		return nil
 	}
-	return s.PrefixPaddingMs
+	return a.PrefixPaddingMs
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetSilenceDurationMs() *int {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetSilenceDurationMs() *int {
+	if a == nil {
 		return nil
 	}
-	return s.SilenceDurationMs
+	return a.SilenceDurationMs
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetThreshold() *float64 {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetThreshold() *float64 {
+	if a == nil {
 		return nil
 	}
-	return s.Threshold
+	return a.Threshold
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetCreateResponse() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetCreateResponse() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.CreateResponse
+	return a.CreateResponse
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetInterruptResponse() *bool {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetInterruptResponse() *bool {
+	if a == nil {
 		return nil
 	}
-	return s.InterruptResponse
+	return a.InterruptResponse
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetEagerness() *StartAgentRequestPropertiesTurnDetectionEagerness {
-	if s == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetEagerness() *AgentManagementStartRequestPropertiesTurnDetectionEagerness {
+	if a == nil {
 		return nil
 	}
-	return s.Eagerness
+	return a.Eagerness
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartRequestPropertiesTurnDetection) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetType sets the Type field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetType(type_ *StartAgentRequestPropertiesTurnDetectionType) {
-	s.Type = type_
-	s.require(startAgentRequestPropertiesTurnDetectionFieldType)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetType(type_ *AgentManagementStartRequestPropertiesTurnDetectionType) {
+	a.Type = type_
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldType)
 }
 
 // SetInterruptMode sets the InterruptMode field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetInterruptMode(interruptMode *StartAgentRequestPropertiesTurnDetectionInterruptMode) {
-	s.InterruptMode = interruptMode
-	s.require(startAgentRequestPropertiesTurnDetectionFieldInterruptMode)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetInterruptMode(interruptMode *AgentManagementStartRequestPropertiesTurnDetectionInterruptMode) {
+	a.InterruptMode = interruptMode
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldInterruptMode)
 }
 
 // SetInterruptDurationMs sets the InterruptDurationMs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetInterruptDurationMs(interruptDurationMs *float64) {
-	s.InterruptDurationMs = interruptDurationMs
-	s.require(startAgentRequestPropertiesTurnDetectionFieldInterruptDurationMs)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetInterruptDurationMs(interruptDurationMs *float64) {
+	a.InterruptDurationMs = interruptDurationMs
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldInterruptDurationMs)
 }
 
 // SetInterruptKeywords sets the InterruptKeywords field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetInterruptKeywords(interruptKeywords []string) {
-	s.InterruptKeywords = interruptKeywords
-	s.require(startAgentRequestPropertiesTurnDetectionFieldInterruptKeywords)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetInterruptKeywords(interruptKeywords []string) {
+	a.InterruptKeywords = interruptKeywords
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldInterruptKeywords)
 }
 
 // SetPrefixPaddingMs sets the PrefixPaddingMs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetPrefixPaddingMs(prefixPaddingMs *int) {
-	s.PrefixPaddingMs = prefixPaddingMs
-	s.require(startAgentRequestPropertiesTurnDetectionFieldPrefixPaddingMs)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetPrefixPaddingMs(prefixPaddingMs *int) {
+	a.PrefixPaddingMs = prefixPaddingMs
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldPrefixPaddingMs)
 }
 
 // SetSilenceDurationMs sets the SilenceDurationMs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetSilenceDurationMs(silenceDurationMs *int) {
-	s.SilenceDurationMs = silenceDurationMs
-	s.require(startAgentRequestPropertiesTurnDetectionFieldSilenceDurationMs)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetSilenceDurationMs(silenceDurationMs *int) {
+	a.SilenceDurationMs = silenceDurationMs
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldSilenceDurationMs)
 }
 
 // SetThreshold sets the Threshold field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetThreshold(threshold *float64) {
-	s.Threshold = threshold
-	s.require(startAgentRequestPropertiesTurnDetectionFieldThreshold)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetThreshold(threshold *float64) {
+	a.Threshold = threshold
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldThreshold)
 }
 
 // SetCreateResponse sets the CreateResponse field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetCreateResponse(createResponse *bool) {
-	s.CreateResponse = createResponse
-	s.require(startAgentRequestPropertiesTurnDetectionFieldCreateResponse)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetCreateResponse(createResponse *bool) {
+	a.CreateResponse = createResponse
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldCreateResponse)
 }
 
 // SetInterruptResponse sets the InterruptResponse field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetInterruptResponse(interruptResponse *bool) {
-	s.InterruptResponse = interruptResponse
-	s.require(startAgentRequestPropertiesTurnDetectionFieldInterruptResponse)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetInterruptResponse(interruptResponse *bool) {
+	a.InterruptResponse = interruptResponse
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldInterruptResponse)
 }
 
 // SetEagerness sets the Eagerness field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentRequestPropertiesTurnDetection) SetEagerness(eagerness *StartAgentRequestPropertiesTurnDetectionEagerness) {
-	s.Eagerness = eagerness
-	s.require(startAgentRequestPropertiesTurnDetectionFieldEagerness)
+func (a *AgentManagementStartRequestPropertiesTurnDetection) SetEagerness(eagerness *AgentManagementStartRequestPropertiesTurnDetectionEagerness) {
+	a.Eagerness = eagerness
+	a.require(agentManagementStartRequestPropertiesTurnDetectionFieldEagerness)
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentRequestPropertiesTurnDetection
+func (a *AgentManagementStartRequestPropertiesTurnDetection) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartRequestPropertiesTurnDetection
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentRequestPropertiesTurnDetection(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartRequestPropertiesTurnDetection(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) MarshalJSON() ([]byte, error) {
-	type embed StartAgentRequestPropertiesTurnDetection
+func (a *AgentManagementStartRequestPropertiesTurnDetection) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartRequestPropertiesTurnDetection
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentRequestPropertiesTurnDetection) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartRequestPropertiesTurnDetection) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // The eagerness of the model to respond:
@@ -3682,29 +3682,29 @@ func (s *StartAgentRequestPropertiesTurnDetection) String() string {
 // - `high`: Respond more quickly
 //
 // Only available in `semantic_vad` mode when using OpenAI Realtime API.
-type StartAgentRequestPropertiesTurnDetectionEagerness string
+type AgentManagementStartRequestPropertiesTurnDetectionEagerness string
 
 const (
-	StartAgentRequestPropertiesTurnDetectionEagernessAuto StartAgentRequestPropertiesTurnDetectionEagerness = "auto"
-	StartAgentRequestPropertiesTurnDetectionEagernessLow  StartAgentRequestPropertiesTurnDetectionEagerness = "low"
-	StartAgentRequestPropertiesTurnDetectionEagernessHigh StartAgentRequestPropertiesTurnDetectionEagerness = "high"
+	AgentManagementStartRequestPropertiesTurnDetectionEagernessAuto AgentManagementStartRequestPropertiesTurnDetectionEagerness = "auto"
+	AgentManagementStartRequestPropertiesTurnDetectionEagernessLow  AgentManagementStartRequestPropertiesTurnDetectionEagerness = "low"
+	AgentManagementStartRequestPropertiesTurnDetectionEagernessHigh AgentManagementStartRequestPropertiesTurnDetectionEagerness = "high"
 )
 
-func NewStartAgentRequestPropertiesTurnDetectionEagernessFromString(s string) (StartAgentRequestPropertiesTurnDetectionEagerness, error) {
+func NewAgentManagementStartRequestPropertiesTurnDetectionEagernessFromString(s string) (AgentManagementStartRequestPropertiesTurnDetectionEagerness, error) {
 	switch s {
 	case "auto":
-		return StartAgentRequestPropertiesTurnDetectionEagernessAuto, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionEagernessAuto, nil
 	case "low":
-		return StartAgentRequestPropertiesTurnDetectionEagernessLow, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionEagernessLow, nil
 	case "high":
-		return StartAgentRequestPropertiesTurnDetectionEagernessHigh, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionEagernessHigh, nil
 	}
-	var t StartAgentRequestPropertiesTurnDetectionEagerness
+	var t AgentManagementStartRequestPropertiesTurnDetectionEagerness
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesTurnDetectionEagerness) Ptr() *StartAgentRequestPropertiesTurnDetectionEagerness {
-	return &s
+func (a AgentManagementStartRequestPropertiesTurnDetectionEagerness) Ptr() *AgentManagementStartRequestPropertiesTurnDetectionEagerness {
+	return &a
 }
 
 // Sets the agent's behavior when human voice interrupts the agent while it is interacting (speaking or thinking):
@@ -3713,73 +3713,73 @@ func (s StartAgentRequestPropertiesTurnDetectionEagerness) Ptr() *StartAgentRequ
 // - `ignore`: The agent discards the human voice input without processing or storing it in the context.
 // - `keyword`: The agent stops its current interaction after detecting any of the keywords specified in `interrupt_keywords`.
 // - `adaptive`: The agent dynamically increases the voice continuity threshold while speaking to reduce accidental interruptions.
-type StartAgentRequestPropertiesTurnDetectionInterruptMode string
+type AgentManagementStartRequestPropertiesTurnDetectionInterruptMode string
 
 const (
-	StartAgentRequestPropertiesTurnDetectionInterruptModeInterrupt StartAgentRequestPropertiesTurnDetectionInterruptMode = "interrupt"
-	StartAgentRequestPropertiesTurnDetectionInterruptModeAppend    StartAgentRequestPropertiesTurnDetectionInterruptMode = "append"
-	StartAgentRequestPropertiesTurnDetectionInterruptModeIgnore    StartAgentRequestPropertiesTurnDetectionInterruptMode = "ignore"
-	StartAgentRequestPropertiesTurnDetectionInterruptModeKeyword   StartAgentRequestPropertiesTurnDetectionInterruptMode = "keyword"
-	StartAgentRequestPropertiesTurnDetectionInterruptModeAdaptive  StartAgentRequestPropertiesTurnDetectionInterruptMode = "adaptive"
+	AgentManagementStartRequestPropertiesTurnDetectionInterruptModeInterrupt AgentManagementStartRequestPropertiesTurnDetectionInterruptMode = "interrupt"
+	AgentManagementStartRequestPropertiesTurnDetectionInterruptModeAppend    AgentManagementStartRequestPropertiesTurnDetectionInterruptMode = "append"
+	AgentManagementStartRequestPropertiesTurnDetectionInterruptModeIgnore    AgentManagementStartRequestPropertiesTurnDetectionInterruptMode = "ignore"
+	AgentManagementStartRequestPropertiesTurnDetectionInterruptModeKeyword   AgentManagementStartRequestPropertiesTurnDetectionInterruptMode = "keyword"
+	AgentManagementStartRequestPropertiesTurnDetectionInterruptModeAdaptive  AgentManagementStartRequestPropertiesTurnDetectionInterruptMode = "adaptive"
 )
 
-func NewStartAgentRequestPropertiesTurnDetectionInterruptModeFromString(s string) (StartAgentRequestPropertiesTurnDetectionInterruptMode, error) {
+func NewAgentManagementStartRequestPropertiesTurnDetectionInterruptModeFromString(s string) (AgentManagementStartRequestPropertiesTurnDetectionInterruptMode, error) {
 	switch s {
 	case "interrupt":
-		return StartAgentRequestPropertiesTurnDetectionInterruptModeInterrupt, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionInterruptModeInterrupt, nil
 	case "append":
-		return StartAgentRequestPropertiesTurnDetectionInterruptModeAppend, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionInterruptModeAppend, nil
 	case "ignore":
-		return StartAgentRequestPropertiesTurnDetectionInterruptModeIgnore, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionInterruptModeIgnore, nil
 	case "keyword":
-		return StartAgentRequestPropertiesTurnDetectionInterruptModeKeyword, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionInterruptModeKeyword, nil
 	case "adaptive":
-		return StartAgentRequestPropertiesTurnDetectionInterruptModeAdaptive, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionInterruptModeAdaptive, nil
 	}
-	var t StartAgentRequestPropertiesTurnDetectionInterruptMode
+	var t AgentManagementStartRequestPropertiesTurnDetectionInterruptMode
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesTurnDetectionInterruptMode) Ptr() *StartAgentRequestPropertiesTurnDetectionInterruptMode {
-	return &s
+func (a AgentManagementStartRequestPropertiesTurnDetectionInterruptMode) Ptr() *AgentManagementStartRequestPropertiesTurnDetectionInterruptMode {
+	return &a
 }
 
 // Turn detection mechanism:
 // - `agora_vad`: Agora VAD
 // - `server_vad`: The model detects the start and end of speech based on audio volume. Only available when `mllm` is enabled and OpenAI is selected.
 // - `semantic_vad`: Uses a turn detection model with VAD to semantically estimate whether the user has finished speaking. Only available when `mllm` is enabled and OpenAI is selected.
-type StartAgentRequestPropertiesTurnDetectionType string
+type AgentManagementStartRequestPropertiesTurnDetectionType string
 
 const (
-	StartAgentRequestPropertiesTurnDetectionTypeAgoraVad    StartAgentRequestPropertiesTurnDetectionType = "agora_vad"
-	StartAgentRequestPropertiesTurnDetectionTypeServerVad   StartAgentRequestPropertiesTurnDetectionType = "server_vad"
-	StartAgentRequestPropertiesTurnDetectionTypeSemanticVad StartAgentRequestPropertiesTurnDetectionType = "semantic_vad"
+	AgentManagementStartRequestPropertiesTurnDetectionTypeAgoraVad    AgentManagementStartRequestPropertiesTurnDetectionType = "agora_vad"
+	AgentManagementStartRequestPropertiesTurnDetectionTypeServerVad   AgentManagementStartRequestPropertiesTurnDetectionType = "server_vad"
+	AgentManagementStartRequestPropertiesTurnDetectionTypeSemanticVad AgentManagementStartRequestPropertiesTurnDetectionType = "semantic_vad"
 )
 
-func NewStartAgentRequestPropertiesTurnDetectionTypeFromString(s string) (StartAgentRequestPropertiesTurnDetectionType, error) {
+func NewAgentManagementStartRequestPropertiesTurnDetectionTypeFromString(s string) (AgentManagementStartRequestPropertiesTurnDetectionType, error) {
 	switch s {
 	case "agora_vad":
-		return StartAgentRequestPropertiesTurnDetectionTypeAgoraVad, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionTypeAgoraVad, nil
 	case "server_vad":
-		return StartAgentRequestPropertiesTurnDetectionTypeServerVad, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionTypeServerVad, nil
 	case "semantic_vad":
-		return StartAgentRequestPropertiesTurnDetectionTypeSemanticVad, nil
+		return AgentManagementStartRequestPropertiesTurnDetectionTypeSemanticVad, nil
 	}
-	var t StartAgentRequestPropertiesTurnDetectionType
+	var t AgentManagementStartRequestPropertiesTurnDetectionType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentRequestPropertiesTurnDetectionType) Ptr() *StartAgentRequestPropertiesTurnDetectionType {
-	return &s
+func (a AgentManagementStartRequestPropertiesTurnDetectionType) Ptr() *AgentManagementStartRequestPropertiesTurnDetectionType {
+	return &a
 }
 
 var (
-	startAgentResponseFieldAgentID  = big.NewInt(1 << 0)
-	startAgentResponseFieldCreateTs = big.NewInt(1 << 1)
-	startAgentResponseFieldStatus   = big.NewInt(1 << 2)
+	agentManagementStartResponseFieldAgentID  = big.NewInt(1 << 0)
+	agentManagementStartResponseFieldCreateTs = big.NewInt(1 << 1)
+	agentManagementStartResponseFieldStatus   = big.NewInt(1 << 2)
 )
 
-type StartAgentResponse struct {
+type AgentManagementStartResponse struct {
 	// Unique id of the agent instance
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// Timestamp of when the agent was created
@@ -3792,7 +3792,7 @@ type StartAgentResponse struct {
 	// - `STOPPED` (4): The agent has exited.
 	// - `RECOVERING` (5): The agent is recovering.
 	// - `FAILED` (6): The agent failed to execute.
-	Status *StartAgentResponseStatus `json:"status,omitempty" url:"status,omitempty"`
+	Status *AgentManagementStartResponseStatus `json:"status,omitempty" url:"status,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -3801,96 +3801,96 @@ type StartAgentResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *StartAgentResponse) GetAgentID() *string {
-	if s == nil {
+func (a *AgentManagementStartResponse) GetAgentID() *string {
+	if a == nil {
 		return nil
 	}
-	return s.AgentID
+	return a.AgentID
 }
 
-func (s *StartAgentResponse) GetCreateTs() *int {
-	if s == nil {
+func (a *AgentManagementStartResponse) GetCreateTs() *int {
+	if a == nil {
 		return nil
 	}
-	return s.CreateTs
+	return a.CreateTs
 }
 
-func (s *StartAgentResponse) GetStatus() *StartAgentResponseStatus {
-	if s == nil {
+func (a *AgentManagementStartResponse) GetStatus() *AgentManagementStartResponseStatus {
+	if a == nil {
 		return nil
 	}
-	return s.Status
+	return a.Status
 }
 
-func (s *StartAgentResponse) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
+func (a *AgentManagementStartResponse) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (s *StartAgentResponse) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (a *AgentManagementStartResponse) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentResponse) SetAgentID(agentID *string) {
-	s.AgentID = agentID
-	s.require(startAgentResponseFieldAgentID)
+func (a *AgentManagementStartResponse) SetAgentID(agentID *string) {
+	a.AgentID = agentID
+	a.require(agentManagementStartResponseFieldAgentID)
 }
 
 // SetCreateTs sets the CreateTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentResponse) SetCreateTs(createTs *int) {
-	s.CreateTs = createTs
-	s.require(startAgentResponseFieldCreateTs)
+func (a *AgentManagementStartResponse) SetCreateTs(createTs *int) {
+	a.CreateTs = createTs
+	a.require(agentManagementStartResponseFieldCreateTs)
 }
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentResponse) SetStatus(status *StartAgentResponseStatus) {
-	s.Status = status
-	s.require(startAgentResponseFieldStatus)
+func (a *AgentManagementStartResponse) SetStatus(status *AgentManagementStartResponseStatus) {
+	a.Status = status
+	a.require(agentManagementStartResponseFieldStatus)
 }
 
-func (s *StartAgentResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentResponse
+func (a *AgentManagementStartResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementStartResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*s = StartAgentResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	*a = AgentManagementStartResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (s *StartAgentResponse) MarshalJSON() ([]byte, error) {
-	type embed StartAgentResponse
+func (a *AgentManagementStartResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementStartResponse
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*s),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (s *StartAgentResponse) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+func (a *AgentManagementStartResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(s); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", s)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Current status:
@@ -3901,57 +3901,57 @@ func (s *StartAgentResponse) String() string {
 // - `STOPPED` (4): The agent has exited.
 // - `RECOVERING` (5): The agent is recovering.
 // - `FAILED` (6): The agent failed to execute.
-type StartAgentResponseStatus string
+type AgentManagementStartResponseStatus string
 
 const (
-	StartAgentResponseStatusIdle       StartAgentResponseStatus = "IDLE"
-	StartAgentResponseStatusStarting   StartAgentResponseStatus = "STARTING"
-	StartAgentResponseStatusRunning    StartAgentResponseStatus = "RUNNING"
-	StartAgentResponseStatusStopping   StartAgentResponseStatus = "STOPPING"
-	StartAgentResponseStatusStopped    StartAgentResponseStatus = "STOPPED"
-	StartAgentResponseStatusRecovering StartAgentResponseStatus = "RECOVERING"
-	StartAgentResponseStatusFailed     StartAgentResponseStatus = "FAILED"
+	AgentManagementStartResponseStatusIdle       AgentManagementStartResponseStatus = "IDLE"
+	AgentManagementStartResponseStatusStarting   AgentManagementStartResponseStatus = "STARTING"
+	AgentManagementStartResponseStatusRunning    AgentManagementStartResponseStatus = "RUNNING"
+	AgentManagementStartResponseStatusStopping   AgentManagementStartResponseStatus = "STOPPING"
+	AgentManagementStartResponseStatusStopped    AgentManagementStartResponseStatus = "STOPPED"
+	AgentManagementStartResponseStatusRecovering AgentManagementStartResponseStatus = "RECOVERING"
+	AgentManagementStartResponseStatusFailed     AgentManagementStartResponseStatus = "FAILED"
 )
 
-func NewStartAgentResponseStatusFromString(s string) (StartAgentResponseStatus, error) {
+func NewAgentManagementStartResponseStatusFromString(s string) (AgentManagementStartResponseStatus, error) {
 	switch s {
 	case "IDLE":
-		return StartAgentResponseStatusIdle, nil
+		return AgentManagementStartResponseStatusIdle, nil
 	case "STARTING":
-		return StartAgentResponseStatusStarting, nil
+		return AgentManagementStartResponseStatusStarting, nil
 	case "RUNNING":
-		return StartAgentResponseStatusRunning, nil
+		return AgentManagementStartResponseStatusRunning, nil
 	case "STOPPING":
-		return StartAgentResponseStatusStopping, nil
+		return AgentManagementStartResponseStatusStopping, nil
 	case "STOPPED":
-		return StartAgentResponseStatusStopped, nil
+		return AgentManagementStartResponseStatusStopped, nil
 	case "RECOVERING":
-		return StartAgentResponseStatusRecovering, nil
+		return AgentManagementStartResponseStatusRecovering, nil
 	case "FAILED":
-		return StartAgentResponseStatusFailed, nil
+		return AgentManagementStartResponseStatusFailed, nil
 	}
-	var t StartAgentResponseStatus
+	var t AgentManagementStartResponseStatus
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s StartAgentResponseStatus) Ptr() *StartAgentResponseStatus {
-	return &s
+func (a AgentManagementStartResponseStatus) Ptr() *AgentManagementStartResponseStatus {
+	return &a
 }
 
 // Configuration properties to update.
 var (
-	updateAgentRequestPropertiesFieldToken = big.NewInt(1 << 0)
-	updateAgentRequestPropertiesFieldLlm   = big.NewInt(1 << 1)
-	updateAgentRequestPropertiesFieldMllm  = big.NewInt(1 << 2)
+	agentManagementUpdateRequestPropertiesFieldToken = big.NewInt(1 << 0)
+	agentManagementUpdateRequestPropertiesFieldLlm   = big.NewInt(1 << 1)
+	agentManagementUpdateRequestPropertiesFieldMllm  = big.NewInt(1 << 2)
 )
 
-type UpdateAgentRequestProperties struct {
+type AgentManagementUpdateRequestProperties struct {
 	// The authentication token used by the agent to join the channel.
 	Token *string `json:"token,omitempty" url:"token,omitempty"`
 	// Large Language Model (LLM) settings.
-	Llm *UpdateAgentRequestPropertiesLlm `json:"llm,omitempty" url:"llm,omitempty"`
+	Llm *AgentManagementUpdateRequestPropertiesLlm `json:"llm,omitempty" url:"llm,omitempty"`
 	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
-	Mllm *UpdateAgentRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
+	Mllm *AgentManagementUpdateRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -3960,105 +3960,105 @@ type UpdateAgentRequestProperties struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdateAgentRequestProperties) GetToken() *string {
-	if u == nil {
+func (a *AgentManagementUpdateRequestProperties) GetToken() *string {
+	if a == nil {
 		return nil
 	}
-	return u.Token
+	return a.Token
 }
 
-func (u *UpdateAgentRequestProperties) GetLlm() *UpdateAgentRequestPropertiesLlm {
-	if u == nil {
+func (a *AgentManagementUpdateRequestProperties) GetLlm() *AgentManagementUpdateRequestPropertiesLlm {
+	if a == nil {
 		return nil
 	}
-	return u.Llm
+	return a.Llm
 }
 
-func (u *UpdateAgentRequestProperties) GetMllm() *UpdateAgentRequestPropertiesMllm {
-	if u == nil {
+func (a *AgentManagementUpdateRequestProperties) GetMllm() *AgentManagementUpdateRequestPropertiesMllm {
+	if a == nil {
 		return nil
 	}
-	return u.Mllm
+	return a.Mllm
 }
 
-func (u *UpdateAgentRequestProperties) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
+func (a *AgentManagementUpdateRequestProperties) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (u *UpdateAgentRequestProperties) require(field *big.Int) {
-	if u.explicitFields == nil {
-		u.explicitFields = big.NewInt(0)
+func (a *AgentManagementUpdateRequestProperties) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	u.explicitFields.Or(u.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetToken sets the Token field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestProperties) SetToken(token *string) {
-	u.Token = token
-	u.require(updateAgentRequestPropertiesFieldToken)
+func (a *AgentManagementUpdateRequestProperties) SetToken(token *string) {
+	a.Token = token
+	a.require(agentManagementUpdateRequestPropertiesFieldToken)
 }
 
 // SetLlm sets the Llm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestProperties) SetLlm(llm *UpdateAgentRequestPropertiesLlm) {
-	u.Llm = llm
-	u.require(updateAgentRequestPropertiesFieldLlm)
+func (a *AgentManagementUpdateRequestProperties) SetLlm(llm *AgentManagementUpdateRequestPropertiesLlm) {
+	a.Llm = llm
+	a.require(agentManagementUpdateRequestPropertiesFieldLlm)
 }
 
 // SetMllm sets the Mllm field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestProperties) SetMllm(mllm *UpdateAgentRequestPropertiesMllm) {
-	u.Mllm = mllm
-	u.require(updateAgentRequestPropertiesFieldMllm)
+func (a *AgentManagementUpdateRequestProperties) SetMllm(mllm *AgentManagementUpdateRequestPropertiesMllm) {
+	a.Mllm = mllm
+	a.require(agentManagementUpdateRequestPropertiesFieldMllm)
 }
 
-func (u *UpdateAgentRequestProperties) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateAgentRequestProperties
+func (a *AgentManagementUpdateRequestProperties) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementUpdateRequestProperties
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateAgentRequestProperties(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	*a = AgentManagementUpdateRequestProperties(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (u *UpdateAgentRequestProperties) MarshalJSON() ([]byte, error) {
-	type embed UpdateAgentRequestProperties
+func (a *AgentManagementUpdateRequestProperties) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementUpdateRequestProperties
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*u),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdateAgentRequestProperties) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+func (a *AgentManagementUpdateRequestProperties) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(u); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", u)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Large Language Model (LLM) settings.
 var (
-	updateAgentRequestPropertiesLlmFieldSystemMessages = big.NewInt(1 << 0)
-	updateAgentRequestPropertiesLlmFieldParams         = big.NewInt(1 << 1)
+	agentManagementUpdateRequestPropertiesLlmFieldSystemMessages = big.NewInt(1 << 0)
+	agentManagementUpdateRequestPropertiesLlmFieldParams         = big.NewInt(1 << 1)
 )
 
-type UpdateAgentRequestPropertiesLlm struct {
+type AgentManagementUpdateRequestPropertiesLlm struct {
 	// A set of predefined messages appended to the beginning of each LLM request. These messages help control the LLM's output and can include role definitions, prompts, response examples, and more. This field must be compatible with the OpenAI protocol.
 	SystemMessages []map[string]interface{} `json:"system_messages,omitempty" url:"system_messages,omitempty"`
 	// Additional LLM information included in the message body, such as the model used, the maximum number of tokens, and more. Supported configurations vary by LLM provider. Refer to the provider's documentation for details. Updating this field overwrites the configuration set when the agent was created. When updating, make sure to pass the complete `params` field.
@@ -4071,90 +4071,90 @@ type UpdateAgentRequestPropertiesLlm struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) GetSystemMessages() []map[string]interface{} {
-	if u == nil {
+func (a *AgentManagementUpdateRequestPropertiesLlm) GetSystemMessages() []map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return u.SystemMessages
+	return a.SystemMessages
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) GetParams() map[string]interface{} {
-	if u == nil {
+func (a *AgentManagementUpdateRequestPropertiesLlm) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return u.Params
+	return a.Params
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
+func (a *AgentManagementUpdateRequestPropertiesLlm) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) require(field *big.Int) {
-	if u.explicitFields == nil {
-		u.explicitFields = big.NewInt(0)
+func (a *AgentManagementUpdateRequestPropertiesLlm) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	u.explicitFields.Or(u.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetSystemMessages sets the SystemMessages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestPropertiesLlm) SetSystemMessages(systemMessages []map[string]interface{}) {
-	u.SystemMessages = systemMessages
-	u.require(updateAgentRequestPropertiesLlmFieldSystemMessages)
+func (a *AgentManagementUpdateRequestPropertiesLlm) SetSystemMessages(systemMessages []map[string]interface{}) {
+	a.SystemMessages = systemMessages
+	a.require(agentManagementUpdateRequestPropertiesLlmFieldSystemMessages)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestPropertiesLlm) SetParams(params map[string]interface{}) {
-	u.Params = params
-	u.require(updateAgentRequestPropertiesLlmFieldParams)
+func (a *AgentManagementUpdateRequestPropertiesLlm) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementUpdateRequestPropertiesLlmFieldParams)
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateAgentRequestPropertiesLlm
+func (a *AgentManagementUpdateRequestPropertiesLlm) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementUpdateRequestPropertiesLlm
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateAgentRequestPropertiesLlm(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	*a = AgentManagementUpdateRequestPropertiesLlm(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) MarshalJSON() ([]byte, error) {
-	type embed UpdateAgentRequestPropertiesLlm
+func (a *AgentManagementUpdateRequestPropertiesLlm) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementUpdateRequestPropertiesLlm
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*u),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdateAgentRequestPropertiesLlm) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+func (a *AgentManagementUpdateRequestPropertiesLlm) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(u); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", u)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
 var (
-	updateAgentRequestPropertiesMllmFieldParams = big.NewInt(1 << 0)
+	agentManagementUpdateRequestPropertiesMllmFieldParams = big.NewInt(1 << 0)
 )
 
-type UpdateAgentRequestPropertiesMllm struct {
+type AgentManagementUpdateRequestPropertiesMllm struct {
 	// Additional MLLM configuration parameters. See [MLLM Overview](https://docs.agora.io/en/conversational-ai/models/mllm/overview) for details.
 	Params map[string]interface{} `json:"params,omitempty" url:"params,omitempty"`
 
@@ -4165,77 +4165,77 @@ type UpdateAgentRequestPropertiesMllm struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) GetParams() map[string]interface{} {
-	if u == nil {
+func (a *AgentManagementUpdateRequestPropertiesMllm) GetParams() map[string]interface{} {
+	if a == nil {
 		return nil
 	}
-	return u.Params
+	return a.Params
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
+func (a *AgentManagementUpdateRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) require(field *big.Int) {
-	if u.explicitFields == nil {
-		u.explicitFields = big.NewInt(0)
+func (a *AgentManagementUpdateRequestPropertiesMllm) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	u.explicitFields.Or(u.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetParams sets the Params field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequestPropertiesMllm) SetParams(params map[string]interface{}) {
-	u.Params = params
-	u.require(updateAgentRequestPropertiesMllmFieldParams)
+func (a *AgentManagementUpdateRequestPropertiesMllm) SetParams(params map[string]interface{}) {
+	a.Params = params
+	a.require(agentManagementUpdateRequestPropertiesMllmFieldParams)
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateAgentRequestPropertiesMllm
+func (a *AgentManagementUpdateRequestPropertiesMllm) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementUpdateRequestPropertiesMllm
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateAgentRequestPropertiesMllm(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	*a = AgentManagementUpdateRequestPropertiesMllm(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
-	type embed UpdateAgentRequestPropertiesMllm
+func (a *AgentManagementUpdateRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementUpdateRequestPropertiesMllm
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*u),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdateAgentRequestPropertiesMllm) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+func (a *AgentManagementUpdateRequestPropertiesMllm) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(u); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", u)
+	return fmt.Sprintf("%#v", a)
 }
 
 var (
-	updateAgentResponseFieldAgentID  = big.NewInt(1 << 0)
-	updateAgentResponseFieldCreateTs = big.NewInt(1 << 1)
-	updateAgentResponseFieldStatus   = big.NewInt(1 << 2)
+	agentManagementUpdateResponseFieldAgentID  = big.NewInt(1 << 0)
+	agentManagementUpdateResponseFieldCreateTs = big.NewInt(1 << 1)
+	agentManagementUpdateResponseFieldStatus   = big.NewInt(1 << 2)
 )
 
-type UpdateAgentResponse struct {
+type AgentManagementUpdateResponse struct {
 	// Unique id of the agent instance
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// Timestamp of when the agent was created
@@ -4248,7 +4248,7 @@ type UpdateAgentResponse struct {
 	// - `STOPPED` (4): The agent has exited.
 	// - `RECOVERING` (5): The agent is recovering.
 	// - `FAILED` (6): The agent failed to execute.
-	Status *UpdateAgentResponseStatus `json:"status,omitempty" url:"status,omitempty"`
+	Status *AgentManagementUpdateResponseStatus `json:"status,omitempty" url:"status,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -4257,96 +4257,96 @@ type UpdateAgentResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdateAgentResponse) GetAgentID() *string {
-	if u == nil {
+func (a *AgentManagementUpdateResponse) GetAgentID() *string {
+	if a == nil {
 		return nil
 	}
-	return u.AgentID
+	return a.AgentID
 }
 
-func (u *UpdateAgentResponse) GetCreateTs() *int {
-	if u == nil {
+func (a *AgentManagementUpdateResponse) GetCreateTs() *int {
+	if a == nil {
 		return nil
 	}
-	return u.CreateTs
+	return a.CreateTs
 }
 
-func (u *UpdateAgentResponse) GetStatus() *UpdateAgentResponseStatus {
-	if u == nil {
+func (a *AgentManagementUpdateResponse) GetStatus() *AgentManagementUpdateResponseStatus {
+	if a == nil {
 		return nil
 	}
-	return u.Status
+	return a.Status
 }
 
-func (u *UpdateAgentResponse) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
+func (a *AgentManagementUpdateResponse) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
 }
 
-func (u *UpdateAgentResponse) require(field *big.Int) {
-	if u.explicitFields == nil {
-		u.explicitFields = big.NewInt(0)
+func (a *AgentManagementUpdateResponse) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	u.explicitFields.Or(u.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentResponse) SetAgentID(agentID *string) {
-	u.AgentID = agentID
-	u.require(updateAgentResponseFieldAgentID)
+func (a *AgentManagementUpdateResponse) SetAgentID(agentID *string) {
+	a.AgentID = agentID
+	a.require(agentManagementUpdateResponseFieldAgentID)
 }
 
 // SetCreateTs sets the CreateTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentResponse) SetCreateTs(createTs *int) {
-	u.CreateTs = createTs
-	u.require(updateAgentResponseFieldCreateTs)
+func (a *AgentManagementUpdateResponse) SetCreateTs(createTs *int) {
+	a.CreateTs = createTs
+	a.require(agentManagementUpdateResponseFieldCreateTs)
 }
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentResponse) SetStatus(status *UpdateAgentResponseStatus) {
-	u.Status = status
-	u.require(updateAgentResponseFieldStatus)
+func (a *AgentManagementUpdateResponse) SetStatus(status *AgentManagementUpdateResponseStatus) {
+	a.Status = status
+	a.require(agentManagementUpdateResponseFieldStatus)
 }
 
-func (u *UpdateAgentResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateAgentResponse
+func (a *AgentManagementUpdateResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AgentManagementUpdateResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateAgentResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	*a = AgentManagementUpdateResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (u *UpdateAgentResponse) MarshalJSON() ([]byte, error) {
-	type embed UpdateAgentResponse
+func (a *AgentManagementUpdateResponse) MarshalJSON() ([]byte, error) {
+	type embed AgentManagementUpdateResponse
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*u),
+		embed: embed(*a),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdateAgentResponse) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+func (a *AgentManagementUpdateResponse) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(u); err == nil {
+	if value, err := internal.StringifyJSON(a); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", u)
+	return fmt.Sprintf("%#v", a)
 }
 
 // Current status:
@@ -4357,65 +4357,65 @@ func (u *UpdateAgentResponse) String() string {
 // - `STOPPED` (4): The agent has exited.
 // - `RECOVERING` (5): The agent is recovering.
 // - `FAILED` (6): The agent failed to execute.
-type UpdateAgentResponseStatus string
+type AgentManagementUpdateResponseStatus string
 
 const (
-	UpdateAgentResponseStatusIdle       UpdateAgentResponseStatus = "IDLE"
-	UpdateAgentResponseStatusStarting   UpdateAgentResponseStatus = "STARTING"
-	UpdateAgentResponseStatusRunning    UpdateAgentResponseStatus = "RUNNING"
-	UpdateAgentResponseStatusStopping   UpdateAgentResponseStatus = "STOPPING"
-	UpdateAgentResponseStatusStopped    UpdateAgentResponseStatus = "STOPPED"
-	UpdateAgentResponseStatusRecovering UpdateAgentResponseStatus = "RECOVERING"
-	UpdateAgentResponseStatusFailed     UpdateAgentResponseStatus = "FAILED"
+	AgentManagementUpdateResponseStatusIdle       AgentManagementUpdateResponseStatus = "IDLE"
+	AgentManagementUpdateResponseStatusStarting   AgentManagementUpdateResponseStatus = "STARTING"
+	AgentManagementUpdateResponseStatusRunning    AgentManagementUpdateResponseStatus = "RUNNING"
+	AgentManagementUpdateResponseStatusStopping   AgentManagementUpdateResponseStatus = "STOPPING"
+	AgentManagementUpdateResponseStatusStopped    AgentManagementUpdateResponseStatus = "STOPPED"
+	AgentManagementUpdateResponseStatusRecovering AgentManagementUpdateResponseStatus = "RECOVERING"
+	AgentManagementUpdateResponseStatusFailed     AgentManagementUpdateResponseStatus = "FAILED"
 )
 
-func NewUpdateAgentResponseStatusFromString(s string) (UpdateAgentResponseStatus, error) {
+func NewAgentManagementUpdateResponseStatusFromString(s string) (AgentManagementUpdateResponseStatus, error) {
 	switch s {
 	case "IDLE":
-		return UpdateAgentResponseStatusIdle, nil
+		return AgentManagementUpdateResponseStatusIdle, nil
 	case "STARTING":
-		return UpdateAgentResponseStatusStarting, nil
+		return AgentManagementUpdateResponseStatusStarting, nil
 	case "RUNNING":
-		return UpdateAgentResponseStatusRunning, nil
+		return AgentManagementUpdateResponseStatusRunning, nil
 	case "STOPPING":
-		return UpdateAgentResponseStatusStopping, nil
+		return AgentManagementUpdateResponseStatusStopping, nil
 	case "STOPPED":
-		return UpdateAgentResponseStatusStopped, nil
+		return AgentManagementUpdateResponseStatusStopped, nil
 	case "RECOVERING":
-		return UpdateAgentResponseStatusRecovering, nil
+		return AgentManagementUpdateResponseStatusRecovering, nil
 	case "FAILED":
-		return UpdateAgentResponseStatusFailed, nil
+		return AgentManagementUpdateResponseStatusFailed, nil
 	}
-	var t UpdateAgentResponseStatus
+	var t AgentManagementUpdateResponseStatus
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (u UpdateAgentResponseStatus) Ptr() *UpdateAgentResponseStatus {
-	return &u
+func (a AgentManagementUpdateResponseStatus) Ptr() *AgentManagementUpdateResponseStatus {
+	return &a
 }
 
 var (
-	updateAgentRequestFieldProperties = big.NewInt(1 << 0)
+	agentManagementUpdateRequestFieldProperties = big.NewInt(1 << 0)
 )
 
-type UpdateAgentRequest struct {
+type AgentManagementUpdateRequest struct {
 	// Configuration properties to update.
-	Properties *UpdateAgentRequestProperties `json:"properties,omitempty" url:"-"`
+	Properties *AgentManagementUpdateRequestProperties `json:"properties,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (u *UpdateAgentRequest) require(field *big.Int) {
-	if u.explicitFields == nil {
-		u.explicitFields = big.NewInt(0)
+func (a *AgentManagementUpdateRequest) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
 	}
-	u.explicitFields.Or(u.explicitFields, field)
+	a.explicitFields.Or(a.explicitFields, field)
 }
 
 // SetProperties sets the Properties field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAgentRequest) SetProperties(properties *UpdateAgentRequestProperties) {
-	u.Properties = properties
-	u.require(updateAgentRequestFieldProperties)
+func (a *AgentManagementUpdateRequest) SetProperties(properties *AgentManagementUpdateRequestProperties) {
+	a.Properties = properties
+	a.require(agentManagementUpdateRequestFieldProperties)
 }

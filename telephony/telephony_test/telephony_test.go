@@ -5,9 +5,9 @@ package telephony_test
 import (
 	context "context"
 	fmt "fmt"
-	agoraiogosdk "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	v505 "github.com/fern-demo/agoraio-go-sdk/v505"
+	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	require "github.com/stretchr/testify/require"
 	gowiremock "github.com/wiremock/go-wiremock"
 	wiremocktestcontainersgo "github.com/wiremock/wiremock-testcontainers-go"
@@ -93,7 +93,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestTelephonyRetrieveCallRecordsWithWireMock(
+func TestTelephonyListWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -114,7 +114,7 @@ func TestTelephonyRetrieveCallRecordsWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.RetrieveCallRecordsRequest{
+	request := &Agora.TelephonyListRequest{
 		Number: Agora.String(
 			"number",
 		),
@@ -124,7 +124,7 @@ func TestTelephonyRetrieveCallRecordsWithWireMock(
 		ToTime: Agora.Int(
 			1,
 		),
-		Type: Agora.RetrieveCallRecordsRequestTypeInbound.Ptr(),
+		Type: Agora.TelephonyListRequestTypeInbound.Ptr(),
 		Limit: Agora.Int(
 			1,
 		),
@@ -132,7 +132,7 @@ func TestTelephonyRetrieveCallRecordsWithWireMock(
 			"cursor",
 		),
 	}
-	_, invocationErr := client.Telephony.RetrieveCallRecords(
+	_, invocationErr := client.Telephony.List(
 		context.TODO(),
 		"appid",
 		request,
@@ -144,7 +144,7 @@ func TestTelephonyRetrieveCallRecordsWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestTelephonyInitiateOutboundCallWithWireMock(
+func TestTelephonyCallWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -173,9 +173,9 @@ func TestTelephonyInitiateOutboundCallWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.InitiateOutboundCallRequest{
+	request := &Agora.TelephonyCallRequest{
 		Name: "customer_service",
-		Sip: &Agora.InitiateOutboundCallRequestSip{
+		Sip: &Agora.TelephonyCallRequestSip{
 			ToNumber:    "+19876543210",
 			FromNumber:  "+11234567890",
 			SipRtcUID:   "100",
@@ -184,13 +184,13 @@ func TestTelephonyInitiateOutboundCallWithWireMock(
 		PipelineID: Agora.String(
 			"fzufjlweixxxxnlp",
 		),
-		Properties: &Agora.InitiateOutboundCallRequestProperties{
+		Properties: &Agora.TelephonyCallRequestProperties{
 			Channel:     "<agora_channel>",
 			Token:       "<agora_channel_token>",
 			AgentRtcUID: "111",
 		},
 	}
-	_, invocationErr := client.Telephony.InitiateOutboundCall(
+	_, invocationErr := client.Telephony.Call(
 		context.TODO(),
 		"appid",
 		request,
@@ -202,7 +202,7 @@ func TestTelephonyInitiateOutboundCallWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestTelephonyRetrieveCallStatusWithWireMock(
+func TestTelephonyGetWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -226,7 +226,7 @@ func TestTelephonyRetrieveCallStatusWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	_, invocationErr := client.Telephony.RetrieveCallStatus(
+	_, invocationErr := client.Telephony.Get(
 		context.TODO(),
 		"appid",
 		"agent_id",
@@ -238,7 +238,7 @@ func TestTelephonyRetrieveCallStatusWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestTelephonyHangupCallWithWireMock(
+func TestTelephonyHangupWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -270,8 +270,8 @@ func TestTelephonyHangupCallWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.HangupCallRequest{}
-	_, invocationErr := client.Telephony.HangupCall(
+	request := &Agora.TelephonyHangupRequest{}
+	_, invocationErr := client.Telephony.Hangup(
 		context.TODO(),
 		"appid",
 		"agent_id",

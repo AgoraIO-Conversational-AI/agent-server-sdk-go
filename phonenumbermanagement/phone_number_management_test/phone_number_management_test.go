@@ -5,9 +5,9 @@ package phone_number_management_test
 import (
 	context "context"
 	fmt "fmt"
-	agoraiogosdk "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	v505 "github.com/fern-demo/agoraio-go-sdk/v505"
+	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	require "github.com/stretchr/testify/require"
 	gowiremock "github.com/wiremock/go-wiremock"
 	wiremocktestcontainersgo "github.com/wiremock/wiremock-testcontainers-go"
@@ -93,7 +93,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestPhoneNumberManagementRetrieveNumberListWithWireMock(
+func TestPhoneNumberManagementListWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -111,7 +111,7 @@ func TestPhoneNumberManagementRetrieveNumberListWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	_, invocationErr := client.PhoneNumberManagement.RetrieveNumberList(
+	_, invocationErr := client.PhoneNumberManagement.List(
 		context.TODO(),
 	)
 
@@ -121,7 +121,7 @@ func TestPhoneNumberManagementRetrieveNumberListWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestPhoneNumberManagementImportNumberWithWireMock(
+func TestPhoneNumberManagementAddWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -147,8 +147,8 @@ func TestPhoneNumberManagementImportNumberWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.ImportNumberRequest{
-		Provider:    Agora.ImportNumberRequestProviderByo,
+	request := &Agora.PhoneNumberManagementAddRequest{
+		Provider:    Agora.PhoneNumberManagementAddRequestProviderByo,
 		PhoneNumber: "+19876543210",
 		Label:       "Sales Hotline",
 		Inbound: Agora.Bool(
@@ -157,12 +157,12 @@ func TestPhoneNumberManagementImportNumberWithWireMock(
 		Outbound: Agora.Bool(
 			true,
 		),
-		InboundConfig: &Agora.ImportNumberRequestInboundConfig{
+		InboundConfig: &Agora.PhoneNumberManagementAddRequestInboundConfig{
 			AllowedAddresses: []string{
 				"112.126.15.64/27",
 			},
 		},
-		OutboundConfig: &Agora.ImportNumberRequestOutboundConfig{
+		OutboundConfig: &Agora.PhoneNumberManagementAddRequestOutboundConfig{
 			Address: Agora.String(
 				"xxx:xxx@sip.example.com",
 			),
@@ -171,7 +171,7 @@ func TestPhoneNumberManagementImportNumberWithWireMock(
 			),
 		},
 	}
-	_, invocationErr := client.PhoneNumberManagement.ImportNumber(
+	_, invocationErr := client.PhoneNumberManagement.Add(
 		context.TODO(),
 		request,
 	)
@@ -182,7 +182,7 @@ func TestPhoneNumberManagementImportNumberWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestPhoneNumberManagementRetrieveNumberInformationWithWireMock(
+func TestPhoneNumberManagementGetWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -203,7 +203,7 @@ func TestPhoneNumberManagementRetrieveNumberInformationWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	_, invocationErr := client.PhoneNumberManagement.RetrieveNumberInformation(
+	_, invocationErr := client.PhoneNumberManagement.Get(
 		context.TODO(),
 		"phone_number",
 	)
@@ -214,7 +214,7 @@ func TestPhoneNumberManagementRetrieveNumberInformationWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestPhoneNumberManagementDeleteNumberWithWireMock(
+func TestPhoneNumberManagementDeleteWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -235,7 +235,7 @@ func TestPhoneNumberManagementDeleteNumberWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	invocationErr := client.PhoneNumberManagement.DeleteNumber(
+	invocationErr := client.PhoneNumberManagement.Delete(
 		context.TODO(),
 		"phone_number",
 	)
@@ -246,7 +246,7 @@ func TestPhoneNumberManagementDeleteNumberWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestPhoneNumberManagementUpdateNumberConfigurationWithWireMock(
+func TestPhoneNumberManagementUpdateWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -275,19 +275,19 @@ func TestPhoneNumberManagementUpdateNumberConfigurationWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.UpdateNumberConfigurationRequest{
-		InboundConfig: &Agora.UpdateNumberConfigurationRequestInboundConfig{
+	request := &Agora.PhoneNumberManagementUpdateRequest{
+		InboundConfig: &Agora.PhoneNumberManagementUpdateRequestInboundConfig{
 			PipelineID: Agora.String(
 				"xxxxx",
 			),
 		},
-		OutboundConfig: &Agora.UpdateNumberConfigurationRequestOutboundConfig{
+		OutboundConfig: &Agora.PhoneNumberManagementUpdateRequestOutboundConfig{
 			PipelineID: Agora.String(
 				"xxxxx",
 			),
 		},
 	}
-	_, invocationErr := client.PhoneNumberManagement.UpdateNumberConfiguration(
+	_, invocationErr := client.PhoneNumberManagement.Update(
 		context.TODO(),
 		"phone_number",
 		request,

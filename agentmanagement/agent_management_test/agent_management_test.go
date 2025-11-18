@@ -5,9 +5,9 @@ package agent_management_test
 import (
 	context "context"
 	fmt "fmt"
-	agoraiogosdk "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	v505 "github.com/fern-demo/agoraio-go-sdk/v505"
+	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	require "github.com/stretchr/testify/require"
 	gowiremock "github.com/wiremock/go-wiremock"
 	wiremocktestcontainersgo "github.com/wiremock/wiremock-testcontainers-go"
@@ -93,7 +93,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestAgentManagementStartAgentWithWireMock(
+func TestAgentManagementStartWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -122,9 +122,9 @@ func TestAgentManagementStartAgentWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.StartAgentRequest{
+	request := &Agora.AgentManagementStartRequest{
 		Name: "unique_name",
-		Properties: &Agora.StartAgentRequestProperties{
+		Properties: &Agora.AgentManagementStartRequestProperties{
 			Channel:     "channel_name",
 			Token:       "token",
 			AgentRtcUID: "1001",
@@ -134,25 +134,25 @@ func TestAgentManagementStartAgentWithWireMock(
 			IdleTimeout: Agora.Int(
 				120,
 			),
-			AdvancedFeatures: &Agora.StartAgentRequestPropertiesAdvancedFeatures{
+			AdvancedFeatures: &Agora.AgentManagementStartRequestPropertiesAdvancedFeatures{
 				EnableAivad: Agora.Bool(
 					true,
 				),
 			},
-			Asr: &Agora.StartAgentRequestPropertiesAsr{
+			Asr: &Agora.AgentManagementStartRequestPropertiesAsr{
 				Language: Agora.String(
 					"en-US",
 				),
 			},
-			Tts: &Agora.StartAgentRequestPropertiesTts{
-				Vendor: Agora.StartAgentRequestPropertiesTtsVendorMicrosoft,
+			Tts: &Agora.AgentManagementStartRequestPropertiesTts{
+				Vendor: Agora.AgentManagementStartRequestPropertiesTtsVendorMicrosoft,
 				Params: map[string]any{
 					"key":        "<your_tts_api_key>",
 					"region":     "eastus",
 					"voice_name": "en-US-AndrewMultilingualNeural",
 				},
 			},
-			Llm: &Agora.StartAgentRequestPropertiesLlm{
+			Llm: &Agora.AgentManagementStartRequestPropertiesLlm{
 				URL: "https://api.openai.com/v1/chat/completions",
 				APIKey: Agora.String(
 					"<your_llm_key>",
@@ -178,7 +178,7 @@ func TestAgentManagementStartAgentWithWireMock(
 			},
 		},
 	}
-	_, invocationErr := client.AgentManagement.StartAgent(
+	_, invocationErr := client.AgentManagement.Start(
 		context.TODO(),
 		"appid",
 		request,
@@ -190,7 +190,7 @@ func TestAgentManagementStartAgentWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementListAgentsWithWireMock(
+func TestAgentManagementListWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -211,7 +211,7 @@ func TestAgentManagementListAgentsWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.ListAgentsRequest{
+	request := &Agora.AgentManagementListRequest{
 		Channel: Agora.String(
 			"channel",
 		),
@@ -221,7 +221,7 @@ func TestAgentManagementListAgentsWithWireMock(
 		ToTime: Agora.Float64(
 			1.1,
 		),
-		State: Agora.ListAgentsRequestStateZero.Ptr(),
+		State: Agora.AgentManagementListRequestStateZero.Ptr(),
 		Limit: Agora.Int(
 			1,
 		),
@@ -229,7 +229,7 @@ func TestAgentManagementListAgentsWithWireMock(
 			"cursor",
 		),
 	}
-	_, invocationErr := client.AgentManagement.ListAgents(
+	_, invocationErr := client.AgentManagement.List(
 		context.TODO(),
 		"appid",
 		request,
@@ -241,7 +241,7 @@ func TestAgentManagementListAgentsWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementQueryAgentStatusWithWireMock(
+func TestAgentManagementGetWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -265,7 +265,7 @@ func TestAgentManagementQueryAgentStatusWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	_, invocationErr := client.AgentManagement.QueryAgentStatus(
+	_, invocationErr := client.AgentManagement.Get(
 		context.TODO(),
 		"appid",
 		"agentId",
@@ -277,7 +277,7 @@ func TestAgentManagementQueryAgentStatusWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementGetAgentHistoryWithWireMock(
+func TestAgentManagementGetHistoryWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -301,7 +301,7 @@ func TestAgentManagementGetAgentHistoryWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	_, invocationErr := client.AgentManagement.GetAgentHistory(
+	_, invocationErr := client.AgentManagement.GetHistory(
 		context.TODO(),
 		"appid",
 		"agentId",
@@ -313,7 +313,7 @@ func TestAgentManagementGetAgentHistoryWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementStopAgentWithWireMock(
+func TestAgentManagementStopWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -337,7 +337,7 @@ func TestAgentManagementStopAgentWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	invocationErr := client.AgentManagement.StopAgent(
+	invocationErr := client.AgentManagement.Stop(
 		context.TODO(),
 		"appid",
 		"agentId",
@@ -349,7 +349,7 @@ func TestAgentManagementStopAgentWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementUpdateAgentWithWireMock(
+func TestAgentManagementUpdateWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -381,12 +381,12 @@ func TestAgentManagementUpdateAgentWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.UpdateAgentRequest{
-		Properties: &Agora.UpdateAgentRequestProperties{
+	request := &Agora.AgentManagementUpdateRequest{
+		Properties: &Agora.AgentManagementUpdateRequestProperties{
 			Token: Agora.String(
 				"007eJxTYxxxxxxxxxxIaHMLAAAA0ex66",
 			),
-			Llm: &Agora.UpdateAgentRequestPropertiesLlm{
+			Llm: &Agora.AgentManagementUpdateRequestPropertiesLlm{
 				SystemMessages: []map[string]any{
 					map[string]any{
 						"role":    "system",
@@ -404,7 +404,7 @@ func TestAgentManagementUpdateAgentWithWireMock(
 			},
 		},
 	}
-	_, invocationErr := client.AgentManagement.UpdateAgent(
+	_, invocationErr := client.AgentManagement.Update(
 		context.TODO(),
 		"appid",
 		"agentId",
@@ -417,7 +417,7 @@ func TestAgentManagementUpdateAgentWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementAgentSpeakWithWireMock(
+func TestAgentManagementSpeakWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -449,14 +449,14 @@ func TestAgentManagementAgentSpeakWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentSpeakRequest{
+	request := &Agora.AgentManagementSpeakRequest{
 		Text:     "Sorry, the conversation content is not compliant.",
-		Priority: Agora.AgentSpeakRequestPriorityInterrupt.Ptr(),
+		Priority: Agora.AgentManagementSpeakRequestPriorityInterrupt.Ptr(),
 		Interruptable: Agora.Bool(
 			false,
 		),
 	}
-	_, invocationErr := client.AgentManagement.AgentSpeak(
+	_, invocationErr := client.AgentManagement.Speak(
 		context.TODO(),
 		"appid",
 		"agentId",
@@ -469,7 +469,7 @@ func TestAgentManagementAgentSpeakWithWireMock(
 	require.True(t, ok, "WireMock request was not matched")
 }
 
-func TestAgentManagementAgentInterruptWithWireMock(
+func TestAgentManagementInterruptWithWireMock(
 	t *testing.T,
 ) {
 	// wiremock client and server initialized in shared main_test.go
@@ -501,8 +501,8 @@ func TestAgentManagementAgentInterruptWithWireMock(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentInterruptRequest{}
-	_, invocationErr := client.AgentManagement.AgentInterrupt(
+	request := &Agora.AgentManagementInterruptRequest{}
+	_, invocationErr := client.AgentManagement.Interrupt(
 		context.TODO(),
 		"appid",
 		"agentId",

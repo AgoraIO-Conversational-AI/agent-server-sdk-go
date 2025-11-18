@@ -6,6 +6,21 @@ The Agoraio Go library provides convenient access to the Agoraio APIs from Go.
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
+- [Reference](#reference)
+- [Usage](#usage)
+- [Environments](#environments)
+- [Errors](#errors)
+- [Request Options](#request-options)
+- [Advanced](#advanced)
+  - [Response Headers](#response-headers)
+  - [Retries](#retries)
+  - [Timeouts](#timeouts)
+  - [Explicit Null](#explicit-null)
+- [Contributing](#contributing)
+
+## Table of Contents
+
 - [Reference](#reference)
 - [Usage](#usage)
 - [Environments](#environments)
@@ -30,9 +45,9 @@ Instantiate and use the client with the following:
 package example
 
 import (
-    client "github.com/fern-demo/agoraio-go-sdk/client"
-    option "github.com/fern-demo/agoraio-go-sdk/option"
-    Agora "github.com/fern-demo/agoraio-go-sdk"
+    client "github.com/fern-demo/agoraio-go-sdk/v505/client"
+    option "github.com/fern-demo/agoraio-go-sdk/v505/option"
+    Agora "github.com/fern-demo/agoraio-go-sdk/v505"
     context "context"
 )
 
@@ -43,9 +58,9 @@ func do() {
             "<password>",
         ),
     )
-    request := &Agora.StartAgentRequest{
+    request := &Agora.AgentManagementStartRequest{
         Name: "unique_name",
-        Properties: &Agora.StartAgentRequestProperties{
+        Properties: &Agora.AgentManagementStartRequestProperties{
             Channel: "channel_name",
             Token: "token",
             AgentRtcUID: "1001",
@@ -55,25 +70,25 @@ func do() {
             IdleTimeout: Agora.Int(
                 120,
             ),
-            AdvancedFeatures: &Agora.StartAgentRequestPropertiesAdvancedFeatures{
+            AdvancedFeatures: &Agora.AgentManagementStartRequestPropertiesAdvancedFeatures{
                 EnableAivad: Agora.Bool(
                     true,
                 ),
             },
-            Asr: &Agora.StartAgentRequestPropertiesAsr{
+            Asr: &Agora.AgentManagementStartRequestPropertiesAsr{
                 Language: Agora.String(
                     "en-US",
                 ),
             },
-            Tts: &Agora.StartAgentRequestPropertiesTts{
-                Vendor: Agora.StartAgentRequestPropertiesTtsVendorMicrosoft,
+            Tts: &Agora.AgentManagementStartRequestPropertiesTts{
+                Vendor: Agora.AgentManagementStartRequestPropertiesTtsVendorMicrosoft,
                 Params: map[string]any{
                     "key": "<your_tts_api_key>",
                     "region": "eastus",
                     "voice_name": "en-US-AndrewMultilingualNeural",
                 },
             },
-            Llm: &Agora.StartAgentRequestPropertiesLlm{
+            Llm: &Agora.AgentManagementStartRequestPropertiesLlm{
                 URL: "https://api.openai.com/v1/chat/completions",
                 APIKey: Agora.String(
                     "<your_llm_key>",
@@ -99,7 +114,7 @@ func do() {
             },
         },
     }
-    client.AgentManagement.StartAgent(
+    client.AgentManagement.Start(
         context.TODO(),
         "appid",
         request,
@@ -124,7 +139,7 @@ Structured error types are returned from API calls that return non-success statu
 with the `errors.Is` and `errors.As` APIs, so you can access the error like so:
 
 ```go
-response, err := client.AgentManagement.StartAgent(...)
+response, err := client.AgentManagement.Start(...)
 if err != nil {
     var apiError *core.APIError
     if errors.As(err, apiError) {
@@ -158,7 +173,7 @@ client := client.NewClient(
 )
 
 // Specify options for an individual request.
-response, err := client.AgentManagement.StartAgent(
+response, err := client.AgentManagement.Start(
     ...,
     option.WithToken("<YOUR_API_KEY>"),
 )
@@ -172,7 +187,7 @@ You can access the raw HTTP response data by using the `WithRawResponse` field o
 when you need to examine the response headers received from the API call.
 
 ```go
-response, err := client.AgentManagement.WithRawResponse.StartAgent(...)
+response, err := client.AgentManagement.WithRawResponse.Start(...)
 if err != nil {
     return err
 }
@@ -201,7 +216,7 @@ client := client.NewClient(
     option.WithMaxAttempts(1),
 )
 
-response, err := client.AgentManagement.StartAgent(
+response, err := client.AgentManagement.Start(
     ...,
     option.WithMaxAttempts(1),
 )
@@ -215,7 +230,7 @@ Setting a timeout for each individual request is as simple as using the standard
 ctx, cancel := context.WithTimeout(ctx, time.Second)
 defer cancel()
 
-response, err := client.AgentManagement.StartAgent(ctx, ...)
+response, err := client.AgentManagement.Start(ctx, ...)
 ```
 
 ### Explicit Null
@@ -237,7 +252,7 @@ type ExampleRequest struct {
 request := &ExampleRequest{}
 request.SetName(nil)
 
-response, err := client.AgentManagement.StartAgent(ctx, request, ...)
+response, err := client.AgentManagement.Start(ctx, request, ...)
 ```
 
 ## Contributing

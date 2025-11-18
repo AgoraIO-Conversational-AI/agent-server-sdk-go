@@ -4,10 +4,10 @@ package phonenumbermanagement
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	http "net/http"
 )
 
@@ -30,10 +30,10 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 	}
 }
 
-func (r *RawClient) RetrieveNumberList(
+func (r *RawClient) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*core.Response[[]*Agora.RetrieveNumberListResponseItem], error) {
+) (*core.Response[[]*Agora.PhoneNumberManagementListResponseItem], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -45,7 +45,7 @@ func (r *RawClient) RetrieveNumberList(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*Agora.RetrieveNumberListResponseItem
+	var response []*Agora.PhoneNumberManagementListResponseItem
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -62,18 +62,18 @@ func (r *RawClient) RetrieveNumberList(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*Agora.RetrieveNumberListResponseItem]{
+	return &core.Response[[]*Agora.PhoneNumberManagementListResponseItem]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) ImportNumber(
+func (r *RawClient) Add(
 	ctx context.Context,
-	request *Agora.ImportNumberRequest,
+	request *Agora.PhoneNumberManagementAddRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.ImportNumberResponse], error) {
+) (*core.Response[*Agora.PhoneNumberManagementAddResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -86,7 +86,7 @@ func (r *RawClient) ImportNumber(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.ImportNumberResponse
+	var response *Agora.PhoneNumberManagementAddResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -104,19 +104,19 @@ func (r *RawClient) ImportNumber(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.ImportNumberResponse]{
+	return &core.Response[*Agora.PhoneNumberManagementAddResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) RetrieveNumberInformation(
+func (r *RawClient) Get(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.RetrieveNumberInformationResponse], error) {
+) (*core.Response[*Agora.PhoneNumberManagementGetResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -131,7 +131,7 @@ func (r *RawClient) RetrieveNumberInformation(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *Agora.RetrieveNumberInformationResponse
+	var response *Agora.PhoneNumberManagementGetResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -148,14 +148,14 @@ func (r *RawClient) RetrieveNumberInformation(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.RetrieveNumberInformationResponse]{
+	return &core.Response[*Agora.PhoneNumberManagementGetResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) DeleteNumber(
+func (r *RawClient) Delete(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
@@ -197,13 +197,13 @@ func (r *RawClient) DeleteNumber(
 	}, nil
 }
 
-func (r *RawClient) UpdateNumberConfiguration(
+func (r *RawClient) Update(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
-	request *Agora.UpdateNumberConfigurationRequest,
+	request *Agora.PhoneNumberManagementUpdateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.UpdateNumberConfigurationResponse], error) {
+) (*core.Response[*Agora.PhoneNumberManagementUpdateResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -219,7 +219,7 @@ func (r *RawClient) UpdateNumberConfiguration(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.UpdateNumberConfigurationResponse
+	var response *Agora.PhoneNumberManagementUpdateResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -237,7 +237,7 @@ func (r *RawClient) UpdateNumberConfiguration(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.UpdateNumberConfigurationResponse]{
+	return &core.Response[*Agora.PhoneNumberManagementUpdateResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

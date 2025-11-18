@@ -4,10 +4,11 @@ package agentmanagement
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
+	http "net/http"
 )
 
 type Client struct {
@@ -33,14 +34,14 @@ func NewClient(options *core.RequestOptions) *Client {
 }
 
 // Create and start a Conversational AI agent instance.
-func (c *Client) StartAgent(
+func (c *Client) Start(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.StartAgentRequest,
+	request *Agora.AgentManagementStartRequest,
 	opts ...option.RequestOption,
-) (*Agora.StartAgentResponse, error) {
-	response, err := c.WithRawResponse.StartAgent(
+) (*Agora.AgentManagementStartResponse, error) {
+	response, err := c.WithRawResponse.Start(
 		ctx,
 		appid,
 		request,
@@ -53,35 +54,81 @@ func (c *Client) StartAgent(
 }
 
 // Retrieve a list of agents that meet the specified conditions.
-func (c *Client) ListAgents(
+func (c *Client) List(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.ListAgentsRequest,
+	request *Agora.AgentManagementListRequest,
 	opts ...option.RequestOption,
-) (*Agora.ListAgentsResponse, error) {
-	response, err := c.WithRawResponse.ListAgents(
-		ctx,
-		appid,
-		request,
-		opts...,
+) (*core.Page[*Agora.AgentManagementListResponseDataListItem], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.agora.io/api/conversational-ai-agent",
 	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/v2/projects/%v/agents",
+		appid,
+	)
+	queryParams, err := internal.QueryValues(request)
 	if err != nil {
 		return nil, err
 	}
-	return response.Body, nil
+	headers := internal.MergeHeaders(
+		c.options.ToHeader(),
+		options.ToHeader(),
+	)
+	prepareCall := func(pageRequest *internal.PageRequest[*string]) *internal.CallParams {
+		if pageRequest.Cursor != nil {
+			queryParams.Set("cursor", *pageRequest.Cursor)
+		}
+		nextURL := endpointURL
+		if len(queryParams) > 0 {
+			nextURL += "?" + queryParams.Encode()
+		}
+		return &internal.CallParams{
+			URL:             nextURL,
+			Method:          http.MethodGet,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        pageRequest.Response,
+		}
+	}
+	readPageResponse := func(response *Agora.AgentManagementListResponse) *internal.PageResponse[*string, *Agora.AgentManagementListResponseDataListItem] {
+		var zeroValue *string
+		var next *string
+		if response.Meta != nil {
+			next = response.Meta.Cursor
+		}
+		results := response.GetData().GetList()
+		return &internal.PageResponse[*string, *Agora.AgentManagementListResponseDataListItem]{
+			Next:    next,
+			Results: results,
+			Done:    next == zeroValue,
+		}
+	}
+	pager := internal.NewCursorPager(
+		c.caller,
+		prepareCall,
+		readPageResponse,
+	)
+	return pager.GetPage(ctx, request.Cursor)
 }
 
 // Get the current state information of the specified agent instance.
-func (c *Client) QueryAgentStatus(
+func (c *Client) Get(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
 	opts ...option.RequestOption,
-) (*Agora.QueryAgentStatusResponse, error) {
-	response, err := c.WithRawResponse.QueryAgentStatus(
+) (*Agora.AgentManagementGetResponse, error) {
+	response, err := c.WithRawResponse.Get(
 		ctx,
 		appid,
 		agentID,
@@ -96,15 +143,15 @@ func (c *Client) QueryAgentStatus(
 // Get the history of the conversation between the user and the agent.
 //
 // Call this endpoint while the agent is running to retrieve the conversation history. You can set the maximum number of cached entries using the `llm.max_history` parameter when calling the start agent endpoint. The default value is `32`.
-func (c *Client) GetAgentHistory(
+func (c *Client) GetHistory(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
 	opts ...option.RequestOption,
-) (*Agora.GetAgentHistoryResponse, error) {
-	response, err := c.WithRawResponse.GetAgentHistory(
+) (*Agora.AgentManagementGetHistoryResponse, error) {
+	response, err := c.WithRawResponse.GetHistory(
 		ctx,
 		appid,
 		agentID,
@@ -117,7 +164,7 @@ func (c *Client) GetAgentHistory(
 }
 
 // Stop the specified conversational agent instance.
-func (c *Client) StopAgent(
+func (c *Client) Stop(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
@@ -125,7 +172,7 @@ func (c *Client) StopAgent(
 	agentID string,
 	opts ...option.RequestOption,
 ) error {
-	_, err := c.WithRawResponse.StopAgent(
+	_, err := c.WithRawResponse.Stop(
 		ctx,
 		appid,
 		agentID,
@@ -138,16 +185,16 @@ func (c *Client) StopAgent(
 }
 
 // Adjust Conversation AI Engine parameters at runtime.
-func (c *Client) UpdateAgent(
+func (c *Client) Update(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.UpdateAgentRequest,
+	request *Agora.AgentManagementUpdateRequest,
 	opts ...option.RequestOption,
-) (*Agora.UpdateAgentResponse, error) {
-	response, err := c.WithRawResponse.UpdateAgent(
+) (*Agora.AgentManagementUpdateResponse, error) {
+	response, err := c.WithRawResponse.Update(
 		ctx,
 		appid,
 		agentID,
@@ -165,16 +212,16 @@ func (c *Client) UpdateAgent(
 // During a conversation with an agent, call this endpoint to immediately broadcast a custom message using the TTS module. Upon receiving the request, the system interrupts the agent's speech and thought process to deliver the message. This broadcast can be interrupted by human voice.
 //
 // Note: The speak API is not supported when using `mllm` configuration.
-func (c *Client) AgentSpeak(
+func (c *Client) Speak(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.AgentSpeakRequest,
+	request *Agora.AgentManagementSpeakRequest,
 	opts ...option.RequestOption,
-) (*Agora.AgentSpeakResponse, error) {
-	response, err := c.WithRawResponse.AgentSpeak(
+) (*Agora.AgentManagementSpeakResponse, error) {
+	response, err := c.WithRawResponse.Speak(
 		ctx,
 		appid,
 		agentID,
@@ -188,16 +235,16 @@ func (c *Client) AgentSpeak(
 }
 
 // Interrupt the specified agent while speaking or thinking.
-func (c *Client) AgentInterrupt(
+func (c *Client) Interrupt(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.AgentInterruptRequest,
+	request *Agora.AgentManagementInterruptRequest,
 	opts ...option.RequestOption,
-) (*Agora.AgentInterruptResponse, error) {
-	response, err := c.WithRawResponse.AgentInterrupt(
+) (*Agora.AgentManagementInterruptResponse, error) {
+	response, err := c.WithRawResponse.Interrupt(
 		ctx,
 		appid,
 		agentID,

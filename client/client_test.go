@@ -3,7 +3,7 @@
 package client
 
 import (
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	assert "github.com/stretchr/testify/assert"
 	http "net/http"
 	testing "testing"

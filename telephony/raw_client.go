@@ -4,10 +4,10 @@ package telephony
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	http "net/http"
 )
 
@@ -30,65 +30,13 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 	}
 }
 
-func (r *RawClient) RetrieveCallRecords(
+func (r *RawClient) Call(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.RetrieveCallRecordsRequest,
+	request *Agora.TelephonyCallRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.RetrieveCallRecordsResponse], error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		r.baseURL,
-		"https://api.agora.io/api/conversational-ai-agent",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/v2/projects/%v/call",
-		appid,
-	)
-	queryParams, err := internal.QueryValues(request)
-	if err != nil {
-		return nil, err
-	}
-	if len(queryParams) > 0 {
-		endpointURL += "?" + queryParams.Encode()
-	}
-	headers := internal.MergeHeaders(
-		r.options.ToHeader(),
-		options.ToHeader(),
-	)
-	var response *Agora.RetrieveCallRecordsResponse
-	raw, err := r.caller.Call(
-		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &core.Response[*Agora.RetrieveCallRecordsResponse]{
-		StatusCode: raw.StatusCode,
-		Header:     raw.Header,
-		Body:       response,
-	}, nil
-}
-
-func (r *RawClient) InitiateOutboundCall(
-	ctx context.Context,
-	// The App ID of the project.
-	appid string,
-	request *Agora.InitiateOutboundCallRequest,
-	opts ...option.RequestOption,
-) (*core.Response[*Agora.InitiateOutboundCallResponse], error) {
+) (*core.Response[*Agora.TelephonyCallResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -104,7 +52,7 @@ func (r *RawClient) InitiateOutboundCall(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.InitiateOutboundCallResponse
+	var response *Agora.TelephonyCallResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -122,21 +70,21 @@ func (r *RawClient) InitiateOutboundCall(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.InitiateOutboundCallResponse]{
+	return &core.Response[*Agora.TelephonyCallResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) RetrieveCallStatus(
+func (r *RawClient) Get(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent ID you obtained after successfully calling the API to initiate an outbound call.
 	agentID string,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.RetrieveCallStatusResponse], error) {
+) (*core.Response[*Agora.TelephonyGetResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -152,7 +100,7 @@ func (r *RawClient) RetrieveCallStatus(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *Agora.RetrieveCallStatusResponse
+	var response *Agora.TelephonyGetResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -169,22 +117,22 @@ func (r *RawClient) RetrieveCallStatus(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.RetrieveCallStatusResponse]{
+	return &core.Response[*Agora.TelephonyGetResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) HangupCall(
+func (r *RawClient) Hangup(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent ID you obtained after successfully calling the API to initiate an outbound call.
 	agentID string,
-	request *Agora.HangupCallRequest,
+	request *Agora.TelephonyHangupRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.HangupCallResponse], error) {
+) (*core.Response[*Agora.TelephonyHangupResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -201,7 +149,7 @@ func (r *RawClient) HangupCall(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.HangupCallResponse
+	var response *Agora.TelephonyHangupResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -219,7 +167,7 @@ func (r *RawClient) HangupCall(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.HangupCallResponse]{
+	return &core.Response[*Agora.TelephonyHangupResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

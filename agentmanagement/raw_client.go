@@ -4,10 +4,10 @@ package agentmanagement
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	http "net/http"
 )
 
@@ -30,13 +30,13 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 	}
 }
 
-func (r *RawClient) StartAgent(
+func (r *RawClient) Start(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.StartAgentRequest,
+	request *Agora.AgentManagementStartRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.StartAgentResponse], error) {
+) (*core.Response[*Agora.AgentManagementStartResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -52,7 +52,7 @@ func (r *RawClient) StartAgent(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.StartAgentResponse
+	var response *Agora.AgentManagementStartResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,73 +70,21 @@ func (r *RawClient) StartAgent(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.StartAgentResponse]{
+	return &core.Response[*Agora.AgentManagementStartResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) ListAgents(
-	ctx context.Context,
-	// The App ID of the project.
-	appid string,
-	request *Agora.ListAgentsRequest,
-	opts ...option.RequestOption,
-) (*core.Response[*Agora.ListAgentsResponse], error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		r.baseURL,
-		"https://api.agora.io/api/conversational-ai-agent",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/v2/projects/%v/agents",
-		appid,
-	)
-	queryParams, err := internal.QueryValues(request)
-	if err != nil {
-		return nil, err
-	}
-	if len(queryParams) > 0 {
-		endpointURL += "?" + queryParams.Encode()
-	}
-	headers := internal.MergeHeaders(
-		r.options.ToHeader(),
-		options.ToHeader(),
-	)
-	var response *Agora.ListAgentsResponse
-	raw, err := r.caller.Call(
-		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &core.Response[*Agora.ListAgentsResponse]{
-		StatusCode: raw.StatusCode,
-		Header:     raw.Header,
-		Body:       response,
-	}, nil
-}
-
-func (r *RawClient) QueryAgentStatus(
+func (r *RawClient) Get(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.QueryAgentStatusResponse], error) {
+) (*core.Response[*Agora.AgentManagementGetResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -152,7 +100,7 @@ func (r *RawClient) QueryAgentStatus(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *Agora.QueryAgentStatusResponse
+	var response *Agora.AgentManagementGetResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -169,21 +117,21 @@ func (r *RawClient) QueryAgentStatus(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.QueryAgentStatusResponse]{
+	return &core.Response[*Agora.AgentManagementGetResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) GetAgentHistory(
+func (r *RawClient) GetHistory(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.GetAgentHistoryResponse], error) {
+) (*core.Response[*Agora.AgentManagementGetHistoryResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -199,7 +147,7 @@ func (r *RawClient) GetAgentHistory(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *Agora.GetAgentHistoryResponse
+	var response *Agora.AgentManagementGetHistoryResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -216,14 +164,14 @@ func (r *RawClient) GetAgentHistory(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.GetAgentHistoryResponse]{
+	return &core.Response[*Agora.AgentManagementGetHistoryResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) StopAgent(
+func (r *RawClient) Stop(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
@@ -268,15 +216,15 @@ func (r *RawClient) StopAgent(
 	}, nil
 }
 
-func (r *RawClient) UpdateAgent(
+func (r *RawClient) Update(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.UpdateAgentRequest,
+	request *Agora.AgentManagementUpdateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.UpdateAgentResponse], error) {
+) (*core.Response[*Agora.AgentManagementUpdateResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -293,7 +241,7 @@ func (r *RawClient) UpdateAgent(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.UpdateAgentResponse
+	var response *Agora.AgentManagementUpdateResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -311,22 +259,22 @@ func (r *RawClient) UpdateAgent(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.UpdateAgentResponse]{
+	return &core.Response[*Agora.AgentManagementUpdateResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) AgentSpeak(
+func (r *RawClient) Speak(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.AgentSpeakRequest,
+	request *Agora.AgentManagementSpeakRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.AgentSpeakResponse], error) {
+) (*core.Response[*Agora.AgentManagementSpeakResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -343,7 +291,7 @@ func (r *RawClient) AgentSpeak(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.AgentSpeakResponse
+	var response *Agora.AgentManagementSpeakResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -361,22 +309,22 @@ func (r *RawClient) AgentSpeak(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.AgentSpeakResponse]{
+	return &core.Response[*Agora.AgentManagementSpeakResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
 	}, nil
 }
 
-func (r *RawClient) AgentInterrupt(
+func (r *RawClient) Interrupt(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
 	agentID string,
-	request *Agora.AgentInterruptRequest,
+	request *Agora.AgentManagementInterruptRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*Agora.AgentInterruptResponse], error) {
+) (*core.Response[*Agora.AgentManagementInterruptResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -393,7 +341,7 @@ func (r *RawClient) AgentInterrupt(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *Agora.AgentInterruptResponse
+	var response *Agora.AgentManagementInterruptResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -411,7 +359,7 @@ func (r *RawClient) AgentInterrupt(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*Agora.AgentInterruptResponse]{
+	return &core.Response[*Agora.AgentManagementInterruptResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

@@ -1,4 +1,4 @@
-module github.com/fern-demo/agoraio-go-sdk
+module github.com/fern-demo/agoraio-go-sdk/v505
 
 go 1.21
 

@@ -4,10 +4,11 @@ package telephony
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
+	http "net/http"
 )
 
 type Client struct {
@@ -33,36 +34,82 @@ func NewClient(options *core.RequestOptions) *Client {
 }
 
 // Query historical call records for a specified appid based on the filter criteria.
-func (c *Client) RetrieveCallRecords(
+func (c *Client) List(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.RetrieveCallRecordsRequest,
+	request *Agora.TelephonyListRequest,
 	opts ...option.RequestOption,
-) (*Agora.RetrieveCallRecordsResponse, error) {
-	response, err := c.WithRawResponse.RetrieveCallRecords(
-		ctx,
-		appid,
-		request,
-		opts...,
+) (*core.Page[*Agora.TelephonyListResponseDataListItem], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		c.baseURL,
+		"https://api.agora.io/api/conversational-ai-agent",
 	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/v2/projects/%v/call",
+		appid,
+	)
+	queryParams, err := internal.QueryValues(request)
 	if err != nil {
 		return nil, err
 	}
-	return response.Body, nil
+	headers := internal.MergeHeaders(
+		c.options.ToHeader(),
+		options.ToHeader(),
+	)
+	prepareCall := func(pageRequest *internal.PageRequest[*string]) *internal.CallParams {
+		if pageRequest.Cursor != nil {
+			queryParams.Set("cursor", *pageRequest.Cursor)
+		}
+		nextURL := endpointURL
+		if len(queryParams) > 0 {
+			nextURL += "?" + queryParams.Encode()
+		}
+		return &internal.CallParams{
+			URL:             nextURL,
+			Method:          http.MethodGet,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        pageRequest.Response,
+		}
+	}
+	readPageResponse := func(response *Agora.TelephonyListResponse) *internal.PageResponse[*string, *Agora.TelephonyListResponseDataListItem] {
+		var zeroValue *string
+		var next *string
+		if response.Meta != nil {
+			next = response.Meta.Cursor
+		}
+		results := response.GetData().GetList()
+		return &internal.PageResponse[*string, *Agora.TelephonyListResponseDataListItem]{
+			Next:    next,
+			Results: results,
+			Done:    next == zeroValue,
+		}
+	}
+	pager := internal.NewCursorPager(
+		c.caller,
+		prepareCall,
+		readPageResponse,
+	)
+	return pager.GetPage(ctx, request.Cursor)
 }
 
 // Initiate an outbound call to a specified number and create an agent to join the specified RTC channel.
 //
 // Use this endpoint to initiate an outbound call to the specified number and create an agent that joins the target RTC channel. The agent waits for the callee to answer.
-func (c *Client) InitiateOutboundCall(
+func (c *Client) Call(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
-	request *Agora.InitiateOutboundCallRequest,
+	request *Agora.TelephonyCallRequest,
 	opts ...option.RequestOption,
-) (*Agora.InitiateOutboundCallResponse, error) {
-	response, err := c.WithRawResponse.InitiateOutboundCall(
+) (*Agora.TelephonyCallResponse, error) {
+	response, err := c.WithRawResponse.Call(
 		ctx,
 		appid,
 		request,
@@ -75,15 +122,15 @@ func (c *Client) InitiateOutboundCall(
 }
 
 // Retrieve the call status and related information of a specified agent.
-func (c *Client) RetrieveCallStatus(
+func (c *Client) Get(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent ID you obtained after successfully calling the API to initiate an outbound call.
 	agentID string,
 	opts ...option.RequestOption,
-) (*Agora.RetrieveCallStatusResponse, error) {
-	response, err := c.WithRawResponse.RetrieveCallStatus(
+) (*Agora.TelephonyGetResponse, error) {
+	response, err := c.WithRawResponse.Get(
 		ctx,
 		appid,
 		agentID,
@@ -96,16 +143,16 @@ func (c *Client) RetrieveCallStatus(
 }
 
 // Instruct the agent to proactively hang up the ongoing call and leave the RTC channel.
-func (c *Client) HangupCall(
+func (c *Client) Hangup(
 	ctx context.Context,
 	// The App ID of the project.
 	appid string,
 	// The agent ID you obtained after successfully calling the API to initiate an outbound call.
 	agentID string,
-	request *Agora.HangupCallRequest,
+	request *Agora.TelephonyHangupRequest,
 	opts ...option.RequestOption,
-) (*Agora.HangupCallResponse, error) {
-	response, err := c.WithRawResponse.HangupCall(
+) (*Agora.TelephonyHangupResponse, error) {
+	response, err := c.WithRawResponse.Hangup(
 		ctx,
 		appid,
 		agentID,

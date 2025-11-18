@@ -5,91 +5,91 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
 	big "math/big"
 )
 
-type HangupCallRequest struct {
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-}
-
-func (h *HangupCallRequest) require(field *big.Int) {
-	if h.explicitFields == nil {
-		h.explicitFields = big.NewInt(0)
-	}
-	h.explicitFields.Or(h.explicitFields, field)
-}
-
 var (
-	initiateOutboundCallRequestFieldName       = big.NewInt(1 << 0)
-	initiateOutboundCallRequestFieldSip        = big.NewInt(1 << 1)
-	initiateOutboundCallRequestFieldPipelineID = big.NewInt(1 << 2)
-	initiateOutboundCallRequestFieldProperties = big.NewInt(1 << 3)
+	telephonyCallRequestFieldName       = big.NewInt(1 << 0)
+	telephonyCallRequestFieldSip        = big.NewInt(1 << 1)
+	telephonyCallRequestFieldPipelineID = big.NewInt(1 << 2)
+	telephonyCallRequestFieldProperties = big.NewInt(1 << 3)
 )
 
-type InitiateOutboundCallRequest struct {
+type TelephonyCallRequest struct {
 	// The name identifier of the call session.
 	Name string `json:"name" url:"-"`
 	// SIP (Session Initiation Protocol) call configuration object.
-	Sip *InitiateOutboundCallRequestSip `json:"sip,omitempty" url:"-"`
+	Sip *TelephonyCallRequestSip `json:"sip,omitempty" url:"-"`
 	// The unique ID of a published project in AI Studio.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"-"`
 	// Call attribute configuration. The content of this field varies depending on the invocation method:
 	// - **Using pipeline ID**: Simply pass in `channel`, `token`, and `agent_rtc_uid`.
 	// - **Using complete configuration**: Pass in the complete parameters of the [Start a conversational AI agent](https://docs.agora.io/en/conversational-ai/rest-api/agent/join) `properties`, including all required fields such as `channel`, `token`, `agent_rtc_uid`, `remote_rtc_uids`, `tts`, and `llm`.
-	Properties *InitiateOutboundCallRequestProperties `json:"properties,omitempty" url:"-"`
+	Properties *TelephonyCallRequestProperties `json:"properties,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (i *InitiateOutboundCallRequest) require(field *big.Int) {
-	if i.explicitFields == nil {
-		i.explicitFields = big.NewInt(0)
+func (t *TelephonyCallRequest) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	i.explicitFields.Or(i.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequest) SetName(name string) {
-	i.Name = name
-	i.require(initiateOutboundCallRequestFieldName)
+func (t *TelephonyCallRequest) SetName(name string) {
+	t.Name = name
+	t.require(telephonyCallRequestFieldName)
 }
 
 // SetSip sets the Sip field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequest) SetSip(sip *InitiateOutboundCallRequestSip) {
-	i.Sip = sip
-	i.require(initiateOutboundCallRequestFieldSip)
+func (t *TelephonyCallRequest) SetSip(sip *TelephonyCallRequestSip) {
+	t.Sip = sip
+	t.require(telephonyCallRequestFieldSip)
 }
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequest) SetPipelineID(pipelineID *string) {
-	i.PipelineID = pipelineID
-	i.require(initiateOutboundCallRequestFieldPipelineID)
+func (t *TelephonyCallRequest) SetPipelineID(pipelineID *string) {
+	t.PipelineID = pipelineID
+	t.require(telephonyCallRequestFieldPipelineID)
 }
 
 // SetProperties sets the Properties field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequest) SetProperties(properties *InitiateOutboundCallRequestProperties) {
-	i.Properties = properties
-	i.require(initiateOutboundCallRequestFieldProperties)
+func (t *TelephonyCallRequest) SetProperties(properties *TelephonyCallRequestProperties) {
+	t.Properties = properties
+	t.require(telephonyCallRequestFieldProperties)
+}
+
+type TelephonyHangupRequest struct {
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (t *TelephonyHangupRequest) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 var (
-	retrieveCallRecordsRequestFieldNumber   = big.NewInt(1 << 0)
-	retrieveCallRecordsRequestFieldFromTime = big.NewInt(1 << 1)
-	retrieveCallRecordsRequestFieldToTime   = big.NewInt(1 << 2)
-	retrieveCallRecordsRequestFieldType     = big.NewInt(1 << 3)
-	retrieveCallRecordsRequestFieldLimit    = big.NewInt(1 << 4)
-	retrieveCallRecordsRequestFieldCursor   = big.NewInt(1 << 5)
+	telephonyListRequestFieldNumber   = big.NewInt(1 << 0)
+	telephonyListRequestFieldFromTime = big.NewInt(1 << 1)
+	telephonyListRequestFieldToTime   = big.NewInt(1 << 2)
+	telephonyListRequestFieldType     = big.NewInt(1 << 3)
+	telephonyListRequestFieldLimit    = big.NewInt(1 << 4)
+	telephonyListRequestFieldCursor   = big.NewInt(1 << 5)
 )
 
-type RetrieveCallRecordsRequest struct {
+type TelephonyListRequest struct {
 	// Filter by phone number. Can be either the calling number or the called number.
 	Number *string `json:"-" url:"number,omitempty"`
 	// Query list start timestamp (in seconds). Default is 60 days ago.
@@ -101,7 +101,7 @@ type RetrieveCallRecordsRequest struct {
 	// - `outbound`: Outbound call.
 	//
 	// If not specified, all call types are returned.
-	Type *RetrieveCallRecordsRequestType `json:"-" url:"type,omitempty"`
+	Type *TelephonyListRequestType `json:"-" url:"type,omitempty"`
 	// Maximum number of items returned in a single page.
 	Limit *int `json:"-" url:"limit,omitempty"`
 	// Pagination cursor. Use the `agent_id` from the previous page as the cursor for the next page.
@@ -111,124 +111,65 @@ type RetrieveCallRecordsRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (r *RetrieveCallRecordsRequest) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
+func (t *TelephonyListRequest) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	r.explicitFields.Or(r.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetNumber sets the Number field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetNumber(number *string) {
-	r.Number = number
-	r.require(retrieveCallRecordsRequestFieldNumber)
+func (t *TelephonyListRequest) SetNumber(number *string) {
+	t.Number = number
+	t.require(telephonyListRequestFieldNumber)
 }
 
 // SetFromTime sets the FromTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetFromTime(fromTime *int) {
-	r.FromTime = fromTime
-	r.require(retrieveCallRecordsRequestFieldFromTime)
+func (t *TelephonyListRequest) SetFromTime(fromTime *int) {
+	t.FromTime = fromTime
+	t.require(telephonyListRequestFieldFromTime)
 }
 
 // SetToTime sets the ToTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetToTime(toTime *int) {
-	r.ToTime = toTime
-	r.require(retrieveCallRecordsRequestFieldToTime)
+func (t *TelephonyListRequest) SetToTime(toTime *int) {
+	t.ToTime = toTime
+	t.require(telephonyListRequestFieldToTime)
 }
 
 // SetType sets the Type field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetType(type_ *RetrieveCallRecordsRequestType) {
-	r.Type = type_
-	r.require(retrieveCallRecordsRequestFieldType)
+func (t *TelephonyListRequest) SetType(type_ *TelephonyListRequestType) {
+	t.Type = type_
+	t.require(telephonyListRequestFieldType)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetLimit(limit *int) {
-	r.Limit = limit
-	r.require(retrieveCallRecordsRequestFieldLimit)
+func (t *TelephonyListRequest) SetLimit(limit *int) {
+	t.Limit = limit
+	t.require(telephonyListRequestFieldLimit)
 }
 
 // SetCursor sets the Cursor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsRequest) SetCursor(cursor *string) {
-	r.Cursor = cursor
-	r.require(retrieveCallRecordsRequestFieldCursor)
-}
-
-type HangupCallResponse struct {
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (h *HangupCallResponse) GetExtraProperties() map[string]interface{} {
-	return h.extraProperties
-}
-
-func (h *HangupCallResponse) require(field *big.Int) {
-	if h.explicitFields == nil {
-		h.explicitFields = big.NewInt(0)
-	}
-	h.explicitFields.Or(h.explicitFields, field)
-}
-
-func (h *HangupCallResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler HangupCallResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*h = HangupCallResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *h)
-	if err != nil {
-		return err
-	}
-	h.extraProperties = extraProperties
-	h.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (h *HangupCallResponse) MarshalJSON() ([]byte, error) {
-	type embed HangupCallResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*h),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, h.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (h *HangupCallResponse) String() string {
-	if len(h.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(h); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", h)
+func (t *TelephonyListRequest) SetCursor(cursor *string) {
+	t.Cursor = cursor
+	t.require(telephonyListRequestFieldCursor)
 }
 
 // Call attribute configuration. The content of this field varies depending on the invocation method:
 // - **Using pipeline ID**: Simply pass in `channel`, `token`, and `agent_rtc_uid`.
 // - **Using complete configuration**: Pass in the complete parameters of the [Start a conversational AI agent](https://docs.agora.io/en/conversational-ai/rest-api/agent/join) `properties`, including all required fields such as `channel`, `token`, `agent_rtc_uid`, `remote_rtc_uids`, `tts`, and `llm`.
 var (
-	initiateOutboundCallRequestPropertiesFieldChannel     = big.NewInt(1 << 0)
-	initiateOutboundCallRequestPropertiesFieldToken       = big.NewInt(1 << 1)
-	initiateOutboundCallRequestPropertiesFieldAgentRtcUID = big.NewInt(1 << 2)
+	telephonyCallRequestPropertiesFieldChannel     = big.NewInt(1 << 0)
+	telephonyCallRequestPropertiesFieldToken       = big.NewInt(1 << 1)
+	telephonyCallRequestPropertiesFieldAgentRtcUID = big.NewInt(1 << 2)
 )
 
-type InitiateOutboundCallRequestProperties struct {
+type TelephonyCallRequestProperties struct {
 	// RTC channel name.
 	Channel string `json:"channel" url:"channel"`
 	// RTC Channel Token.
@@ -244,111 +185,111 @@ type InitiateOutboundCallRequestProperties struct {
 	rawJSON json.RawMessage
 }
 
-func (i *InitiateOutboundCallRequestProperties) GetChannel() string {
-	if i == nil {
+func (t *TelephonyCallRequestProperties) GetChannel() string {
+	if t == nil {
 		return ""
 	}
-	return i.Channel
+	return t.Channel
 }
 
-func (i *InitiateOutboundCallRequestProperties) GetToken() string {
-	if i == nil {
+func (t *TelephonyCallRequestProperties) GetToken() string {
+	if t == nil {
 		return ""
 	}
-	return i.Token
+	return t.Token
 }
 
-func (i *InitiateOutboundCallRequestProperties) GetAgentRtcUID() string {
-	if i == nil {
+func (t *TelephonyCallRequestProperties) GetAgentRtcUID() string {
+	if t == nil {
 		return ""
 	}
-	return i.AgentRtcUID
+	return t.AgentRtcUID
 }
 
-func (i *InitiateOutboundCallRequestProperties) GetExtraProperties() map[string]interface{} {
-	return i.ExtraProperties
+func (t *TelephonyCallRequestProperties) GetExtraProperties() map[string]interface{} {
+	return t.ExtraProperties
 }
 
-func (i *InitiateOutboundCallRequestProperties) require(field *big.Int) {
-	if i.explicitFields == nil {
-		i.explicitFields = big.NewInt(0)
+func (t *TelephonyCallRequestProperties) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	i.explicitFields.Or(i.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestProperties) SetChannel(channel string) {
-	i.Channel = channel
-	i.require(initiateOutboundCallRequestPropertiesFieldChannel)
+func (t *TelephonyCallRequestProperties) SetChannel(channel string) {
+	t.Channel = channel
+	t.require(telephonyCallRequestPropertiesFieldChannel)
 }
 
 // SetToken sets the Token field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestProperties) SetToken(token string) {
-	i.Token = token
-	i.require(initiateOutboundCallRequestPropertiesFieldToken)
+func (t *TelephonyCallRequestProperties) SetToken(token string) {
+	t.Token = token
+	t.require(telephonyCallRequestPropertiesFieldToken)
 }
 
 // SetAgentRtcUID sets the AgentRtcUID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestProperties) SetAgentRtcUID(agentRtcUID string) {
-	i.AgentRtcUID = agentRtcUID
-	i.require(initiateOutboundCallRequestPropertiesFieldAgentRtcUID)
+func (t *TelephonyCallRequestProperties) SetAgentRtcUID(agentRtcUID string) {
+	t.AgentRtcUID = agentRtcUID
+	t.require(telephonyCallRequestPropertiesFieldAgentRtcUID)
 }
 
-func (i *InitiateOutboundCallRequestProperties) UnmarshalJSON(data []byte) error {
-	type embed InitiateOutboundCallRequestProperties
+func (t *TelephonyCallRequestProperties) UnmarshalJSON(data []byte) error {
+	type embed TelephonyCallRequestProperties
 	var unmarshaler = struct {
 		embed
 	}{
-		embed: embed(*i),
+		embed: embed(*t),
 	}
 	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*i = InitiateOutboundCallRequestProperties(unmarshaler.embed)
-	extraProperties, err := internal.ExtractExtraProperties(data, *i)
+	*t = TelephonyCallRequestProperties(unmarshaler.embed)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
-	i.ExtraProperties = extraProperties
-	i.rawJSON = json.RawMessage(data)
+	t.ExtraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (i *InitiateOutboundCallRequestProperties) MarshalJSON() ([]byte, error) {
-	type embed InitiateOutboundCallRequestProperties
+func (t *TelephonyCallRequestProperties) MarshalJSON() ([]byte, error) {
+	type embed TelephonyCallRequestProperties
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*i),
+		embed: embed(*t),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, i.explicitFields)
-	return internal.MarshalJSONWithExtraProperties(explicitMarshaler, i.ExtraProperties)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return internal.MarshalJSONWithExtraProperties(explicitMarshaler, t.ExtraProperties)
 }
 
-func (i *InitiateOutboundCallRequestProperties) String() string {
-	if len(i.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
+func (t *TelephonyCallRequestProperties) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(i); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", i)
+	return fmt.Sprintf("%#v", t)
 }
 
 // SIP (Session Initiation Protocol) call configuration object.
 var (
-	initiateOutboundCallRequestSipFieldToNumber    = big.NewInt(1 << 0)
-	initiateOutboundCallRequestSipFieldFromNumber  = big.NewInt(1 << 1)
-	initiateOutboundCallRequestSipFieldSipRtcUID   = big.NewInt(1 << 2)
-	initiateOutboundCallRequestSipFieldSipRtcToken = big.NewInt(1 << 3)
+	telephonyCallRequestSipFieldToNumber    = big.NewInt(1 << 0)
+	telephonyCallRequestSipFieldFromNumber  = big.NewInt(1 << 1)
+	telephonyCallRequestSipFieldSipRtcUID   = big.NewInt(1 << 2)
+	telephonyCallRequestSipFieldSipRtcToken = big.NewInt(1 << 3)
 )
 
-type InitiateOutboundCallRequestSip struct {
+type TelephonyCallRequestSip struct {
 	// Called number (target phone number), in E.164 format.
 	ToNumber string `json:"to_number" url:"to_number"`
 	// Caller ID (the number that initiated the call), in E.164 format.
@@ -365,117 +306,117 @@ type InitiateOutboundCallRequestSip struct {
 	rawJSON         json.RawMessage
 }
 
-func (i *InitiateOutboundCallRequestSip) GetToNumber() string {
-	if i == nil {
+func (t *TelephonyCallRequestSip) GetToNumber() string {
+	if t == nil {
 		return ""
 	}
-	return i.ToNumber
+	return t.ToNumber
 }
 
-func (i *InitiateOutboundCallRequestSip) GetFromNumber() string {
-	if i == nil {
+func (t *TelephonyCallRequestSip) GetFromNumber() string {
+	if t == nil {
 		return ""
 	}
-	return i.FromNumber
+	return t.FromNumber
 }
 
-func (i *InitiateOutboundCallRequestSip) GetSipRtcUID() string {
-	if i == nil {
+func (t *TelephonyCallRequestSip) GetSipRtcUID() string {
+	if t == nil {
 		return ""
 	}
-	return i.SipRtcUID
+	return t.SipRtcUID
 }
 
-func (i *InitiateOutboundCallRequestSip) GetSipRtcToken() string {
-	if i == nil {
+func (t *TelephonyCallRequestSip) GetSipRtcToken() string {
+	if t == nil {
 		return ""
 	}
-	return i.SipRtcToken
+	return t.SipRtcToken
 }
 
-func (i *InitiateOutboundCallRequestSip) GetExtraProperties() map[string]interface{} {
-	return i.extraProperties
+func (t *TelephonyCallRequestSip) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
-func (i *InitiateOutboundCallRequestSip) require(field *big.Int) {
-	if i.explicitFields == nil {
-		i.explicitFields = big.NewInt(0)
+func (t *TelephonyCallRequestSip) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	i.explicitFields.Or(i.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetToNumber sets the ToNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestSip) SetToNumber(toNumber string) {
-	i.ToNumber = toNumber
-	i.require(initiateOutboundCallRequestSipFieldToNumber)
+func (t *TelephonyCallRequestSip) SetToNumber(toNumber string) {
+	t.ToNumber = toNumber
+	t.require(telephonyCallRequestSipFieldToNumber)
 }
 
 // SetFromNumber sets the FromNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestSip) SetFromNumber(fromNumber string) {
-	i.FromNumber = fromNumber
-	i.require(initiateOutboundCallRequestSipFieldFromNumber)
+func (t *TelephonyCallRequestSip) SetFromNumber(fromNumber string) {
+	t.FromNumber = fromNumber
+	t.require(telephonyCallRequestSipFieldFromNumber)
 }
 
 // SetSipRtcUID sets the SipRtcUID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestSip) SetSipRtcUID(sipRtcUID string) {
-	i.SipRtcUID = sipRtcUID
-	i.require(initiateOutboundCallRequestSipFieldSipRtcUID)
+func (t *TelephonyCallRequestSip) SetSipRtcUID(sipRtcUID string) {
+	t.SipRtcUID = sipRtcUID
+	t.require(telephonyCallRequestSipFieldSipRtcUID)
 }
 
 // SetSipRtcToken sets the SipRtcToken field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallRequestSip) SetSipRtcToken(sipRtcToken string) {
-	i.SipRtcToken = sipRtcToken
-	i.require(initiateOutboundCallRequestSipFieldSipRtcToken)
+func (t *TelephonyCallRequestSip) SetSipRtcToken(sipRtcToken string) {
+	t.SipRtcToken = sipRtcToken
+	t.require(telephonyCallRequestSipFieldSipRtcToken)
 }
 
-func (i *InitiateOutboundCallRequestSip) UnmarshalJSON(data []byte) error {
-	type unmarshaler InitiateOutboundCallRequestSip
+func (t *TelephonyCallRequestSip) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyCallRequestSip
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*i = InitiateOutboundCallRequestSip(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *i)
+	*t = TelephonyCallRequestSip(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
-	i.extraProperties = extraProperties
-	i.rawJSON = json.RawMessage(data)
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (i *InitiateOutboundCallRequestSip) MarshalJSON() ([]byte, error) {
-	type embed InitiateOutboundCallRequestSip
+func (t *TelephonyCallRequestSip) MarshalJSON() ([]byte, error) {
+	type embed TelephonyCallRequestSip
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*i),
+		embed: embed(*t),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, i.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (i *InitiateOutboundCallRequestSip) String() string {
-	if len(i.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
+func (t *TelephonyCallRequestSip) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(i); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", i)
+	return fmt.Sprintf("%#v", t)
 }
 
 var (
-	initiateOutboundCallResponseFieldAgentID = big.NewInt(1 << 0)
+	telephonyCallResponseFieldAgentID = big.NewInt(1 << 0)
 )
 
-type InitiateOutboundCallResponse struct {
+type TelephonyCallResponse struct {
 	// Unique ID of the agent instance. Use it to query call status, control call flow, and perform other operations.
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 
@@ -486,315 +427,84 @@ type InitiateOutboundCallResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (i *InitiateOutboundCallResponse) GetAgentID() *string {
-	if i == nil {
+func (t *TelephonyCallResponse) GetAgentID() *string {
+	if t == nil {
 		return nil
 	}
-	return i.AgentID
+	return t.AgentID
 }
 
-func (i *InitiateOutboundCallResponse) GetExtraProperties() map[string]interface{} {
-	return i.extraProperties
+func (t *TelephonyCallResponse) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
-func (i *InitiateOutboundCallResponse) require(field *big.Int) {
-	if i.explicitFields == nil {
-		i.explicitFields = big.NewInt(0)
+func (t *TelephonyCallResponse) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	i.explicitFields.Or(i.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InitiateOutboundCallResponse) SetAgentID(agentID *string) {
-	i.AgentID = agentID
-	i.require(initiateOutboundCallResponseFieldAgentID)
+func (t *TelephonyCallResponse) SetAgentID(agentID *string) {
+	t.AgentID = agentID
+	t.require(telephonyCallResponseFieldAgentID)
 }
 
-func (i *InitiateOutboundCallResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler InitiateOutboundCallResponse
+func (t *TelephonyCallResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyCallResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*i = InitiateOutboundCallResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *i)
+	*t = TelephonyCallResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
-	i.extraProperties = extraProperties
-	i.rawJSON = json.RawMessage(data)
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (i *InitiateOutboundCallResponse) MarshalJSON() ([]byte, error) {
-	type embed InitiateOutboundCallResponse
+func (t *TelephonyCallResponse) MarshalJSON() ([]byte, error) {
+	type embed TelephonyCallResponse
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*i),
+		embed: embed(*t),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, i.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (i *InitiateOutboundCallResponse) String() string {
-	if len(i.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
+func (t *TelephonyCallResponse) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(i); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", i)
-}
-
-type RetrieveCallRecordsRequestType string
-
-const (
-	RetrieveCallRecordsRequestTypeInbound  RetrieveCallRecordsRequestType = "inbound"
-	RetrieveCallRecordsRequestTypeOutbound RetrieveCallRecordsRequestType = "outbound"
-)
-
-func NewRetrieveCallRecordsRequestTypeFromString(s string) (RetrieveCallRecordsRequestType, error) {
-	switch s {
-	case "inbound":
-		return RetrieveCallRecordsRequestTypeInbound, nil
-	case "outbound":
-		return RetrieveCallRecordsRequestTypeOutbound, nil
-	}
-	var t RetrieveCallRecordsRequestType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (r RetrieveCallRecordsRequestType) Ptr() *RetrieveCallRecordsRequestType {
-	return &r
+	return fmt.Sprintf("%#v", t)
 }
 
 var (
-	retrieveCallRecordsResponseFieldData   = big.NewInt(1 << 0)
-	retrieveCallRecordsResponseFieldMeta   = big.NewInt(1 << 1)
-	retrieveCallRecordsResponseFieldStatus = big.NewInt(1 << 2)
+	telephonyGetResponseFieldToNumber   = big.NewInt(1 << 0)
+	telephonyGetResponseFieldFromNumber = big.NewInt(1 << 1)
+	telephonyGetResponseFieldPipelineID = big.NewInt(1 << 2)
+	telephonyGetResponseFieldType       = big.NewInt(1 << 3)
+	telephonyGetResponseFieldAgentID    = big.NewInt(1 << 4)
+	telephonyGetResponseFieldChannel    = big.NewInt(1 << 5)
+	telephonyGetResponseFieldReason     = big.NewInt(1 << 6)
+	telephonyGetResponseFieldCreateTs   = big.NewInt(1 << 7)
+	telephonyGetResponseFieldState      = big.NewInt(1 << 8)
+	telephonyGetResponseFieldStopTs     = big.NewInt(1 << 9)
 )
 
-type RetrieveCallRecordsResponse struct {
-	// Call data object.
-	Data *RetrieveCallRecordsResponseData `json:"data,omitempty" url:"data,omitempty"`
-	// Metadata about the list.
-	Meta *RetrieveCallRecordsResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
-	// Request status.
-	Status *string `json:"status,omitempty" url:"status,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (r *RetrieveCallRecordsResponse) GetData() *RetrieveCallRecordsResponseData {
-	if r == nil {
-		return nil
-	}
-	return r.Data
-}
-
-func (r *RetrieveCallRecordsResponse) GetMeta() *RetrieveCallRecordsResponseMeta {
-	if r == nil {
-		return nil
-	}
-	return r.Meta
-}
-
-func (r *RetrieveCallRecordsResponse) GetStatus() *string {
-	if r == nil {
-		return nil
-	}
-	return r.Status
-}
-
-func (r *RetrieveCallRecordsResponse) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RetrieveCallRecordsResponse) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
-	}
-	r.explicitFields.Or(r.explicitFields, field)
-}
-
-// SetData sets the Data field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponse) SetData(data *RetrieveCallRecordsResponseData) {
-	r.Data = data
-	r.require(retrieveCallRecordsResponseFieldData)
-}
-
-// SetMeta sets the Meta field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponse) SetMeta(meta *RetrieveCallRecordsResponseMeta) {
-	r.Meta = meta
-	r.require(retrieveCallRecordsResponseFieldMeta)
-}
-
-// SetStatus sets the Status field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponse) SetStatus(status *string) {
-	r.Status = status
-	r.require(retrieveCallRecordsResponseFieldStatus)
-}
-
-func (r *RetrieveCallRecordsResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler RetrieveCallRecordsResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*r = RetrieveCallRecordsResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *r)
-	if err != nil {
-		return err
-	}
-	r.extraProperties = extraProperties
-	r.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (r *RetrieveCallRecordsResponse) MarshalJSON() ([]byte, error) {
-	type embed RetrieveCallRecordsResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*r),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (r *RetrieveCallRecordsResponse) String() string {
-	if len(r.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(r); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", r)
-}
-
-// Call data object.
-var (
-	retrieveCallRecordsResponseDataFieldCount = big.NewInt(1 << 0)
-	retrieveCallRecordsResponseDataFieldList  = big.NewInt(1 << 1)
-)
-
-type RetrieveCallRecordsResponseData struct {
-	// The number of calls returned in this response.
-	Count *int `json:"count,omitempty" url:"count,omitempty"`
-	// A list of calls that meet the criteria.
-	List []*RetrieveCallRecordsResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (r *RetrieveCallRecordsResponseData) GetCount() *int {
-	if r == nil {
-		return nil
-	}
-	return r.Count
-}
-
-func (r *RetrieveCallRecordsResponseData) GetList() []*RetrieveCallRecordsResponseDataListItem {
-	if r == nil {
-		return nil
-	}
-	return r.List
-}
-
-func (r *RetrieveCallRecordsResponseData) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RetrieveCallRecordsResponseData) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
-	}
-	r.explicitFields.Or(r.explicitFields, field)
-}
-
-// SetCount sets the Count field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseData) SetCount(count *int) {
-	r.Count = count
-	r.require(retrieveCallRecordsResponseDataFieldCount)
-}
-
-// SetList sets the List field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseData) SetList(list []*RetrieveCallRecordsResponseDataListItem) {
-	r.List = list
-	r.require(retrieveCallRecordsResponseDataFieldList)
-}
-
-func (r *RetrieveCallRecordsResponseData) UnmarshalJSON(data []byte) error {
-	type unmarshaler RetrieveCallRecordsResponseData
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*r = RetrieveCallRecordsResponseData(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *r)
-	if err != nil {
-		return err
-	}
-	r.extraProperties = extraProperties
-	r.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (r *RetrieveCallRecordsResponseData) MarshalJSON() ([]byte, error) {
-	type embed RetrieveCallRecordsResponseData
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*r),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (r *RetrieveCallRecordsResponseData) String() string {
-	if len(r.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(r); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", r)
-}
-
-var (
-	retrieveCallRecordsResponseDataListItemFieldToNumber   = big.NewInt(1 << 0)
-	retrieveCallRecordsResponseDataListItemFieldFromNumber = big.NewInt(1 << 1)
-	retrieveCallRecordsResponseDataListItemFieldPipelineID = big.NewInt(1 << 2)
-	retrieveCallRecordsResponseDataListItemFieldType       = big.NewInt(1 << 3)
-	retrieveCallRecordsResponseDataListItemFieldAgentID    = big.NewInt(1 << 4)
-	retrieveCallRecordsResponseDataListItemFieldChannel    = big.NewInt(1 << 5)
-	retrieveCallRecordsResponseDataListItemFieldCreateTs   = big.NewInt(1 << 6)
-	retrieveCallRecordsResponseDataListItemFieldState      = big.NewInt(1 << 7)
-	retrieveCallRecordsResponseDataListItemFieldStopTs     = big.NewInt(1 << 8)
-)
-
-type RetrieveCallRecordsResponseDataListItem struct {
+type TelephonyGetResponse struct {
 	// The number called.
 	ToNumber *string `json:"to_number,omitempty" url:"to_number,omitempty"`
 	// Caller ID.
@@ -804,17 +514,22 @@ type RetrieveCallRecordsResponseDataListItem struct {
 	// Call type:
 	// - `inbound`: Inbound call.
 	// - `outbound`: Outbound call.
-	Type *RetrieveCallRecordsResponseDataListItemType `json:"type,omitempty" url:"type,omitempty"`
+	Type *TelephonyGetResponseType `json:"type,omitempty" url:"type,omitempty"`
 	// A unique identifier for the call session.
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// RTC channel name.
 	Channel *string `json:"channel,omitempty" url:"channel,omitempty"`
+	// Reason for call ending:
+	// - `request`: Actively hung up.
+	// - `hangup`: The other party hung up.
+	// - `failed`: Call failed.
+	Reason *TelephonyGetResponseReason `json:"reason,omitempty" url:"reason,omitempty"`
 	// Call creation timestamp (in seconds).
 	CreateTs *int `json:"create_ts,omitempty" url:"create_ts,omitempty"`
 	// Call status:
 	// - `answered`: The call was answered.
 	// - `hangup`: The call was disconnected.
-	State *RetrieveCallRecordsResponseDataListItemState `json:"state,omitempty" url:"state,omitempty"`
+	State *TelephonyGetResponseState `json:"state,omitempty" url:"state,omitempty"`
 	// Call end timestamp (in seconds). Returns `0` or `null` if the call has not ended.
 	StopTs *int `json:"stop_ts,omitempty" url:"stop_ts,omitempty"`
 
@@ -825,239 +540,842 @@ type RetrieveCallRecordsResponseDataListItem struct {
 	rawJSON         json.RawMessage
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetToNumber() *string {
-	if r == nil {
+func (t *TelephonyGetResponse) GetToNumber() *string {
+	if t == nil {
 		return nil
 	}
-	return r.ToNumber
+	return t.ToNumber
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetFromNumber() *string {
-	if r == nil {
+func (t *TelephonyGetResponse) GetFromNumber() *string {
+	if t == nil {
 		return nil
 	}
-	return r.FromNumber
+	return t.FromNumber
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetPipelineID() *string {
-	if r == nil {
+func (t *TelephonyGetResponse) GetPipelineID() *string {
+	if t == nil {
 		return nil
 	}
-	return r.PipelineID
+	return t.PipelineID
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetType() *RetrieveCallRecordsResponseDataListItemType {
-	if r == nil {
+func (t *TelephonyGetResponse) GetType() *TelephonyGetResponseType {
+	if t == nil {
 		return nil
 	}
-	return r.Type
+	return t.Type
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetAgentID() *string {
-	if r == nil {
+func (t *TelephonyGetResponse) GetAgentID() *string {
+	if t == nil {
 		return nil
 	}
-	return r.AgentID
+	return t.AgentID
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetChannel() *string {
-	if r == nil {
+func (t *TelephonyGetResponse) GetChannel() *string {
+	if t == nil {
 		return nil
 	}
-	return r.Channel
+	return t.Channel
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetCreateTs() *int {
-	if r == nil {
+func (t *TelephonyGetResponse) GetReason() *TelephonyGetResponseReason {
+	if t == nil {
 		return nil
 	}
-	return r.CreateTs
+	return t.Reason
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetState() *RetrieveCallRecordsResponseDataListItemState {
-	if r == nil {
+func (t *TelephonyGetResponse) GetCreateTs() *int {
+	if t == nil {
 		return nil
 	}
-	return r.State
+	return t.CreateTs
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetStopTs() *int {
-	if r == nil {
+func (t *TelephonyGetResponse) GetState() *TelephonyGetResponseState {
+	if t == nil {
 		return nil
 	}
-	return r.StopTs
+	return t.State
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RetrieveCallRecordsResponseDataListItem) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
+func (t *TelephonyGetResponse) GetStopTs() *int {
+	if t == nil {
+		return nil
 	}
-	r.explicitFields.Or(r.explicitFields, field)
+	return t.StopTs
+}
+
+func (t *TelephonyGetResponse) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TelephonyGetResponse) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetToNumber sets the ToNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetToNumber(toNumber *string) {
-	r.ToNumber = toNumber
-	r.require(retrieveCallRecordsResponseDataListItemFieldToNumber)
+func (t *TelephonyGetResponse) SetToNumber(toNumber *string) {
+	t.ToNumber = toNumber
+	t.require(telephonyGetResponseFieldToNumber)
 }
 
 // SetFromNumber sets the FromNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetFromNumber(fromNumber *string) {
-	r.FromNumber = fromNumber
-	r.require(retrieveCallRecordsResponseDataListItemFieldFromNumber)
+func (t *TelephonyGetResponse) SetFromNumber(fromNumber *string) {
+	t.FromNumber = fromNumber
+	t.require(telephonyGetResponseFieldFromNumber)
 }
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetPipelineID(pipelineID *string) {
-	r.PipelineID = pipelineID
-	r.require(retrieveCallRecordsResponseDataListItemFieldPipelineID)
+func (t *TelephonyGetResponse) SetPipelineID(pipelineID *string) {
+	t.PipelineID = pipelineID
+	t.require(telephonyGetResponseFieldPipelineID)
 }
 
 // SetType sets the Type field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetType(type_ *RetrieveCallRecordsResponseDataListItemType) {
-	r.Type = type_
-	r.require(retrieveCallRecordsResponseDataListItemFieldType)
+func (t *TelephonyGetResponse) SetType(type_ *TelephonyGetResponseType) {
+	t.Type = type_
+	t.require(telephonyGetResponseFieldType)
 }
 
 // SetAgentID sets the AgentID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetAgentID(agentID *string) {
-	r.AgentID = agentID
-	r.require(retrieveCallRecordsResponseDataListItemFieldAgentID)
+func (t *TelephonyGetResponse) SetAgentID(agentID *string) {
+	t.AgentID = agentID
+	t.require(telephonyGetResponseFieldAgentID)
 }
 
 // SetChannel sets the Channel field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetChannel(channel *string) {
-	r.Channel = channel
-	r.require(retrieveCallRecordsResponseDataListItemFieldChannel)
+func (t *TelephonyGetResponse) SetChannel(channel *string) {
+	t.Channel = channel
+	t.require(telephonyGetResponseFieldChannel)
+}
+
+// SetReason sets the Reason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyGetResponse) SetReason(reason *TelephonyGetResponseReason) {
+	t.Reason = reason
+	t.require(telephonyGetResponseFieldReason)
 }
 
 // SetCreateTs sets the CreateTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetCreateTs(createTs *int) {
-	r.CreateTs = createTs
-	r.require(retrieveCallRecordsResponseDataListItemFieldCreateTs)
+func (t *TelephonyGetResponse) SetCreateTs(createTs *int) {
+	t.CreateTs = createTs
+	t.require(telephonyGetResponseFieldCreateTs)
 }
 
 // SetState sets the State field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetState(state *RetrieveCallRecordsResponseDataListItemState) {
-	r.State = state
-	r.require(retrieveCallRecordsResponseDataListItemFieldState)
+func (t *TelephonyGetResponse) SetState(state *TelephonyGetResponseState) {
+	t.State = state
+	t.require(telephonyGetResponseFieldState)
 }
 
 // SetStopTs sets the StopTs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseDataListItem) SetStopTs(stopTs *int) {
-	r.StopTs = stopTs
-	r.require(retrieveCallRecordsResponseDataListItemFieldStopTs)
+func (t *TelephonyGetResponse) SetStopTs(stopTs *int) {
+	t.StopTs = stopTs
+	t.require(telephonyGetResponseFieldStopTs)
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler RetrieveCallRecordsResponseDataListItem
+func (t *TelephonyGetResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyGetResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = RetrieveCallRecordsResponseDataListItem(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	*t = TelephonyGetResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
-	r.extraProperties = extraProperties
-	r.rawJSON = json.RawMessage(data)
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) MarshalJSON() ([]byte, error) {
-	type embed RetrieveCallRecordsResponseDataListItem
+func (t *TelephonyGetResponse) MarshalJSON() ([]byte, error) {
+	type embed TelephonyGetResponse
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*r),
+		embed: embed(*t),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (r *RetrieveCallRecordsResponseDataListItem) String() string {
-	if len(r.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+func (t *TelephonyGetResponse) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(r); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", r)
+	return fmt.Sprintf("%#v", t)
+}
+
+// Reason for call ending:
+// - `request`: Actively hung up.
+// - `hangup`: The other party hung up.
+// - `failed`: Call failed.
+type TelephonyGetResponseReason string
+
+const (
+	TelephonyGetResponseReasonRequest TelephonyGetResponseReason = "request"
+	TelephonyGetResponseReasonHangup  TelephonyGetResponseReason = "hangup"
+	TelephonyGetResponseReasonFailed  TelephonyGetResponseReason = "failed"
+)
+
+func NewTelephonyGetResponseReasonFromString(s string) (TelephonyGetResponseReason, error) {
+	switch s {
+	case "request":
+		return TelephonyGetResponseReasonRequest, nil
+	case "hangup":
+		return TelephonyGetResponseReasonHangup, nil
+	case "failed":
+		return TelephonyGetResponseReasonFailed, nil
+	}
+	var t TelephonyGetResponseReason
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TelephonyGetResponseReason) Ptr() *TelephonyGetResponseReason {
+	return &t
 }
 
 // Call status:
 // - `answered`: The call was answered.
 // - `hangup`: The call was disconnected.
-type RetrieveCallRecordsResponseDataListItemState string
+type TelephonyGetResponseState string
 
 const (
-	RetrieveCallRecordsResponseDataListItemStateAnswered RetrieveCallRecordsResponseDataListItemState = "answered"
-	RetrieveCallRecordsResponseDataListItemStateHangup   RetrieveCallRecordsResponseDataListItemState = "hangup"
+	TelephonyGetResponseStateAnswered TelephonyGetResponseState = "answered"
+	TelephonyGetResponseStateHangup   TelephonyGetResponseState = "hangup"
 )
 
-func NewRetrieveCallRecordsResponseDataListItemStateFromString(s string) (RetrieveCallRecordsResponseDataListItemState, error) {
+func NewTelephonyGetResponseStateFromString(s string) (TelephonyGetResponseState, error) {
 	switch s {
 	case "answered":
-		return RetrieveCallRecordsResponseDataListItemStateAnswered, nil
+		return TelephonyGetResponseStateAnswered, nil
 	case "hangup":
-		return RetrieveCallRecordsResponseDataListItemStateHangup, nil
+		return TelephonyGetResponseStateHangup, nil
 	}
-	var t RetrieveCallRecordsResponseDataListItemState
+	var t TelephonyGetResponseState
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (r RetrieveCallRecordsResponseDataListItemState) Ptr() *RetrieveCallRecordsResponseDataListItemState {
-	return &r
+func (t TelephonyGetResponseState) Ptr() *TelephonyGetResponseState {
+	return &t
 }
 
 // Call type:
 // - `inbound`: Inbound call.
 // - `outbound`: Outbound call.
-type RetrieveCallRecordsResponseDataListItemType string
+type TelephonyGetResponseType string
 
 const (
-	RetrieveCallRecordsResponseDataListItemTypeInbound  RetrieveCallRecordsResponseDataListItemType = "inbound"
-	RetrieveCallRecordsResponseDataListItemTypeOutbound RetrieveCallRecordsResponseDataListItemType = "outbound"
+	TelephonyGetResponseTypeInbound  TelephonyGetResponseType = "inbound"
+	TelephonyGetResponseTypeOutbound TelephonyGetResponseType = "outbound"
 )
 
-func NewRetrieveCallRecordsResponseDataListItemTypeFromString(s string) (RetrieveCallRecordsResponseDataListItemType, error) {
+func NewTelephonyGetResponseTypeFromString(s string) (TelephonyGetResponseType, error) {
 	switch s {
 	case "inbound":
-		return RetrieveCallRecordsResponseDataListItemTypeInbound, nil
+		return TelephonyGetResponseTypeInbound, nil
 	case "outbound":
-		return RetrieveCallRecordsResponseDataListItemTypeOutbound, nil
+		return TelephonyGetResponseTypeOutbound, nil
 	}
-	var t RetrieveCallRecordsResponseDataListItemType
+	var t TelephonyGetResponseType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (r RetrieveCallRecordsResponseDataListItemType) Ptr() *RetrieveCallRecordsResponseDataListItemType {
-	return &r
+func (t TelephonyGetResponseType) Ptr() *TelephonyGetResponseType {
+	return &t
+}
+
+type TelephonyHangupResponse struct {
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TelephonyHangupResponse) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TelephonyHangupResponse) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+func (t *TelephonyHangupResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyHangupResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TelephonyHangupResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TelephonyHangupResponse) MarshalJSON() ([]byte, error) {
+	type embed TelephonyHangupResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (t *TelephonyHangupResponse) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+type TelephonyListRequestType string
+
+const (
+	TelephonyListRequestTypeInbound  TelephonyListRequestType = "inbound"
+	TelephonyListRequestTypeOutbound TelephonyListRequestType = "outbound"
+)
+
+func NewTelephonyListRequestTypeFromString(s string) (TelephonyListRequestType, error) {
+	switch s {
+	case "inbound":
+		return TelephonyListRequestTypeInbound, nil
+	case "outbound":
+		return TelephonyListRequestTypeOutbound, nil
+	}
+	var t TelephonyListRequestType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TelephonyListRequestType) Ptr() *TelephonyListRequestType {
+	return &t
+}
+
+var (
+	telephonyListResponseFieldData   = big.NewInt(1 << 0)
+	telephonyListResponseFieldMeta   = big.NewInt(1 << 1)
+	telephonyListResponseFieldStatus = big.NewInt(1 << 2)
+)
+
+type TelephonyListResponse struct {
+	// Call data object.
+	Data *TelephonyListResponseData `json:"data,omitempty" url:"data,omitempty"`
+	// Metadata about the list.
+	Meta *TelephonyListResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
+	// Request status.
+	Status *string `json:"status,omitempty" url:"status,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TelephonyListResponse) GetData() *TelephonyListResponseData {
+	if t == nil {
+		return nil
+	}
+	return t.Data
+}
+
+func (t *TelephonyListResponse) GetMeta() *TelephonyListResponseMeta {
+	if t == nil {
+		return nil
+	}
+	return t.Meta
+}
+
+func (t *TelephonyListResponse) GetStatus() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Status
+}
+
+func (t *TelephonyListResponse) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TelephonyListResponse) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponse) SetData(data *TelephonyListResponseData) {
+	t.Data = data
+	t.require(telephonyListResponseFieldData)
+}
+
+// SetMeta sets the Meta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponse) SetMeta(meta *TelephonyListResponseMeta) {
+	t.Meta = meta
+	t.require(telephonyListResponseFieldMeta)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponse) SetStatus(status *string) {
+	t.Status = status
+	t.require(telephonyListResponseFieldStatus)
+}
+
+func (t *TelephonyListResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyListResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TelephonyListResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TelephonyListResponse) MarshalJSON() ([]byte, error) {
+	type embed TelephonyListResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (t *TelephonyListResponse) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+// Call data object.
+var (
+	telephonyListResponseDataFieldCount = big.NewInt(1 << 0)
+	telephonyListResponseDataFieldList  = big.NewInt(1 << 1)
+)
+
+type TelephonyListResponseData struct {
+	// The number of calls returned in this response.
+	Count *int `json:"count,omitempty" url:"count,omitempty"`
+	// A list of calls that meet the criteria.
+	List []*TelephonyListResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TelephonyListResponseData) GetCount() *int {
+	if t == nil {
+		return nil
+	}
+	return t.Count
+}
+
+func (t *TelephonyListResponseData) GetList() []*TelephonyListResponseDataListItem {
+	if t == nil {
+		return nil
+	}
+	return t.List
+}
+
+func (t *TelephonyListResponseData) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TelephonyListResponseData) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetCount sets the Count field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseData) SetCount(count *int) {
+	t.Count = count
+	t.require(telephonyListResponseDataFieldCount)
+}
+
+// SetList sets the List field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseData) SetList(list []*TelephonyListResponseDataListItem) {
+	t.List = list
+	t.require(telephonyListResponseDataFieldList)
+}
+
+func (t *TelephonyListResponseData) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyListResponseData
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TelephonyListResponseData(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TelephonyListResponseData) MarshalJSON() ([]byte, error) {
+	type embed TelephonyListResponseData
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (t *TelephonyListResponseData) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+var (
+	telephonyListResponseDataListItemFieldToNumber   = big.NewInt(1 << 0)
+	telephonyListResponseDataListItemFieldFromNumber = big.NewInt(1 << 1)
+	telephonyListResponseDataListItemFieldPipelineID = big.NewInt(1 << 2)
+	telephonyListResponseDataListItemFieldType       = big.NewInt(1 << 3)
+	telephonyListResponseDataListItemFieldAgentID    = big.NewInt(1 << 4)
+	telephonyListResponseDataListItemFieldChannel    = big.NewInt(1 << 5)
+	telephonyListResponseDataListItemFieldCreateTs   = big.NewInt(1 << 6)
+	telephonyListResponseDataListItemFieldState      = big.NewInt(1 << 7)
+	telephonyListResponseDataListItemFieldStopTs     = big.NewInt(1 << 8)
+)
+
+type TelephonyListResponseDataListItem struct {
+	// The number called.
+	ToNumber *string `json:"to_number,omitempty" url:"to_number,omitempty"`
+	// Caller ID.
+	FromNumber *string `json:"from_number,omitempty" url:"from_number,omitempty"`
+	// The unique ID of a published project in AI Studio. Can be obtained in AI Studio - Project - Release Management.
+	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
+	// Call type:
+	// - `inbound`: Inbound call.
+	// - `outbound`: Outbound call.
+	Type *TelephonyListResponseDataListItemType `json:"type,omitempty" url:"type,omitempty"`
+	// A unique identifier for the call session.
+	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
+	// RTC channel name.
+	Channel *string `json:"channel,omitempty" url:"channel,omitempty"`
+	// Call creation timestamp (in seconds).
+	CreateTs *int `json:"create_ts,omitempty" url:"create_ts,omitempty"`
+	// Call status:
+	// - `answered`: The call was answered.
+	// - `hangup`: The call was disconnected.
+	State *TelephonyListResponseDataListItemState `json:"state,omitempty" url:"state,omitempty"`
+	// Call end timestamp (in seconds). Returns `0` or `null` if the call has not ended.
+	StopTs *int `json:"stop_ts,omitempty" url:"stop_ts,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TelephonyListResponseDataListItem) GetToNumber() *string {
+	if t == nil {
+		return nil
+	}
+	return t.ToNumber
+}
+
+func (t *TelephonyListResponseDataListItem) GetFromNumber() *string {
+	if t == nil {
+		return nil
+	}
+	return t.FromNumber
+}
+
+func (t *TelephonyListResponseDataListItem) GetPipelineID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.PipelineID
+}
+
+func (t *TelephonyListResponseDataListItem) GetType() *TelephonyListResponseDataListItemType {
+	if t == nil {
+		return nil
+	}
+	return t.Type
+}
+
+func (t *TelephonyListResponseDataListItem) GetAgentID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.AgentID
+}
+
+func (t *TelephonyListResponseDataListItem) GetChannel() *string {
+	if t == nil {
+		return nil
+	}
+	return t.Channel
+}
+
+func (t *TelephonyListResponseDataListItem) GetCreateTs() *int {
+	if t == nil {
+		return nil
+	}
+	return t.CreateTs
+}
+
+func (t *TelephonyListResponseDataListItem) GetState() *TelephonyListResponseDataListItemState {
+	if t == nil {
+		return nil
+	}
+	return t.State
+}
+
+func (t *TelephonyListResponseDataListItem) GetStopTs() *int {
+	if t == nil {
+		return nil
+	}
+	return t.StopTs
+}
+
+func (t *TelephonyListResponseDataListItem) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TelephonyListResponseDataListItem) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetToNumber sets the ToNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetToNumber(toNumber *string) {
+	t.ToNumber = toNumber
+	t.require(telephonyListResponseDataListItemFieldToNumber)
+}
+
+// SetFromNumber sets the FromNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetFromNumber(fromNumber *string) {
+	t.FromNumber = fromNumber
+	t.require(telephonyListResponseDataListItemFieldFromNumber)
+}
+
+// SetPipelineID sets the PipelineID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetPipelineID(pipelineID *string) {
+	t.PipelineID = pipelineID
+	t.require(telephonyListResponseDataListItemFieldPipelineID)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetType(type_ *TelephonyListResponseDataListItemType) {
+	t.Type = type_
+	t.require(telephonyListResponseDataListItemFieldType)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetAgentID(agentID *string) {
+	t.AgentID = agentID
+	t.require(telephonyListResponseDataListItemFieldAgentID)
+}
+
+// SetChannel sets the Channel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetChannel(channel *string) {
+	t.Channel = channel
+	t.require(telephonyListResponseDataListItemFieldChannel)
+}
+
+// SetCreateTs sets the CreateTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetCreateTs(createTs *int) {
+	t.CreateTs = createTs
+	t.require(telephonyListResponseDataListItemFieldCreateTs)
+}
+
+// SetState sets the State field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetState(state *TelephonyListResponseDataListItemState) {
+	t.State = state
+	t.require(telephonyListResponseDataListItemFieldState)
+}
+
+// SetStopTs sets the StopTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelephonyListResponseDataListItem) SetStopTs(stopTs *int) {
+	t.StopTs = stopTs
+	t.require(telephonyListResponseDataListItemFieldStopTs)
+}
+
+func (t *TelephonyListResponseDataListItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyListResponseDataListItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*t = TelephonyListResponseDataListItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TelephonyListResponseDataListItem) MarshalJSON() ([]byte, error) {
+	type embed TelephonyListResponseDataListItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*t),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (t *TelephonyListResponseDataListItem) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
+}
+
+// Call status:
+// - `answered`: The call was answered.
+// - `hangup`: The call was disconnected.
+type TelephonyListResponseDataListItemState string
+
+const (
+	TelephonyListResponseDataListItemStateAnswered TelephonyListResponseDataListItemState = "answered"
+	TelephonyListResponseDataListItemStateHangup   TelephonyListResponseDataListItemState = "hangup"
+)
+
+func NewTelephonyListResponseDataListItemStateFromString(s string) (TelephonyListResponseDataListItemState, error) {
+	switch s {
+	case "answered":
+		return TelephonyListResponseDataListItemStateAnswered, nil
+	case "hangup":
+		return TelephonyListResponseDataListItemStateHangup, nil
+	}
+	var t TelephonyListResponseDataListItemState
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TelephonyListResponseDataListItemState) Ptr() *TelephonyListResponseDataListItemState {
+	return &t
+}
+
+// Call type:
+// - `inbound`: Inbound call.
+// - `outbound`: Outbound call.
+type TelephonyListResponseDataListItemType string
+
+const (
+	TelephonyListResponseDataListItemTypeInbound  TelephonyListResponseDataListItemType = "inbound"
+	TelephonyListResponseDataListItemTypeOutbound TelephonyListResponseDataListItemType = "outbound"
+)
+
+func NewTelephonyListResponseDataListItemTypeFromString(s string) (TelephonyListResponseDataListItemType, error) {
+	switch s {
+	case "inbound":
+		return TelephonyListResponseDataListItemTypeInbound, nil
+	case "outbound":
+		return TelephonyListResponseDataListItemTypeOutbound, nil
+	}
+	var t TelephonyListResponseDataListItemType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TelephonyListResponseDataListItemType) Ptr() *TelephonyListResponseDataListItemType {
+	return &t
 }
 
 // Metadata about the list.
 var (
-	retrieveCallRecordsResponseMetaFieldCursor = big.NewInt(1 << 0)
-	retrieveCallRecordsResponseMetaFieldTotal  = big.NewInt(1 << 1)
+	telephonyListResponseMetaFieldCursor = big.NewInt(1 << 0)
+	telephonyListResponseMetaFieldTotal  = big.NewInt(1 << 1)
 )
 
-type RetrieveCallRecordsResponseMeta struct {
+type TelephonyListResponseMeta struct {
 	// Pagination cursor for the next page.
 	Cursor *string `json:"cursor,omitempty" url:"cursor,omitempty"`
 	// The total number of calls that meet the query criteria.
@@ -1070,398 +1388,80 @@ type RetrieveCallRecordsResponseMeta struct {
 	rawJSON         json.RawMessage
 }
 
-func (r *RetrieveCallRecordsResponseMeta) GetCursor() *string {
-	if r == nil {
+func (t *TelephonyListResponseMeta) GetCursor() *string {
+	if t == nil {
 		return nil
 	}
-	return r.Cursor
+	return t.Cursor
 }
 
-func (r *RetrieveCallRecordsResponseMeta) GetTotal() *int {
-	if r == nil {
+func (t *TelephonyListResponseMeta) GetTotal() *int {
+	if t == nil {
 		return nil
 	}
-	return r.Total
+	return t.Total
 }
 
-func (r *RetrieveCallRecordsResponseMeta) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
+func (t *TelephonyListResponseMeta) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
 }
 
-func (r *RetrieveCallRecordsResponseMeta) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
+func (t *TelephonyListResponseMeta) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
 	}
-	r.explicitFields.Or(r.explicitFields, field)
+	t.explicitFields.Or(t.explicitFields, field)
 }
 
 // SetCursor sets the Cursor field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseMeta) SetCursor(cursor *string) {
-	r.Cursor = cursor
-	r.require(retrieveCallRecordsResponseMetaFieldCursor)
+func (t *TelephonyListResponseMeta) SetCursor(cursor *string) {
+	t.Cursor = cursor
+	t.require(telephonyListResponseMetaFieldCursor)
 }
 
 // SetTotal sets the Total field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallRecordsResponseMeta) SetTotal(total *int) {
-	r.Total = total
-	r.require(retrieveCallRecordsResponseMetaFieldTotal)
+func (t *TelephonyListResponseMeta) SetTotal(total *int) {
+	t.Total = total
+	t.require(telephonyListResponseMetaFieldTotal)
 }
 
-func (r *RetrieveCallRecordsResponseMeta) UnmarshalJSON(data []byte) error {
-	type unmarshaler RetrieveCallRecordsResponseMeta
+func (t *TelephonyListResponseMeta) UnmarshalJSON(data []byte) error {
+	type unmarshaler TelephonyListResponseMeta
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = RetrieveCallRecordsResponseMeta(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	*t = TelephonyListResponseMeta(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
-	r.extraProperties = extraProperties
-	r.rawJSON = json.RawMessage(data)
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (r *RetrieveCallRecordsResponseMeta) MarshalJSON() ([]byte, error) {
-	type embed RetrieveCallRecordsResponseMeta
+func (t *TelephonyListResponseMeta) MarshalJSON() ([]byte, error) {
+	type embed TelephonyListResponseMeta
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*r),
+		embed: embed(*t),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (r *RetrieveCallRecordsResponseMeta) String() string {
-	if len(r.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+func (t *TelephonyListResponseMeta) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(r); err == nil {
+	if value, err := internal.StringifyJSON(t); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", r)
-}
-
-var (
-	retrieveCallStatusResponseFieldToNumber   = big.NewInt(1 << 0)
-	retrieveCallStatusResponseFieldFromNumber = big.NewInt(1 << 1)
-	retrieveCallStatusResponseFieldPipelineID = big.NewInt(1 << 2)
-	retrieveCallStatusResponseFieldType       = big.NewInt(1 << 3)
-	retrieveCallStatusResponseFieldAgentID    = big.NewInt(1 << 4)
-	retrieveCallStatusResponseFieldChannel    = big.NewInt(1 << 5)
-	retrieveCallStatusResponseFieldReason     = big.NewInt(1 << 6)
-	retrieveCallStatusResponseFieldCreateTs   = big.NewInt(1 << 7)
-	retrieveCallStatusResponseFieldState      = big.NewInt(1 << 8)
-	retrieveCallStatusResponseFieldStopTs     = big.NewInt(1 << 9)
-)
-
-type RetrieveCallStatusResponse struct {
-	// The number called.
-	ToNumber *string `json:"to_number,omitempty" url:"to_number,omitempty"`
-	// Caller ID.
-	FromNumber *string `json:"from_number,omitempty" url:"from_number,omitempty"`
-	// The unique ID of a published project in AI Studio. Can be obtained in AI Studio - Project - Release Management.
-	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
-	// Call type:
-	// - `inbound`: Inbound call.
-	// - `outbound`: Outbound call.
-	Type *RetrieveCallStatusResponseType `json:"type,omitempty" url:"type,omitempty"`
-	// A unique identifier for the call session.
-	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
-	// RTC channel name.
-	Channel *string `json:"channel,omitempty" url:"channel,omitempty"`
-	// Reason for call ending:
-	// - `request`: Actively hung up.
-	// - `hangup`: The other party hung up.
-	// - `failed`: Call failed.
-	Reason *RetrieveCallStatusResponseReason `json:"reason,omitempty" url:"reason,omitempty"`
-	// Call creation timestamp (in seconds).
-	CreateTs *int `json:"create_ts,omitempty" url:"create_ts,omitempty"`
-	// Call status:
-	// - `answered`: The call was answered.
-	// - `hangup`: The call was disconnected.
-	State *RetrieveCallStatusResponseState `json:"state,omitempty" url:"state,omitempty"`
-	// Call end timestamp (in seconds). Returns `0` or `null` if the call has not ended.
-	StopTs *int `json:"stop_ts,omitempty" url:"stop_ts,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (r *RetrieveCallStatusResponse) GetToNumber() *string {
-	if r == nil {
-		return nil
-	}
-	return r.ToNumber
-}
-
-func (r *RetrieveCallStatusResponse) GetFromNumber() *string {
-	if r == nil {
-		return nil
-	}
-	return r.FromNumber
-}
-
-func (r *RetrieveCallStatusResponse) GetPipelineID() *string {
-	if r == nil {
-		return nil
-	}
-	return r.PipelineID
-}
-
-func (r *RetrieveCallStatusResponse) GetType() *RetrieveCallStatusResponseType {
-	if r == nil {
-		return nil
-	}
-	return r.Type
-}
-
-func (r *RetrieveCallStatusResponse) GetAgentID() *string {
-	if r == nil {
-		return nil
-	}
-	return r.AgentID
-}
-
-func (r *RetrieveCallStatusResponse) GetChannel() *string {
-	if r == nil {
-		return nil
-	}
-	return r.Channel
-}
-
-func (r *RetrieveCallStatusResponse) GetReason() *RetrieveCallStatusResponseReason {
-	if r == nil {
-		return nil
-	}
-	return r.Reason
-}
-
-func (r *RetrieveCallStatusResponse) GetCreateTs() *int {
-	if r == nil {
-		return nil
-	}
-	return r.CreateTs
-}
-
-func (r *RetrieveCallStatusResponse) GetState() *RetrieveCallStatusResponseState {
-	if r == nil {
-		return nil
-	}
-	return r.State
-}
-
-func (r *RetrieveCallStatusResponse) GetStopTs() *int {
-	if r == nil {
-		return nil
-	}
-	return r.StopTs
-}
-
-func (r *RetrieveCallStatusResponse) GetExtraProperties() map[string]interface{} {
-	return r.extraProperties
-}
-
-func (r *RetrieveCallStatusResponse) require(field *big.Int) {
-	if r.explicitFields == nil {
-		r.explicitFields = big.NewInt(0)
-	}
-	r.explicitFields.Or(r.explicitFields, field)
-}
-
-// SetToNumber sets the ToNumber field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetToNumber(toNumber *string) {
-	r.ToNumber = toNumber
-	r.require(retrieveCallStatusResponseFieldToNumber)
-}
-
-// SetFromNumber sets the FromNumber field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetFromNumber(fromNumber *string) {
-	r.FromNumber = fromNumber
-	r.require(retrieveCallStatusResponseFieldFromNumber)
-}
-
-// SetPipelineID sets the PipelineID field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetPipelineID(pipelineID *string) {
-	r.PipelineID = pipelineID
-	r.require(retrieveCallStatusResponseFieldPipelineID)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetType(type_ *RetrieveCallStatusResponseType) {
-	r.Type = type_
-	r.require(retrieveCallStatusResponseFieldType)
-}
-
-// SetAgentID sets the AgentID field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetAgentID(agentID *string) {
-	r.AgentID = agentID
-	r.require(retrieveCallStatusResponseFieldAgentID)
-}
-
-// SetChannel sets the Channel field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetChannel(channel *string) {
-	r.Channel = channel
-	r.require(retrieveCallStatusResponseFieldChannel)
-}
-
-// SetReason sets the Reason field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetReason(reason *RetrieveCallStatusResponseReason) {
-	r.Reason = reason
-	r.require(retrieveCallStatusResponseFieldReason)
-}
-
-// SetCreateTs sets the CreateTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetCreateTs(createTs *int) {
-	r.CreateTs = createTs
-	r.require(retrieveCallStatusResponseFieldCreateTs)
-}
-
-// SetState sets the State field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetState(state *RetrieveCallStatusResponseState) {
-	r.State = state
-	r.require(retrieveCallStatusResponseFieldState)
-}
-
-// SetStopTs sets the StopTs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RetrieveCallStatusResponse) SetStopTs(stopTs *int) {
-	r.StopTs = stopTs
-	r.require(retrieveCallStatusResponseFieldStopTs)
-}
-
-func (r *RetrieveCallStatusResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler RetrieveCallStatusResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*r = RetrieveCallStatusResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *r)
-	if err != nil {
-		return err
-	}
-	r.extraProperties = extraProperties
-	r.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (r *RetrieveCallStatusResponse) MarshalJSON() ([]byte, error) {
-	type embed RetrieveCallStatusResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*r),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (r *RetrieveCallStatusResponse) String() string {
-	if len(r.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(r); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", r)
-}
-
-// Reason for call ending:
-// - `request`: Actively hung up.
-// - `hangup`: The other party hung up.
-// - `failed`: Call failed.
-type RetrieveCallStatusResponseReason string
-
-const (
-	RetrieveCallStatusResponseReasonRequest RetrieveCallStatusResponseReason = "request"
-	RetrieveCallStatusResponseReasonHangup  RetrieveCallStatusResponseReason = "hangup"
-	RetrieveCallStatusResponseReasonFailed  RetrieveCallStatusResponseReason = "failed"
-)
-
-func NewRetrieveCallStatusResponseReasonFromString(s string) (RetrieveCallStatusResponseReason, error) {
-	switch s {
-	case "request":
-		return RetrieveCallStatusResponseReasonRequest, nil
-	case "hangup":
-		return RetrieveCallStatusResponseReasonHangup, nil
-	case "failed":
-		return RetrieveCallStatusResponseReasonFailed, nil
-	}
-	var t RetrieveCallStatusResponseReason
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (r RetrieveCallStatusResponseReason) Ptr() *RetrieveCallStatusResponseReason {
-	return &r
-}
-
-// Call status:
-// - `answered`: The call was answered.
-// - `hangup`: The call was disconnected.
-type RetrieveCallStatusResponseState string
-
-const (
-	RetrieveCallStatusResponseStateAnswered RetrieveCallStatusResponseState = "answered"
-	RetrieveCallStatusResponseStateHangup   RetrieveCallStatusResponseState = "hangup"
-)
-
-func NewRetrieveCallStatusResponseStateFromString(s string) (RetrieveCallStatusResponseState, error) {
-	switch s {
-	case "answered":
-		return RetrieveCallStatusResponseStateAnswered, nil
-	case "hangup":
-		return RetrieveCallStatusResponseStateHangup, nil
-	}
-	var t RetrieveCallStatusResponseState
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (r RetrieveCallStatusResponseState) Ptr() *RetrieveCallStatusResponseState {
-	return &r
-}
-
-// Call type:
-// - `inbound`: Inbound call.
-// - `outbound`: Outbound call.
-type RetrieveCallStatusResponseType string
-
-const (
-	RetrieveCallStatusResponseTypeInbound  RetrieveCallStatusResponseType = "inbound"
-	RetrieveCallStatusResponseTypeOutbound RetrieveCallStatusResponseType = "outbound"
-)
-
-func NewRetrieveCallStatusResponseTypeFromString(s string) (RetrieveCallStatusResponseType, error) {
-	switch s {
-	case "inbound":
-		return RetrieveCallStatusResponseTypeInbound, nil
-	case "outbound":
-		return RetrieveCallStatusResponseTypeOutbound, nil
-	}
-	var t RetrieveCallStatusResponseType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (r RetrieveCallStatusResponseType) Ptr() *RetrieveCallStatusResponseType {
-	return &r
+	return fmt.Sprintf("%#v", t)
 }

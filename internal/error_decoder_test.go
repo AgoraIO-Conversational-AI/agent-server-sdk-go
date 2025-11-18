@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/fern-demo/agoraio-go-sdk/core"
+	"github.com/fern-demo/agoraio-go-sdk/v505/core"
 	"github.com/stretchr/testify/assert"
 )
 

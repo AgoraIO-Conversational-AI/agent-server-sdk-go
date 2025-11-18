@@ -57,9 +57,9 @@ func (r *RequestOptions) ToHeader() http.Header {
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/fern-demo/agoraio-go-sdk")
-	headers.Set("X-Fern-SDK-Version", "v0.0.1")
-	headers.Set("User-Agent", "github.com/fern-demo/agoraio-go-sdk/0.0.1")
+	headers.Set("X-Fern-SDK-Name", "github.com/fern-demo/agoraio-go-sdk/v505")
+	headers.Set("X-Fern-SDK-Version", "v0.0.2")
+	headers.Set("User-Agent", "github.com/fern-demo/agoraio-go-sdk/AUTO")
 	return headers
 }
 

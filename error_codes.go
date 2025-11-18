@@ -3,7 +3,7 @@
 package Agora
 
 import (
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
 )
 
 var ErrorCodes internal.ErrorCodes = internal.ErrorCodes{}

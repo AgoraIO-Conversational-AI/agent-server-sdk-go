@@ -3,7 +3,7 @@
 package option
 
 import (
-	core "github.com/fern-demo/agoraio-go-sdk/core"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
 	http "net/http"
 	url "net/url"
 )

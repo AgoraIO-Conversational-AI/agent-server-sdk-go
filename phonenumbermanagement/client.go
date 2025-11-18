@@ -4,10 +4,10 @@ package phonenumbermanagement
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 )
 
 type Client struct {
@@ -33,11 +33,11 @@ func NewClient(options *core.RequestOptions) *Client {
 }
 
 // Retrieve a list of all imported phone numbers under the current account.
-func (c *Client) RetrieveNumberList(
+func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) ([]*Agora.RetrieveNumberListResponseItem, error) {
-	response, err := c.WithRawResponse.RetrieveNumberList(
+) ([]*Agora.PhoneNumberManagementListResponseItem, error) {
+	response, err := c.WithRawResponse.List(
 		ctx,
 		opts...,
 	)
@@ -48,12 +48,12 @@ func (c *Client) RetrieveNumberList(
 }
 
 // Import a pre-configured phone number that can be used for inbound or outbound calls.
-func (c *Client) ImportNumber(
+func (c *Client) Add(
 	ctx context.Context,
-	request *Agora.ImportNumberRequest,
+	request *Agora.PhoneNumberManagementAddRequest,
 	opts ...option.RequestOption,
-) (*Agora.ImportNumberResponse, error) {
-	response, err := c.WithRawResponse.ImportNumber(
+) (*Agora.PhoneNumberManagementAddResponse, error) {
+	response, err := c.WithRawResponse.Add(
 		ctx,
 		request,
 		opts...,
@@ -65,13 +65,13 @@ func (c *Client) ImportNumber(
 }
 
 // Retrieve detailed information for a specific phone number.
-func (c *Client) RetrieveNumberInformation(
+func (c *Client) Get(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
 	opts ...option.RequestOption,
-) (*Agora.RetrieveNumberInformationResponse, error) {
-	response, err := c.WithRawResponse.RetrieveNumberInformation(
+) (*Agora.PhoneNumberManagementGetResponse, error) {
+	response, err := c.WithRawResponse.Get(
 		ctx,
 		phoneNumber,
 		opts...,
@@ -85,13 +85,13 @@ func (c *Client) RetrieveNumberInformation(
 // Remove an imported phone number from the system.
 //
 // Note: This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted. After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
-func (c *Client) DeleteNumber(
+func (c *Client) Delete(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
 	opts ...option.RequestOption,
 ) error {
-	_, err := c.WithRawResponse.DeleteNumber(
+	_, err := c.WithRawResponse.Delete(
 		ctx,
 		phoneNumber,
 		opts...,
@@ -103,14 +103,14 @@ func (c *Client) DeleteNumber(
 }
 
 // Update the configuration for a phone number.
-func (c *Client) UpdateNumberConfiguration(
+func (c *Client) Update(
 	ctx context.Context,
 	// Telephone number in E.164 format. For example, +11234567890.
 	phoneNumber string,
-	request *Agora.UpdateNumberConfigurationRequest,
+	request *Agora.PhoneNumberManagementUpdateRequest,
 	opts ...option.RequestOption,
-) (*Agora.UpdateNumberConfigurationResponse, error) {
-	response, err := c.WithRawResponse.UpdateNumberConfiguration(
+) (*Agora.PhoneNumberManagementUpdateResponse, error) {
+	response, err := c.WithRawResponse.Update(
 		ctx,
 		phoneNumber,
 		request,

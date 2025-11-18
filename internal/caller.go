@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/fern-demo/agoraio-go-sdk/core"
+	"github.com/fern-demo/agoraio-go-sdk/v505/core"
 )
 
 const (
