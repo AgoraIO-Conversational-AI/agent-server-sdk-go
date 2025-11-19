@@ -4,11 +4,14 @@ package telephony
 
 import (
 	context "context"
+	"encoding/json"
+	"fmt"
+	http "net/http"
+
 	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
 	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
 	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
 	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-	http "net/http"
 )
 
 type RawClient struct {
@@ -50,6 +53,16 @@ func (r *RawClient) Call(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
+
+	// JSON stringify and print the request body
+	requestBodyJSON, err := json.MarshalIndent(request, "", "  ")
+	if err != nil {
+		fmt.Printf("Error marshaling request body: %v\n", err)
+	} else {
+		fmt.Printf("Request Body: %s\n", string(requestBodyJSON))
+	}
+
+	fmt.Printf("headers: %v", headers)
 	var response *Agora.CallTelephonyResponse
 	raw, err := r.caller.Call(
 		ctx,
