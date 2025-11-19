@@ -6,21 +6,6 @@ The Agoraio Go library provides convenient access to the Agoraio APIs from Go.
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Reference](#reference)
-- [Usage](#usage)
-- [Environments](#environments)
-- [Errors](#errors)
-- [Request Options](#request-options)
-- [Advanced](#advanced)
-  - [Response Headers](#response-headers)
-  - [Retries](#retries)
-  - [Timeouts](#timeouts)
-  - [Explicit Null](#explicit-null)
-- [Contributing](#contributing)
-
-## Table of Contents
-
 - [Reference](#reference)
 - [Usage](#usage)
 - [Environments](#environments)

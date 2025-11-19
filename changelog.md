@@ -1,11 +1,10 @@
-## v0.0.5 - 2025-11-19
-* chore: update generator version and improve CI/CD infrastructure
-* Updates the Fern Go SDK generator from version 1.16.0 to 1.16.2 and enhances the CI/CD pipeline with WireMock integration for more robust testing. Also improves documentation with better table of contents structure and enhanced response handling guidance.
+## v0.0.6 - 2025-11-19
+* chore: update Fern Go SDK generator to version 1.16.4
+* Updates the Fern Go SDK generator from version 1.16.2 to 1.16.4 to incorporate the latest improvements and bug fixes. This update also includes maintenance improvements to the README table of contents structure and refreshed WireMock test configurations for better testing coverage.
 * Key changes:
-* Update Fern Go SDK generator to version 1.16.2
-* Add WireMock server setup and teardown to CI workflow for integration testing
-* Enhance README with improved table of contents and response header documentation
-* Remove outdated changelog.md file
-* Add status code access example for response inspection
+* Update Fern Go SDK generator from 1.16.2 to 1.16.4
+* Clean up duplicate table of contents entries in README
+* Remove outdated changelog.md file from repository
+* Refresh WireMock mappings with improved JSON formatting and updated UUIDs
 * 🌿 Generated with Fern
 
