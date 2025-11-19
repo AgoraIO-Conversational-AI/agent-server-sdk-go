@@ -36,7 +36,7 @@ func NewClient(options *core.RequestOptions) *Client {
 func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) ([]*Agora.PhoneNumberManagementListResponseItem, error) {
+) ([]*Agora.ListPhoneNumberManagementResponseItem, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		opts...,
@@ -50,9 +50,9 @@ func (c *Client) List(
 // Import a pre-configured phone number that can be used for inbound or outbound calls.
 func (c *Client) Add(
 	ctx context.Context,
-	request *Agora.PhoneNumberManagementAddRequest,
+	request *Agora.AddPhoneNumberManagementRequest,
 	opts ...option.RequestOption,
-) (*Agora.PhoneNumberManagementAddResponse, error) {
+) (*Agora.AddPhoneNumberManagementResponse, error) {
 	response, err := c.WithRawResponse.Add(
 		ctx,
 		request,
@@ -67,13 +67,12 @@ func (c *Client) Add(
 // Retrieve detailed information for a specific phone number.
 func (c *Client) Get(
 	ctx context.Context,
-	// Telephone number in E.164 format. For example, +11234567890.
-	phoneNumber string,
+	request *Agora.GetPhoneNumberManagementRequest,
 	opts ...option.RequestOption,
-) (*Agora.PhoneNumberManagementGetResponse, error) {
+) (*Agora.GetPhoneNumberManagementResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		phoneNumber,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -87,13 +86,12 @@ func (c *Client) Get(
 // Note: This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted. After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
 func (c *Client) Delete(
 	ctx context.Context,
-	// Telephone number in E.164 format. For example, +11234567890.
-	phoneNumber string,
+	request *Agora.DeletePhoneNumberManagementRequest,
 	opts ...option.RequestOption,
 ) error {
 	_, err := c.WithRawResponse.Delete(
 		ctx,
-		phoneNumber,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -105,14 +103,11 @@ func (c *Client) Delete(
 // Update the configuration for a phone number.
 func (c *Client) Update(
 	ctx context.Context,
-	// Telephone number in E.164 format. For example, +11234567890.
-	phoneNumber string,
-	request *Agora.PhoneNumberManagementUpdateRequest,
+	request *Agora.UpdatePhoneNumberManagementRequest,
 	opts ...option.RequestOption,
-) (*Agora.PhoneNumberManagementUpdateResponse, error) {
+) (*Agora.UpdatePhoneNumberManagementResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		phoneNumber,
 		request,
 		opts...,
 	)

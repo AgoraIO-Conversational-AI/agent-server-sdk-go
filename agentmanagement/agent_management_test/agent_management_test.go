@@ -3,128 +3,78 @@
 package agent_management_test
 
 import (
+	bytes "bytes"
 	context "context"
-	fmt "fmt"
-	v505 "github.com/fern-demo/agoraio-go-sdk/v505"
+	json "encoding/json"
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
 	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
 	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 	require "github.com/stretchr/testify/require"
-	gowiremock "github.com/wiremock/go-wiremock"
-	wiremocktestcontainersgo "github.com/wiremock/wiremock-testcontainers-go"
 	http "net/http"
-	os "os"
 	testing "testing"
 )
 
-// TestMain sets up shared test fixtures for all tests in this package// Global test fixtures
-var (
-	WireMockContainer *wiremocktestcontainersgo.WireMockContainer
-	WireMockBaseURL   string
-	WireMockClient    *gowiremock.Client
-)
+func ResetWireMockRequests(
+	t *testing.T,
+) {
+	WiremockAdminURL := "http://localhost:8080/__admin"
+	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
+	require.NoError(t, err)
+}
 
-// TestMain sets up shared test fixtures for all tests in this package
-func TestMain(m *testing.M) {
-	// Setup shared WireMock container
-	ctx := context.Background()
-	container, err := wiremocktestcontainersgo.RunContainerAndStopOnCleanup(
-		ctx,
-		&testing.T{},
-		wiremocktestcontainersgo.WithImage("docker.io/wiremock/wiremock:3.9.1"),
-	)
-	if err != nil {
-		fmt.Printf("Failed to start WireMock container: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Store global references
-	WireMockContainer = container
-
-	// Try to get the base URL using the standard method first
-	baseURL, err := container.Endpoint(ctx, "")
-	if err == nil {
-		// Standard method worked (running outside DinD)
-		// This uses the mapped port (e.g., localhost:59553)
-		WireMockBaseURL = "http://" + baseURL
-		WireMockClient = container.Client
-	} else {
-		// Standard method failed, use internal IP fallback (DinD environment)
-		fmt.Printf("Standard endpoint resolution failed, using internal IP fallback: %v\n", err)
-
-		inspect, err := container.Inspect(ctx)
-		if err != nil {
-			fmt.Printf("Failed to inspect WireMock container: %v\n", err)
-			os.Exit(1)
-		}
-
-		// Find the IP address from the container's networks
-		var containerIP string
-		for _, network := range inspect.NetworkSettings.Networks {
-			if network.IPAddress != "" {
-				containerIP = network.IPAddress
-				break
+func VerifyRequestCount(
+	t *testing.T,
+	method string,
+	urlPath string,
+	queryParams map[string]string,
+	expected int,
+) {
+	WiremockAdminURL := "http://localhost:8080/__admin"
+	var reqBody bytes.Buffer
+	reqBody.WriteString(`{"method":"`)
+	reqBody.WriteString(method)
+	reqBody.WriteString(`","urlPath":"`)
+	reqBody.WriteString(urlPath)
+	reqBody.WriteString(`"}`)
+	if len(queryParams) > 0 {
+		reqBody.WriteString(`,"queryParameters":{`)
+		first := true
+		for key, value := range queryParams {
+			if !first {
+				reqBody.WriteString(",")
 			}
+			reqBody.WriteString(`"`)
+			reqBody.WriteString(key)
+			reqBody.WriteString(`":{"equalTo":"`)
+			reqBody.WriteString(value)
+			reqBody.WriteString(`"}`)
+			first = false
 		}
-
-		if containerIP == "" {
-			fmt.Printf("Failed to get WireMock container IP address\n")
-			os.Exit(1)
-		}
-
-		// In DinD, use the internal port directly (8080 for WireMock HTTP)
-		// Don't use the mapped port since it doesn't exist in this environment
-		WireMockBaseURL = fmt.Sprintf("http://%s:8080", containerIP)
-
-		// The container.Client was created with a bad URL, so we need a new one
-		WireMockClient = gowiremock.NewClient(WireMockBaseURL)
+		reqBody.WriteString("}")
 	}
-
-	fmt.Printf("WireMock available at: %s\n", WireMockBaseURL)
-
-	// Run all tests
-	code := m.Run()
-
-	// Cleanup
-	if WireMockContainer != nil {
-		WireMockContainer.Terminate(ctx)
+	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
+	require.NoError(t, err)
+	var result struct {
+		Requests []interface{} `json:"requests"`
 	}
-
-	// Exit with the same code as the tests
-	os.Exit(code)
+	json.NewDecoder(resp.Body).Decode(&result)
+	require.Equal(t, expected, len(result.Requests))
 }
 
 func TestAgentManagementStartWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Post(gowiremock.URLPathTemplate("/v2/projects/{appid}/join")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithBodyPattern(gowiremock.MatchesJsonSchema(`{
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
-                    "type": "object",
-                    "required": ["name", "properties"],
-                    "properties": {
-                        "name": {"type": "string"}, "properties": {"type": "object"}
-                    },
-                    "additionalProperties": true
-                }`, "V202012")).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"agent_id": "1NT29X10YHxxxxxWJOXLYHNYB", "create_ts": 1737111452, "status": "RUNNING"},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentManagementStartRequest{
-		Name: "unique_name",
-		Properties: &Agora.AgentManagementStartRequestProperties{
+	request := &Agora.StartAgentManagementRequest{
+		Appid: "appid",
+		Name:  "unique_name",
+		Properties: &Agora.StartAgentManagementRequestProperties{
 			Channel:     "channel_name",
 			Token:       "token",
 			AgentRtcUID: "1001",
@@ -134,25 +84,25 @@ func TestAgentManagementStartWithWireMock(
 			IdleTimeout: Agora.Int(
 				120,
 			),
-			AdvancedFeatures: &Agora.AgentManagementStartRequestPropertiesAdvancedFeatures{
+			AdvancedFeatures: &Agora.StartAgentManagementRequestPropertiesAdvancedFeatures{
 				EnableAivad: Agora.Bool(
 					true,
 				),
 			},
-			Asr: &Agora.AgentManagementStartRequestPropertiesAsr{
+			Asr: &Agora.StartAgentManagementRequestPropertiesAsr{
 				Language: Agora.String(
 					"en-US",
 				),
 			},
-			Tts: &Agora.AgentManagementStartRequestPropertiesTts{
-				Vendor: Agora.AgentManagementStartRequestPropertiesTtsVendorMicrosoft,
+			Tts: &Agora.StartAgentManagementRequestPropertiesTts{
+				Vendor: Agora.StartAgentManagementRequestPropertiesTtsVendorMicrosoft,
 				Params: map[string]any{
 					"key":        "<your_tts_api_key>",
 					"region":     "eastus",
 					"voice_name": "en-US-AndrewMultilingualNeural",
 				},
 			},
-			Llm: &Agora.AgentManagementStartRequestPropertiesLlm{
+			Llm: &Agora.StartAgentManagementRequestPropertiesLlm{
 				URL: "https://api.openai.com/v1/chat/completions",
 				APIKey: Agora.String(
 					"<your_llm_key>",
@@ -180,213 +130,122 @@ func TestAgentManagementStartWithWireMock(
 	}
 	_, invocationErr := client.AgentManagement.Start(
 		context.TODO(),
-		"appid",
 		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "POST", "/v2/projects/appid/join", nil, 1)
 }
 
 func TestAgentManagementListWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Get(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"data": map[string]interface{}{"count": 1, "list": []interface{}{map[string]interface{}{"start_ts": 1735035893, "status": "RUNNING", "agent_id": "1234567890ABCDE1CVGZNU80BEIN56XF"}}}, "meta": map[string]interface{}{"cursor": "", "total": 1}, "status": "ok"},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentManagementListRequest{
-		Channel: Agora.String(
-			"channel",
-		),
-		FromTime: Agora.Float64(
-			1.1,
-		),
-		ToTime: Agora.Float64(
-			1.1,
-		),
-		State: Agora.AgentManagementListRequestStateZero.Ptr(),
-		Limit: Agora.Int(
-			1,
-		),
-		Cursor: Agora.String(
-			"cursor",
-		),
+	request := &Agora.ListAgentManagementRequest{
+		Appid: "appid",
 	}
 	_, invocationErr := client.AgentManagement.List(
 		context.TODO(),
-		"appid",
 		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents", nil, 1)
 }
 
 func TestAgentManagementGetWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Get(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"message": "agent exits with reason: xxxx", "start_ts": 1735035893, "stop_ts": 1735035900, "status": "FAILED", "agent_id": "1NT29X11GQSxxxxxNU80BEIN56XF"},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
+	request := &Agora.GetAgentManagementRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+	}
 	_, invocationErr := client.AgentManagement.Get(
 		context.TODO(),
-		"appid",
-		"agentId",
+		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId", nil, 1)
 }
 
 func TestAgentManagementGetHistoryWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Get(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}/history")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"agent_id": "xxxx", "start_ts": 123, "status": "RUNNING", "contents": []interface{}{map[string]interface{}{"role": "user", "content": "hello."}, map[string]interface{}{"role": "assistant", "content": "hi, how can I help you?"}}},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
+	request := &Agora.GetHistoryAgentManagementRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+	}
 	_, invocationErr := client.AgentManagement.GetHistory(
 		context.TODO(),
-		"appid",
-		"agentId",
+		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId/history", nil, 1)
 }
 
 func TestAgentManagementStopWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Post(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}/leave")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
+	request := &Agora.StopAgentManagementRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+	}
 	invocationErr := client.AgentManagement.Stop(
 		context.TODO(),
-		"appid",
-		"agentId",
+		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/leave", nil, 1)
 }
 
 func TestAgentManagementUpdateWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Post(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}/update")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WithBodyPattern(gowiremock.MatchesJsonSchema(`{
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
-                    "type": "object",
-                    "required": [],
-                    "properties": {
-                        
-                    },
-                    "additionalProperties": true
-                }`, "V202012")).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"agent_id": "1NT29X10YHxxxxxWJOXLYHNYB", "create_ts": 1737123456, "status": "RUNNING"},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentManagementUpdateRequest{
-		Properties: &Agora.AgentManagementUpdateRequestProperties{
+	request := &Agora.UpdateAgentManagementRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+		Properties: &Agora.UpdateAgentManagementRequestProperties{
 			Token: Agora.String(
 				"007eJxTYxxxxxxxxxxIaHMLAAAA0ex66",
 			),
-			Llm: &Agora.AgentManagementUpdateRequestPropertiesLlm{
+			Llm: &Agora.UpdateAgentManagementRequestPropertiesLlm{
 				SystemMessages: []map[string]any{
 					map[string]any{
 						"role":    "system",
@@ -406,111 +265,60 @@ func TestAgentManagementUpdateWithWireMock(
 	}
 	_, invocationErr := client.AgentManagement.Update(
 		context.TODO(),
-		"appid",
-		"agentId",
 		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/update", nil, 1)
 }
 
 func TestAgentManagementSpeakWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Post(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}/speak")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WithBodyPattern(gowiremock.MatchesJsonSchema(`{
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
-                    "type": "object",
-                    "required": ["text"],
-                    "properties": {
-                        "text": {"type": "string"}
-                    },
-                    "additionalProperties": true
-                }`, "V202012")).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"agent_id": "1NT29XxxxxxxxxELWEHC8OS", "channel": "test_channel", "start_ts": 1744877089},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentManagementSpeakRequest{
+	request := &Agora.SpeakAgentManagementRequest{
+		Appid:    "appid",
+		AgentID:  "agentId",
 		Text:     "Sorry, the conversation content is not compliant.",
-		Priority: Agora.AgentManagementSpeakRequestPriorityInterrupt.Ptr(),
+		Priority: Agora.SpeakAgentManagementRequestPriorityInterrupt.Ptr(),
 		Interruptable: Agora.Bool(
 			false,
 		),
 	}
 	_, invocationErr := client.AgentManagement.Speak(
 		context.TODO(),
-		"appid",
-		"agentId",
 		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/speak", nil, 1)
 }
 
 func TestAgentManagementInterruptWithWireMock(
 	t *testing.T,
 ) {
-	// wiremock client and server initialized in shared main_test.go
-	defer WireMockClient.Reset()
-	stub := gowiremock.Post(gowiremock.URLPathTemplate("/v2/projects/{appid}/agents/{agentId}/interrupt")).WithPathParam(
-		"appid",
-		gowiremock.Matching("appid"),
-	).WithPathParam(
-		"agentId",
-		gowiremock.Matching("agentId"),
-	).WithBodyPattern(gowiremock.MatchesJsonSchema(`{
-                    "$schema": "https://json-schema.org/draft/2020-12/schema",
-                    "type": "object",
-                    "required": [],
-                    "properties": {
-                        
-                    },
-                    "additionalProperties": true
-                }`, "V202012")).WillReturnResponse(
-		gowiremock.NewResponse().WithJSONBody(
-			map[string]interface{}{"agent_id": "1NT29XxxxxxxxxELWEHC8OS", "channel": "test_channel", "start_ts": 1744877089},
-		).WithStatus(http.StatusOK),
-	)
-	err := WireMockClient.StubFor(stub)
-	require.NoError(t, err, "Failed to create WireMock stub")
-
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
 			WireMockBaseURL,
 		),
 	)
-	request := &Agora.AgentManagementInterruptRequest{}
+	request := &Agora.InterruptAgentManagementRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+	}
 	_, invocationErr := client.AgentManagement.Interrupt(
 		context.TODO(),
-		"appid",
-		"agentId",
 		request,
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	ok, countErr := WireMockClient.Verify(stub.Request(), 1)
-	require.NoError(t, countErr, "Failed to verify WireMock request was matched")
-	require.True(t, ok, "WireMock request was not matched")
+	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/interrupt", nil, 1)
 }
