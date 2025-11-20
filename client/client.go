@@ -3,18 +3,18 @@
 package client
 
 import (
-	agentmanagement "github.com/fern-demo/agoraio-go-sdk/v505/agentmanagement"
+	agents "github.com/fern-demo/agoraio-go-sdk/v505/agents"
 	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
 	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
 	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-	phonenumbermanagement "github.com/fern-demo/agoraio-go-sdk/v505/phonenumbermanagement"
+	phonenumbers "github.com/fern-demo/agoraio-go-sdk/v505/phonenumbers"
 	telephony "github.com/fern-demo/agoraio-go-sdk/v505/telephony"
 )
 
 type Client struct {
-	AgentManagement       *agentmanagement.Client
-	Telephony             *telephony.Client
-	PhoneNumberManagement *phonenumbermanagement.Client
+	Agents       *agents.Client
+	Telephony    *telephony.Client
+	PhoneNumbers *phonenumbers.Client
 
 	options *core.RequestOptions
 	baseURL string
@@ -24,11 +24,11 @@ type Client struct {
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
 	return &Client{
-		AgentManagement:       agentmanagement.NewClient(options),
-		Telephony:             telephony.NewClient(options),
-		PhoneNumberManagement: phonenumbermanagement.NewClient(options),
-		options:               options,
-		baseURL:               options.BaseURL,
+		Agents:       agents.NewClient(options),
+		Telephony:    telephony.NewClient(options),
+		PhoneNumbers: phonenumbers.NewClient(options),
+		options:      options,
+		baseURL:      options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,

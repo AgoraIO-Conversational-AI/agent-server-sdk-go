@@ -1,6 +1,6 @@
 # Reference
-## Agent Management
-<details><summary><code>client.AgentManagement.Start(Appid, request) -> *Agora.StartAgentManagementResponse</code></summary>
+## Agents
+<details><summary><code>client.Agents.Start(Appid, request) -> *Agora.StartAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -27,10 +27,10 @@ Create and start a Conversational AI agent instance.
 <dd>
 
 ```go
-request := &Agora.StartAgentManagementRequest{
+request := &Agora.StartAgentsRequest{
         Appid: "appid",
         Name: "unique_name",
-        Properties: &Agora.StartAgentManagementRequestProperties{
+        Properties: &Agora.StartAgentsRequestProperties{
             Channel: "channel_name",
             Token: "token",
             AgentRtcUID: "1001",
@@ -40,25 +40,25 @@ request := &Agora.StartAgentManagementRequest{
             IdleTimeout: Agora.Int(
                 120,
             ),
-            AdvancedFeatures: &Agora.StartAgentManagementRequestPropertiesAdvancedFeatures{
+            AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
                 EnableAivad: Agora.Bool(
                     true,
                 ),
             },
-            Asr: &Agora.StartAgentManagementRequestPropertiesAsr{
+            Asr: &Agora.StartAgentsRequestPropertiesAsr{
                 Language: Agora.String(
                     "en-US",
                 ),
             },
-            Tts: &Agora.StartAgentManagementRequestPropertiesTts{
-                Vendor: Agora.StartAgentManagementRequestPropertiesTtsVendorMicrosoft,
+            Tts: &Agora.StartAgentsRequestPropertiesTts{
+                Vendor: Agora.StartAgentsRequestPropertiesTtsVendorMicrosoft,
                 Params: map[string]any{
                     "key": "<your_tts_api_key>",
                     "region": "eastus",
                     "voice_name": "en-US-AndrewMultilingualNeural",
                 },
             },
-            Llm: &Agora.StartAgentManagementRequestPropertiesLlm{
+            Llm: &Agora.StartAgentsRequestPropertiesLlm{
                 URL: "https://api.openai.com/v1/chat/completions",
                 APIKey: Agora.String(
                     "<your_llm_key>",
@@ -84,7 +84,7 @@ request := &Agora.StartAgentManagementRequest{
             },
         },
     }
-client.AgentManagement.Start(
+client.Agents.Start(
         context.TODO(),
         request,
     )
@@ -119,7 +119,7 @@ client.AgentManagement.Start(
 <dl>
 <dd>
 
-**properties:** `*Agora.StartAgentManagementRequestProperties` — Configuration details of the agent.
+**properties:** `*Agora.StartAgentsRequestProperties` — Configuration details of the agent.
     
 </dd>
 </dl>
@@ -131,7 +131,7 @@ client.AgentManagement.Start(
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.List(Appid) -> *Agora.ListAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.List(Appid) -> *Agora.ListAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -158,10 +158,10 @@ Retrieve a list of agents that meet the specified conditions.
 <dd>
 
 ```go
-request := &Agora.ListAgentManagementRequest{
+request := &Agora.ListAgentsRequest{
         Appid: "appid",
     }
-client.AgentManagement.List(
+client.Agents.List(
         context.TODO(),
         request,
     )
@@ -212,7 +212,7 @@ client.AgentManagement.List(
 <dl>
 <dd>
 
-**state:** `*Agora.ListAgentManagementRequestState` 
+**state:** `*Agora.ListAgentsRequestState` 
 
 The agent state to filter by. Only one state can be specified per query:
 - `IDLE` (0): Agent is idle.
@@ -249,7 +249,7 @@ The agent state to filter by. Only one state can be specified per query:
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.Get(Appid, AgentID) -> *Agora.GetAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.Get(Appid, AgentID) -> *Agora.GetAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -276,11 +276,11 @@ Get the current state information of the specified agent instance.
 <dd>
 
 ```go
-request := &Agora.GetAgentManagementRequest{
+request := &Agora.GetAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
     }
-client.AgentManagement.Get(
+client.Agents.Get(
         context.TODO(),
         request,
     )
@@ -319,7 +319,7 @@ client.AgentManagement.Get(
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.GetHistory(Appid, AgentID) -> *Agora.GetHistoryAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.GetHistory(Appid, AgentID) -> *Agora.GetHistoryAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -348,11 +348,11 @@ Call this endpoint while the agent is running to retrieve the conversation histo
 <dd>
 
 ```go
-request := &Agora.GetHistoryAgentManagementRequest{
+request := &Agora.GetHistoryAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
     }
-client.AgentManagement.GetHistory(
+client.Agents.GetHistory(
         context.TODO(),
         request,
     )
@@ -391,7 +391,7 @@ client.AgentManagement.GetHistory(
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.Stop(Appid, AgentID) -> error</code></summary>
+<details><summary><code>client.Agents.Stop(Appid, AgentID) -> error</code></summary>
 <dl>
 <dd>
 
@@ -418,11 +418,11 @@ Stop the specified conversational agent instance.
 <dd>
 
 ```go
-request := &Agora.StopAgentManagementRequest{
+request := &Agora.StopAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
     }
-client.AgentManagement.Stop(
+client.Agents.Stop(
         context.TODO(),
         request,
     )
@@ -461,7 +461,7 @@ client.AgentManagement.Stop(
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.Update(Appid, AgentID, request) -> *Agora.UpdateAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.Update(Appid, AgentID, request) -> *Agora.UpdateAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -488,14 +488,14 @@ Adjust Conversation AI Engine parameters at runtime.
 <dd>
 
 ```go
-request := &Agora.UpdateAgentManagementRequest{
+request := &Agora.UpdateAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
-        Properties: &Agora.UpdateAgentManagementRequestProperties{
+        Properties: &Agora.UpdateAgentsRequestProperties{
             Token: Agora.String(
                 "007eJxTYxxxxxxxxxxIaHMLAAAA0ex66",
             ),
-            Llm: &Agora.UpdateAgentManagementRequestPropertiesLlm{
+            Llm: &Agora.UpdateAgentsRequestPropertiesLlm{
                 SystemMessages: []map[string]any{
                     map[string]any{
                         "role": "system",
@@ -513,7 +513,7 @@ request := &Agora.UpdateAgentManagementRequest{
             },
         },
     }
-client.AgentManagement.Update(
+client.Agents.Update(
         context.TODO(),
         request,
     )
@@ -548,7 +548,7 @@ client.AgentManagement.Update(
 <dl>
 <dd>
 
-**properties:** `*Agora.UpdateAgentManagementRequestProperties` — Configuration properties to update.
+**properties:** `*Agora.UpdateAgentsRequestProperties` — Configuration properties to update.
     
 </dd>
 </dl>
@@ -560,7 +560,7 @@ client.AgentManagement.Update(
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.Speak(Appid, AgentID, request) -> *Agora.SpeakAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.Speak(Appid, AgentID, request) -> *Agora.SpeakAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -591,16 +591,16 @@ Note: The speak API is not supported when using `mllm` configuration.
 <dd>
 
 ```go
-request := &Agora.SpeakAgentManagementRequest{
+request := &Agora.SpeakAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
         Text: "Sorry, the conversation content is not compliant.",
-        Priority: Agora.SpeakAgentManagementRequestPriorityInterrupt.Ptr(),
+        Priority: Agora.SpeakAgentsRequestPriorityInterrupt.Ptr(),
         Interruptable: Agora.Bool(
             false,
         ),
     }
-client.AgentManagement.Speak(
+client.Agents.Speak(
         context.TODO(),
         request,
     )
@@ -643,7 +643,7 @@ client.AgentManagement.Speak(
 <dl>
 <dd>
 
-**priority:** `*Agora.SpeakAgentManagementRequestPriority` 
+**priority:** `*Agora.SpeakAgentsRequestPriority` 
 
 Sets the priority of the message broadcast:
 - `INTERRUPT`: High priority. The agent immediately interrupts the current interaction to announce the message.
@@ -672,7 +672,7 @@ Whether to allow users to interrupt the agent's broadcast by speaking:
 </dl>
 </details>
 
-<details><summary><code>client.AgentManagement.Interrupt(Appid, AgentID, request) -> *Agora.InterruptAgentManagementResponse</code></summary>
+<details><summary><code>client.Agents.Interrupt(Appid, AgentID, request) -> *Agora.InterruptAgentsResponse</code></summary>
 <dl>
 <dd>
 
@@ -699,11 +699,11 @@ Interrupt the specified agent while speaking or thinking.
 <dd>
 
 ```go
-request := &Agora.InterruptAgentManagementRequest{
+request := &Agora.InterruptAgentsRequest{
         Appid: "appid",
         AgentID: "agentId",
     }
-client.AgentManagement.Interrupt(
+client.Agents.Interrupt(
         context.TODO(),
         request,
     )
@@ -1112,8 +1112,8 @@ client.Telephony.Hangup(
 </dl>
 </details>
 
-## Phone Number Management
-<details><summary><code>client.PhoneNumberManagement.List() -> []*Agora.ListPhoneNumberManagementResponseItem</code></summary>
+## PhoneNumbers
+<details><summary><code>client.PhoneNumbers.List() -> []*Agora.ListPhoneNumbersResponseItem</code></summary>
 <dl>
 <dd>
 
@@ -1140,7 +1140,7 @@ Retrieve a list of all imported phone numbers under the current account.
 <dd>
 
 ```go
-client.PhoneNumberManagement.List(
+client.PhoneNumbers.List(
         context.TODO(),
     )
 }
@@ -1155,7 +1155,7 @@ client.PhoneNumberManagement.List(
 </dl>
 </details>
 
-<details><summary><code>client.PhoneNumberManagement.Add(request) -> *Agora.AddPhoneNumberManagementResponse</code></summary>
+<details><summary><code>client.PhoneNumbers.Add(request) -> *Agora.AddPhoneNumbersResponse</code></summary>
 <dl>
 <dd>
 
@@ -1182,8 +1182,8 @@ Import a pre-configured phone number that can be used for inbound or outbound ca
 <dd>
 
 ```go
-request := &Agora.AddPhoneNumberManagementRequest{
-        Provider: Agora.AddPhoneNumberManagementRequestProviderByo,
+request := &Agora.AddPhoneNumbersRequest{
+        Provider: Agora.AddPhoneNumbersRequestProviderByo,
         PhoneNumber: "+19876543210",
         Label: "Sales Hotline",
         Inbound: Agora.Bool(
@@ -1192,12 +1192,12 @@ request := &Agora.AddPhoneNumberManagementRequest{
         Outbound: Agora.Bool(
             true,
         ),
-        InboundConfig: &Agora.AddPhoneNumberManagementRequestInboundConfig{
+        InboundConfig: &Agora.AddPhoneNumbersRequestInboundConfig{
             AllowedAddresses: []string{
                 "112.126.15.64/27",
             },
         },
-        OutboundConfig: &Agora.AddPhoneNumberManagementRequestOutboundConfig{
+        OutboundConfig: &Agora.AddPhoneNumbersRequestOutboundConfig{
             Address: Agora.String(
                 "xxx:xxx@sip.example.com",
             ),
@@ -1206,7 +1206,7 @@ request := &Agora.AddPhoneNumberManagementRequest{
             ),
         },
     }
-client.PhoneNumberManagement.Add(
+client.PhoneNumbers.Add(
         context.TODO(),
         request,
     )
@@ -1225,7 +1225,7 @@ client.PhoneNumberManagement.Add(
 <dl>
 <dd>
 
-**provider:** `*Agora.AddPhoneNumberManagementRequestProvider` 
+**provider:** `*Agora.AddPhoneNumbersRequestProvider` 
 
 Number provider:
 - `byo`: BYO (Bring Your Own)
@@ -1269,7 +1269,7 @@ Number provider:
 <dl>
 <dd>
 
-**inboundConfig:** `*Agora.AddPhoneNumberManagementRequestInboundConfig` — SIP inbound call configuration.
+**inboundConfig:** `*Agora.AddPhoneNumbersRequestInboundConfig` — SIP inbound call configuration.
     
 </dd>
 </dl>
@@ -1277,7 +1277,7 @@ Number provider:
 <dl>
 <dd>
 
-**outboundConfig:** `*Agora.AddPhoneNumberManagementRequestOutboundConfig` — SIP outbound call configuration.
+**outboundConfig:** `*Agora.AddPhoneNumbersRequestOutboundConfig` — SIP outbound call configuration.
     
 </dd>
 </dl>
@@ -1289,7 +1289,7 @@ Number provider:
 </dl>
 </details>
 
-<details><summary><code>client.PhoneNumberManagement.Get(PhoneNumber) -> *Agora.GetPhoneNumberManagementResponse</code></summary>
+<details><summary><code>client.PhoneNumbers.Get(PhoneNumber) -> *Agora.GetPhoneNumbersResponse</code></summary>
 <dl>
 <dd>
 
@@ -1316,10 +1316,10 @@ Retrieve detailed information for a specific phone number.
 <dd>
 
 ```go
-request := &Agora.GetPhoneNumberManagementRequest{
+request := &Agora.GetPhoneNumbersRequest{
         PhoneNumber: "phone_number",
     }
-client.PhoneNumberManagement.Get(
+client.PhoneNumbers.Get(
         context.TODO(),
         request,
     )
@@ -1350,7 +1350,7 @@ client.PhoneNumberManagement.Get(
 </dl>
 </details>
 
-<details><summary><code>client.PhoneNumberManagement.Delete(PhoneNumber) -> error</code></summary>
+<details><summary><code>client.PhoneNumbers.Delete(PhoneNumber) -> error</code></summary>
 <dl>
 <dd>
 
@@ -1379,10 +1379,10 @@ Note: This operation only removes the number configuration from the Agora system
 <dd>
 
 ```go
-request := &Agora.DeletePhoneNumberManagementRequest{
+request := &Agora.DeletePhoneNumbersRequest{
         PhoneNumber: "phone_number",
     }
-client.PhoneNumberManagement.Delete(
+client.PhoneNumbers.Delete(
         context.TODO(),
         request,
     )
@@ -1413,7 +1413,7 @@ client.PhoneNumberManagement.Delete(
 </dl>
 </details>
 
-<details><summary><code>client.PhoneNumberManagement.Update(PhoneNumber, request) -> *Agora.UpdatePhoneNumberManagementResponse</code></summary>
+<details><summary><code>client.PhoneNumbers.Update(PhoneNumber, request) -> *Agora.UpdatePhoneNumbersResponse</code></summary>
 <dl>
 <dd>
 
@@ -1440,20 +1440,20 @@ Update the configuration for a phone number.
 <dd>
 
 ```go
-request := &Agora.UpdatePhoneNumberManagementRequest{
+request := &Agora.UpdatePhoneNumbersRequest{
         PhoneNumber: "phone_number",
-        InboundConfig: &Agora.UpdatePhoneNumberManagementRequestInboundConfig{
+        InboundConfig: &Agora.UpdatePhoneNumbersRequestInboundConfig{
             PipelineID: Agora.String(
                 "xxxxx",
             ),
         },
-        OutboundConfig: &Agora.UpdatePhoneNumberManagementRequestOutboundConfig{
+        OutboundConfig: &Agora.UpdatePhoneNumbersRequestOutboundConfig{
             PipelineID: Agora.String(
                 "xxxxx",
             ),
         },
     }
-client.PhoneNumberManagement.Update(
+client.PhoneNumbers.Update(
         context.TODO(),
         request,
     )
@@ -1480,7 +1480,7 @@ client.PhoneNumberManagement.Update(
 <dl>
 <dd>
 
-**inboundConfig:** `*Agora.UpdatePhoneNumberManagementRequestInboundConfig` — Update inbound call configuration. Passing `null` will clear the configuration.
+**inboundConfig:** `*Agora.UpdatePhoneNumbersRequestInboundConfig` — Update inbound call configuration. Passing `null` will clear the configuration.
     
 </dd>
 </dl>
@@ -1488,7 +1488,7 @@ client.PhoneNumberManagement.Update(
 <dl>
 <dd>
 
-**outboundConfig:** `*Agora.UpdatePhoneNumberManagementRequestOutboundConfig` — Update outbound call configuration. Passing `null` will clear the configuration.
+**outboundConfig:** `*Agora.UpdatePhoneNumbersRequestOutboundConfig` — Update outbound call configuration. Passing `null` will clear the configuration.
     
 </dd>
 </dl>

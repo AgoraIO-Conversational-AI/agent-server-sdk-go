@@ -10,20 +10,20 @@ import (
 )
 
 var (
-	addPhoneNumberManagementRequestFieldProvider       = big.NewInt(1 << 0)
-	addPhoneNumberManagementRequestFieldPhoneNumber    = big.NewInt(1 << 1)
-	addPhoneNumberManagementRequestFieldLabel          = big.NewInt(1 << 2)
-	addPhoneNumberManagementRequestFieldInbound        = big.NewInt(1 << 3)
-	addPhoneNumberManagementRequestFieldOutbound       = big.NewInt(1 << 4)
-	addPhoneNumberManagementRequestFieldInboundConfig  = big.NewInt(1 << 5)
-	addPhoneNumberManagementRequestFieldOutboundConfig = big.NewInt(1 << 6)
+	addPhoneNumbersRequestFieldProvider       = big.NewInt(1 << 0)
+	addPhoneNumbersRequestFieldPhoneNumber    = big.NewInt(1 << 1)
+	addPhoneNumbersRequestFieldLabel          = big.NewInt(1 << 2)
+	addPhoneNumbersRequestFieldInbound        = big.NewInt(1 << 3)
+	addPhoneNumbersRequestFieldOutbound       = big.NewInt(1 << 4)
+	addPhoneNumbersRequestFieldInboundConfig  = big.NewInt(1 << 5)
+	addPhoneNumbersRequestFieldOutboundConfig = big.NewInt(1 << 6)
 )
 
-type AddPhoneNumberManagementRequest struct {
+type AddPhoneNumbersRequest struct {
 	// Number provider:
 	// - `byo`: BYO (Bring Your Own)
 	// - `twilio`: Twilio
-	Provider AddPhoneNumberManagementRequestProvider `json:"provider" url:"-"`
+	Provider AddPhoneNumbersRequestProvider `json:"provider" url:"-"`
 	// Telephone number in E.164 format.
 	PhoneNumber string `json:"phone_number" url:"-"`
 	// A label used to identify the number.
@@ -33,15 +33,15 @@ type AddPhoneNumberManagementRequest struct {
 	// Whether the number supports outbound calls.
 	Outbound *bool `json:"outbound,omitempty" url:"-"`
 	// SIP inbound call configuration.
-	InboundConfig *AddPhoneNumberManagementRequestInboundConfig `json:"inbound_config,omitempty" url:"-"`
+	InboundConfig *AddPhoneNumbersRequestInboundConfig `json:"inbound_config,omitempty" url:"-"`
 	// SIP outbound call configuration.
-	OutboundConfig *AddPhoneNumberManagementRequestOutboundConfig `json:"outbound_config,omitempty" url:"-"`
+	OutboundConfig *AddPhoneNumbersRequestOutboundConfig `json:"outbound_config,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (a *AddPhoneNumberManagementRequest) require(field *big.Int) {
+func (a *AddPhoneNumbersRequest) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -50,58 +50,58 @@ func (a *AddPhoneNumberManagementRequest) require(field *big.Int) {
 
 // SetProvider sets the Provider field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetProvider(provider AddPhoneNumberManagementRequestProvider) {
+func (a *AddPhoneNumbersRequest) SetProvider(provider AddPhoneNumbersRequestProvider) {
 	a.Provider = provider
-	a.require(addPhoneNumberManagementRequestFieldProvider)
+	a.require(addPhoneNumbersRequestFieldProvider)
 }
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetPhoneNumber(phoneNumber string) {
+func (a *AddPhoneNumbersRequest) SetPhoneNumber(phoneNumber string) {
 	a.PhoneNumber = phoneNumber
-	a.require(addPhoneNumberManagementRequestFieldPhoneNumber)
+	a.require(addPhoneNumbersRequestFieldPhoneNumber)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetLabel(label string) {
+func (a *AddPhoneNumbersRequest) SetLabel(label string) {
 	a.Label = label
-	a.require(addPhoneNumberManagementRequestFieldLabel)
+	a.require(addPhoneNumbersRequestFieldLabel)
 }
 
 // SetInbound sets the Inbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetInbound(inbound *bool) {
+func (a *AddPhoneNumbersRequest) SetInbound(inbound *bool) {
 	a.Inbound = inbound
-	a.require(addPhoneNumberManagementRequestFieldInbound)
+	a.require(addPhoneNumbersRequestFieldInbound)
 }
 
 // SetOutbound sets the Outbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetOutbound(outbound *bool) {
+func (a *AddPhoneNumbersRequest) SetOutbound(outbound *bool) {
 	a.Outbound = outbound
-	a.require(addPhoneNumberManagementRequestFieldOutbound)
+	a.require(addPhoneNumbersRequestFieldOutbound)
 }
 
 // SetInboundConfig sets the InboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetInboundConfig(inboundConfig *AddPhoneNumberManagementRequestInboundConfig) {
+func (a *AddPhoneNumbersRequest) SetInboundConfig(inboundConfig *AddPhoneNumbersRequestInboundConfig) {
 	a.InboundConfig = inboundConfig
-	a.require(addPhoneNumberManagementRequestFieldInboundConfig)
+	a.require(addPhoneNumbersRequestFieldInboundConfig)
 }
 
 // SetOutboundConfig sets the OutboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequest) SetOutboundConfig(outboundConfig *AddPhoneNumberManagementRequestOutboundConfig) {
+func (a *AddPhoneNumbersRequest) SetOutboundConfig(outboundConfig *AddPhoneNumbersRequestOutboundConfig) {
 	a.OutboundConfig = outboundConfig
-	a.require(addPhoneNumberManagementRequestFieldOutboundConfig)
+	a.require(addPhoneNumbersRequestFieldOutboundConfig)
 }
 
 var (
-	deletePhoneNumberManagementRequestFieldPhoneNumber = big.NewInt(1 << 0)
+	deletePhoneNumbersRequestFieldPhoneNumber = big.NewInt(1 << 0)
 )
 
-type DeletePhoneNumberManagementRequest struct {
+type DeletePhoneNumbersRequest struct {
 	// Telephone number in E.164 format. For example, +11234567890.
 	PhoneNumber string `json:"-" url:"-"`
 
@@ -109,7 +109,7 @@ type DeletePhoneNumberManagementRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (d *DeletePhoneNumberManagementRequest) require(field *big.Int) {
+func (d *DeletePhoneNumbersRequest) require(field *big.Int) {
 	if d.explicitFields == nil {
 		d.explicitFields = big.NewInt(0)
 	}
@@ -118,16 +118,16 @@ func (d *DeletePhoneNumberManagementRequest) require(field *big.Int) {
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (d *DeletePhoneNumberManagementRequest) SetPhoneNumber(phoneNumber string) {
+func (d *DeletePhoneNumbersRequest) SetPhoneNumber(phoneNumber string) {
 	d.PhoneNumber = phoneNumber
-	d.require(deletePhoneNumberManagementRequestFieldPhoneNumber)
+	d.require(deletePhoneNumbersRequestFieldPhoneNumber)
 }
 
 var (
-	getPhoneNumberManagementRequestFieldPhoneNumber = big.NewInt(1 << 0)
+	getPhoneNumbersRequestFieldPhoneNumber = big.NewInt(1 << 0)
 )
 
-type GetPhoneNumberManagementRequest struct {
+type GetPhoneNumbersRequest struct {
 	// Telephone number in E.164 format. For example, +11234567890.
 	PhoneNumber string `json:"-" url:"-"`
 
@@ -135,7 +135,7 @@ type GetPhoneNumberManagementRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (g *GetPhoneNumberManagementRequest) require(field *big.Int) {
+func (g *GetPhoneNumbersRequest) require(field *big.Int) {
 	if g.explicitFields == nil {
 		g.explicitFields = big.NewInt(0)
 	}
@@ -144,17 +144,17 @@ func (g *GetPhoneNumberManagementRequest) require(field *big.Int) {
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementRequest) SetPhoneNumber(phoneNumber string) {
+func (g *GetPhoneNumbersRequest) SetPhoneNumber(phoneNumber string) {
 	g.PhoneNumber = phoneNumber
-	g.require(getPhoneNumberManagementRequestFieldPhoneNumber)
+	g.require(getPhoneNumbersRequestFieldPhoneNumber)
 }
 
 // SIP inbound call configuration.
 var (
-	addPhoneNumberManagementRequestInboundConfigFieldAllowedAddresses = big.NewInt(1 << 0)
+	addPhoneNumbersRequestInboundConfigFieldAllowedAddresses = big.NewInt(1 << 0)
 )
 
-type AddPhoneNumberManagementRequestInboundConfig struct {
+type AddPhoneNumbersRequestInboundConfig struct {
 	// List of allowed IP addresses. For example `112.126.15.64/27`
 	AllowedAddresses []string `json:"allowed_addresses,omitempty" url:"allowed_addresses,omitempty"`
 
@@ -165,18 +165,18 @@ type AddPhoneNumberManagementRequestInboundConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) GetAllowedAddresses() []string {
+func (a *AddPhoneNumbersRequestInboundConfig) GetAllowedAddresses() []string {
 	if a == nil {
 		return nil
 	}
 	return a.AllowedAddresses
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) GetExtraProperties() map[string]interface{} {
+func (a *AddPhoneNumbersRequestInboundConfig) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) require(field *big.Int) {
+func (a *AddPhoneNumbersRequestInboundConfig) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -185,18 +185,18 @@ func (a *AddPhoneNumberManagementRequestInboundConfig) require(field *big.Int) {
 
 // SetAllowedAddresses sets the AllowedAddresses field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequestInboundConfig) SetAllowedAddresses(allowedAddresses []string) {
+func (a *AddPhoneNumbersRequestInboundConfig) SetAllowedAddresses(allowedAddresses []string) {
 	a.AllowedAddresses = allowedAddresses
-	a.require(addPhoneNumberManagementRequestInboundConfigFieldAllowedAddresses)
+	a.require(addPhoneNumbersRequestInboundConfigFieldAllowedAddresses)
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler AddPhoneNumberManagementRequestInboundConfig
+func (a *AddPhoneNumbersRequestInboundConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler AddPhoneNumbersRequestInboundConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AddPhoneNumberManagementRequestInboundConfig(value)
+	*a = AddPhoneNumbersRequestInboundConfig(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -206,8 +206,8 @@ func (a *AddPhoneNumberManagementRequestInboundConfig) UnmarshalJSON(data []byte
 	return nil
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) MarshalJSON() ([]byte, error) {
-	type embed AddPhoneNumberManagementRequestInboundConfig
+func (a *AddPhoneNumbersRequestInboundConfig) MarshalJSON() ([]byte, error) {
+	type embed AddPhoneNumbersRequestInboundConfig
 	var marshaler = struct {
 		embed
 	}{
@@ -217,7 +217,7 @@ func (a *AddPhoneNumberManagementRequestInboundConfig) MarshalJSON() ([]byte, er
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AddPhoneNumberManagementRequestInboundConfig) String() string {
+func (a *AddPhoneNumbersRequestInboundConfig) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -231,12 +231,12 @@ func (a *AddPhoneNumberManagementRequestInboundConfig) String() string {
 
 // SIP outbound call configuration.
 var (
-	addPhoneNumberManagementRequestOutboundConfigFieldAddress   = big.NewInt(1 << 0)
-	addPhoneNumberManagementRequestOutboundConfigFieldTransport = big.NewInt(1 << 1)
-	addPhoneNumberManagementRequestOutboundConfigFieldPrefix    = big.NewInt(1 << 2)
+	addPhoneNumbersRequestOutboundConfigFieldAddress   = big.NewInt(1 << 0)
+	addPhoneNumbersRequestOutboundConfigFieldTransport = big.NewInt(1 << 1)
+	addPhoneNumbersRequestOutboundConfigFieldPrefix    = big.NewInt(1 << 2)
 )
 
-type AddPhoneNumberManagementRequestOutboundConfig struct {
+type AddPhoneNumbersRequestOutboundConfig struct {
 	// SIP address. For example `xxx:xxx@sip.example.com`
 	Address *string `json:"address,omitempty" url:"address,omitempty"`
 	// Transport protocol. For example `tls`
@@ -251,32 +251,32 @@ type AddPhoneNumberManagementRequestOutboundConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) GetAddress() *string {
+func (a *AddPhoneNumbersRequestOutboundConfig) GetAddress() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Address
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) GetTransport() *string {
+func (a *AddPhoneNumbersRequestOutboundConfig) GetTransport() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Transport
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) GetPrefix() *string {
+func (a *AddPhoneNumbersRequestOutboundConfig) GetPrefix() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Prefix
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) GetExtraProperties() map[string]interface{} {
+func (a *AddPhoneNumbersRequestOutboundConfig) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) require(field *big.Int) {
+func (a *AddPhoneNumbersRequestOutboundConfig) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -285,32 +285,32 @@ func (a *AddPhoneNumberManagementRequestOutboundConfig) require(field *big.Int) 
 
 // SetAddress sets the Address field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequestOutboundConfig) SetAddress(address *string) {
+func (a *AddPhoneNumbersRequestOutboundConfig) SetAddress(address *string) {
 	a.Address = address
-	a.require(addPhoneNumberManagementRequestOutboundConfigFieldAddress)
+	a.require(addPhoneNumbersRequestOutboundConfigFieldAddress)
 }
 
 // SetTransport sets the Transport field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequestOutboundConfig) SetTransport(transport *string) {
+func (a *AddPhoneNumbersRequestOutboundConfig) SetTransport(transport *string) {
 	a.Transport = transport
-	a.require(addPhoneNumberManagementRequestOutboundConfigFieldTransport)
+	a.require(addPhoneNumbersRequestOutboundConfigFieldTransport)
 }
 
 // SetPrefix sets the Prefix field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementRequestOutboundConfig) SetPrefix(prefix *string) {
+func (a *AddPhoneNumbersRequestOutboundConfig) SetPrefix(prefix *string) {
 	a.Prefix = prefix
-	a.require(addPhoneNumberManagementRequestOutboundConfigFieldPrefix)
+	a.require(addPhoneNumbersRequestOutboundConfigFieldPrefix)
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler AddPhoneNumberManagementRequestOutboundConfig
+func (a *AddPhoneNumbersRequestOutboundConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler AddPhoneNumbersRequestOutboundConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AddPhoneNumberManagementRequestOutboundConfig(value)
+	*a = AddPhoneNumbersRequestOutboundConfig(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -320,8 +320,8 @@ func (a *AddPhoneNumberManagementRequestOutboundConfig) UnmarshalJSON(data []byt
 	return nil
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) MarshalJSON() ([]byte, error) {
-	type embed AddPhoneNumberManagementRequestOutboundConfig
+func (a *AddPhoneNumbersRequestOutboundConfig) MarshalJSON() ([]byte, error) {
+	type embed AddPhoneNumbersRequestOutboundConfig
 	var marshaler = struct {
 		embed
 	}{
@@ -331,7 +331,7 @@ func (a *AddPhoneNumberManagementRequestOutboundConfig) MarshalJSON() ([]byte, e
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AddPhoneNumberManagementRequestOutboundConfig) String() string {
+func (a *AddPhoneNumbersRequestOutboundConfig) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -346,38 +346,38 @@ func (a *AddPhoneNumberManagementRequestOutboundConfig) String() string {
 // Number provider:
 // - `byo`: BYO (Bring Your Own)
 // - `twilio`: Twilio
-type AddPhoneNumberManagementRequestProvider string
+type AddPhoneNumbersRequestProvider string
 
 const (
-	AddPhoneNumberManagementRequestProviderByo    AddPhoneNumberManagementRequestProvider = "byo"
-	AddPhoneNumberManagementRequestProviderTwilio AddPhoneNumberManagementRequestProvider = "twilio"
+	AddPhoneNumbersRequestProviderByo    AddPhoneNumbersRequestProvider = "byo"
+	AddPhoneNumbersRequestProviderTwilio AddPhoneNumbersRequestProvider = "twilio"
 )
 
-func NewAddPhoneNumberManagementRequestProviderFromString(s string) (AddPhoneNumberManagementRequestProvider, error) {
+func NewAddPhoneNumbersRequestProviderFromString(s string) (AddPhoneNumbersRequestProvider, error) {
 	switch s {
 	case "byo":
-		return AddPhoneNumberManagementRequestProviderByo, nil
+		return AddPhoneNumbersRequestProviderByo, nil
 	case "twilio":
-		return AddPhoneNumberManagementRequestProviderTwilio, nil
+		return AddPhoneNumbersRequestProviderTwilio, nil
 	}
-	var t AddPhoneNumberManagementRequestProvider
+	var t AddPhoneNumbersRequestProvider
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (a AddPhoneNumberManagementRequestProvider) Ptr() *AddPhoneNumberManagementRequestProvider {
+func (a AddPhoneNumbersRequestProvider) Ptr() *AddPhoneNumbersRequestProvider {
 	return &a
 }
 
 var (
-	addPhoneNumberManagementResponseFieldPhoneNumber        = big.NewInt(1 << 0)
-	addPhoneNumberManagementResponseFieldLabel              = big.NewInt(1 << 1)
-	addPhoneNumberManagementResponseFieldProvider           = big.NewInt(1 << 2)
-	addPhoneNumberManagementResponseFieldInbound            = big.NewInt(1 << 3)
-	addPhoneNumberManagementResponseFieldOutbound           = big.NewInt(1 << 4)
-	addPhoneNumberManagementResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
+	addPhoneNumbersResponseFieldPhoneNumber        = big.NewInt(1 << 0)
+	addPhoneNumbersResponseFieldLabel              = big.NewInt(1 << 1)
+	addPhoneNumbersResponseFieldProvider           = big.NewInt(1 << 2)
+	addPhoneNumbersResponseFieldInbound            = big.NewInt(1 << 3)
+	addPhoneNumbersResponseFieldOutbound           = big.NewInt(1 << 4)
+	addPhoneNumbersResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
 )
 
-type AddPhoneNumberManagementResponse struct {
+type AddPhoneNumbersResponse struct {
 	// A telephone number in E.164 format, used as a unique identifier.
 	PhoneNumber *string `json:"phone_number,omitempty" url:"phone_number,omitempty"`
 	// A label used to identify the number.
@@ -389,7 +389,7 @@ type AddPhoneNumberManagementResponse struct {
 	// Whether the number supports outbound calls.
 	Outbound *bool `json:"outbound,omitempty" url:"outbound,omitempty"`
 	// The associated pipeline information. Returns `null` if no pipeline is associated.
-	AssociatedPipeline *AddPhoneNumberManagementResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
+	AssociatedPipeline *AddPhoneNumbersResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -398,53 +398,53 @@ type AddPhoneNumberManagementResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AddPhoneNumberManagementResponse) GetPhoneNumber() *string {
+func (a *AddPhoneNumbersResponse) GetPhoneNumber() *string {
 	if a == nil {
 		return nil
 	}
 	return a.PhoneNumber
 }
 
-func (a *AddPhoneNumberManagementResponse) GetLabel() *string {
+func (a *AddPhoneNumbersResponse) GetLabel() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Label
 }
 
-func (a *AddPhoneNumberManagementResponse) GetProvider() *string {
+func (a *AddPhoneNumbersResponse) GetProvider() *string {
 	if a == nil {
 		return nil
 	}
 	return a.Provider
 }
 
-func (a *AddPhoneNumberManagementResponse) GetInbound() *bool {
+func (a *AddPhoneNumbersResponse) GetInbound() *bool {
 	if a == nil {
 		return nil
 	}
 	return a.Inbound
 }
 
-func (a *AddPhoneNumberManagementResponse) GetOutbound() *bool {
+func (a *AddPhoneNumbersResponse) GetOutbound() *bool {
 	if a == nil {
 		return nil
 	}
 	return a.Outbound
 }
 
-func (a *AddPhoneNumberManagementResponse) GetAssociatedPipeline() *AddPhoneNumberManagementResponseAssociatedPipeline {
+func (a *AddPhoneNumbersResponse) GetAssociatedPipeline() *AddPhoneNumbersResponseAssociatedPipeline {
 	if a == nil {
 		return nil
 	}
 	return a.AssociatedPipeline
 }
 
-func (a *AddPhoneNumberManagementResponse) GetExtraProperties() map[string]interface{} {
+func (a *AddPhoneNumbersResponse) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AddPhoneNumberManagementResponse) require(field *big.Int) {
+func (a *AddPhoneNumbersResponse) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -453,53 +453,53 @@ func (a *AddPhoneNumberManagementResponse) require(field *big.Int) {
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetPhoneNumber(phoneNumber *string) {
+func (a *AddPhoneNumbersResponse) SetPhoneNumber(phoneNumber *string) {
 	a.PhoneNumber = phoneNumber
-	a.require(addPhoneNumberManagementResponseFieldPhoneNumber)
+	a.require(addPhoneNumbersResponseFieldPhoneNumber)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetLabel(label *string) {
+func (a *AddPhoneNumbersResponse) SetLabel(label *string) {
 	a.Label = label
-	a.require(addPhoneNumberManagementResponseFieldLabel)
+	a.require(addPhoneNumbersResponseFieldLabel)
 }
 
 // SetProvider sets the Provider field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetProvider(provider *string) {
+func (a *AddPhoneNumbersResponse) SetProvider(provider *string) {
 	a.Provider = provider
-	a.require(addPhoneNumberManagementResponseFieldProvider)
+	a.require(addPhoneNumbersResponseFieldProvider)
 }
 
 // SetInbound sets the Inbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetInbound(inbound *bool) {
+func (a *AddPhoneNumbersResponse) SetInbound(inbound *bool) {
 	a.Inbound = inbound
-	a.require(addPhoneNumberManagementResponseFieldInbound)
+	a.require(addPhoneNumbersResponseFieldInbound)
 }
 
 // SetOutbound sets the Outbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetOutbound(outbound *bool) {
+func (a *AddPhoneNumbersResponse) SetOutbound(outbound *bool) {
 	a.Outbound = outbound
-	a.require(addPhoneNumberManagementResponseFieldOutbound)
+	a.require(addPhoneNumbersResponseFieldOutbound)
 }
 
 // SetAssociatedPipeline sets the AssociatedPipeline field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponse) SetAssociatedPipeline(associatedPipeline *AddPhoneNumberManagementResponseAssociatedPipeline) {
+func (a *AddPhoneNumbersResponse) SetAssociatedPipeline(associatedPipeline *AddPhoneNumbersResponseAssociatedPipeline) {
 	a.AssociatedPipeline = associatedPipeline
-	a.require(addPhoneNumberManagementResponseFieldAssociatedPipeline)
+	a.require(addPhoneNumbersResponseFieldAssociatedPipeline)
 }
 
-func (a *AddPhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler AddPhoneNumberManagementResponse
+func (a *AddPhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler AddPhoneNumbersResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AddPhoneNumberManagementResponse(value)
+	*a = AddPhoneNumbersResponse(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -509,8 +509,8 @@ func (a *AddPhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (a *AddPhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
-	type embed AddPhoneNumberManagementResponse
+func (a *AddPhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	type embed AddPhoneNumbersResponse
 	var marshaler = struct {
 		embed
 	}{
@@ -520,7 +520,7 @@ func (a *AddPhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AddPhoneNumberManagementResponse) String() string {
+func (a *AddPhoneNumbersResponse) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -534,11 +534,11 @@ func (a *AddPhoneNumberManagementResponse) String() string {
 
 // The associated pipeline information. Returns `null` if no pipeline is associated.
 var (
-	addPhoneNumberManagementResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
-	addPhoneNumberManagementResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
+	addPhoneNumbersResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
+	addPhoneNumbersResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
 )
 
-type AddPhoneNumberManagementResponseAssociatedPipeline struct {
+type AddPhoneNumbersResponseAssociatedPipeline struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 	// Pipeline name.
@@ -551,25 +551,25 @@ type AddPhoneNumberManagementResponseAssociatedPipeline struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) GetPipelineID() *string {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) GetPipelineID() *string {
 	if a == nil {
 		return nil
 	}
 	return a.PipelineID
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) GetPipelineName() *string {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) GetPipelineName() *string {
 	if a == nil {
 		return nil
 	}
 	return a.PipelineName
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) require(field *big.Int) {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) require(field *big.Int) {
 	if a.explicitFields == nil {
 		a.explicitFields = big.NewInt(0)
 	}
@@ -578,25 +578,25 @@ func (a *AddPhoneNumberManagementResponseAssociatedPipeline) require(field *big.
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
 	a.PipelineID = pipelineID
-	a.require(addPhoneNumberManagementResponseAssociatedPipelineFieldPipelineID)
+	a.require(addPhoneNumbersResponseAssociatedPipelineFieldPipelineID)
 }
 
 // SetPipelineName sets the PipelineName field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
 	a.PipelineName = pipelineName
-	a.require(addPhoneNumberManagementResponseAssociatedPipelineFieldPipelineName)
+	a.require(addPhoneNumbersResponseAssociatedPipelineFieldPipelineName)
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
-	type unmarshaler AddPhoneNumberManagementResponseAssociatedPipeline
+func (a *AddPhoneNumbersResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
+	type unmarshaler AddPhoneNumbersResponseAssociatedPipeline
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AddPhoneNumberManagementResponseAssociatedPipeline(value)
+	*a = AddPhoneNumbersResponseAssociatedPipeline(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
@@ -606,8 +606,8 @@ func (a *AddPhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(data 
 	return nil
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
-	type embed AddPhoneNumberManagementResponseAssociatedPipeline
+func (a *AddPhoneNumbersResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
+	type embed AddPhoneNumbersResponseAssociatedPipeline
 	var marshaler = struct {
 		embed
 	}{
@@ -617,7 +617,7 @@ func (a *AddPhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([]by
 	return json.Marshal(explicitMarshaler)
 }
 
-func (a *AddPhoneNumberManagementResponseAssociatedPipeline) String() string {
+func (a *AddPhoneNumbersResponseAssociatedPipeline) String() string {
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -630,21 +630,21 @@ func (a *AddPhoneNumberManagementResponseAssociatedPipeline) String() string {
 }
 
 var (
-	getPhoneNumberManagementResponseFieldProvider           = big.NewInt(1 << 0)
-	getPhoneNumberManagementResponseFieldPhoneNumber        = big.NewInt(1 << 1)
-	getPhoneNumberManagementResponseFieldLabel              = big.NewInt(1 << 2)
-	getPhoneNumberManagementResponseFieldInbound            = big.NewInt(1 << 3)
-	getPhoneNumberManagementResponseFieldOutbound           = big.NewInt(1 << 4)
-	getPhoneNumberManagementResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
-	getPhoneNumberManagementResponseFieldInboundConfig      = big.NewInt(1 << 6)
-	getPhoneNumberManagementResponseFieldOutboundConfig     = big.NewInt(1 << 7)
+	getPhoneNumbersResponseFieldProvider           = big.NewInt(1 << 0)
+	getPhoneNumbersResponseFieldPhoneNumber        = big.NewInt(1 << 1)
+	getPhoneNumbersResponseFieldLabel              = big.NewInt(1 << 2)
+	getPhoneNumbersResponseFieldInbound            = big.NewInt(1 << 3)
+	getPhoneNumbersResponseFieldOutbound           = big.NewInt(1 << 4)
+	getPhoneNumbersResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
+	getPhoneNumbersResponseFieldInboundConfig      = big.NewInt(1 << 6)
+	getPhoneNumbersResponseFieldOutboundConfig     = big.NewInt(1 << 7)
 )
 
-type GetPhoneNumberManagementResponse struct {
+type GetPhoneNumbersResponse struct {
 	// Number provider:
 	// - `byo`: BYO (Bring Your Own)
 	// - `twilio`: Twilio
-	Provider *GetPhoneNumberManagementResponseProvider `json:"provider,omitempty" url:"provider,omitempty"`
+	Provider *GetPhoneNumbersResponseProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// A telephone number in E.164 format, used as a unique identifier.
 	PhoneNumber *string `json:"phone_number,omitempty" url:"phone_number,omitempty"`
 	// A label used to identify the number.
@@ -654,7 +654,7 @@ type GetPhoneNumberManagementResponse struct {
 	// Whether the number supports outbound calls.
 	Outbound *bool `json:"outbound,omitempty" url:"outbound,omitempty"`
 	// The associated pipeline information. Returns `null` if no pipeline is associated.
-	AssociatedPipeline *GetPhoneNumberManagementResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
+	AssociatedPipeline *GetPhoneNumbersResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
 	// SIP inbound call configuration details. Returns `null` if not configured.
 	InboundConfig map[string]interface{} `json:"inbound_config,omitempty" url:"inbound_config,omitempty"`
 	// SIP outbound call configuration details. Returns `null` if not configured.
@@ -667,67 +667,67 @@ type GetPhoneNumberManagementResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (g *GetPhoneNumberManagementResponse) GetProvider() *GetPhoneNumberManagementResponseProvider {
+func (g *GetPhoneNumbersResponse) GetProvider() *GetPhoneNumbersResponseProvider {
 	if g == nil {
 		return nil
 	}
 	return g.Provider
 }
 
-func (g *GetPhoneNumberManagementResponse) GetPhoneNumber() *string {
+func (g *GetPhoneNumbersResponse) GetPhoneNumber() *string {
 	if g == nil {
 		return nil
 	}
 	return g.PhoneNumber
 }
 
-func (g *GetPhoneNumberManagementResponse) GetLabel() *string {
+func (g *GetPhoneNumbersResponse) GetLabel() *string {
 	if g == nil {
 		return nil
 	}
 	return g.Label
 }
 
-func (g *GetPhoneNumberManagementResponse) GetInbound() *bool {
+func (g *GetPhoneNumbersResponse) GetInbound() *bool {
 	if g == nil {
 		return nil
 	}
 	return g.Inbound
 }
 
-func (g *GetPhoneNumberManagementResponse) GetOutbound() *bool {
+func (g *GetPhoneNumbersResponse) GetOutbound() *bool {
 	if g == nil {
 		return nil
 	}
 	return g.Outbound
 }
 
-func (g *GetPhoneNumberManagementResponse) GetAssociatedPipeline() *GetPhoneNumberManagementResponseAssociatedPipeline {
+func (g *GetPhoneNumbersResponse) GetAssociatedPipeline() *GetPhoneNumbersResponseAssociatedPipeline {
 	if g == nil {
 		return nil
 	}
 	return g.AssociatedPipeline
 }
 
-func (g *GetPhoneNumberManagementResponse) GetInboundConfig() map[string]interface{} {
+func (g *GetPhoneNumbersResponse) GetInboundConfig() map[string]interface{} {
 	if g == nil {
 		return nil
 	}
 	return g.InboundConfig
 }
 
-func (g *GetPhoneNumberManagementResponse) GetOutboundConfig() map[string]interface{} {
+func (g *GetPhoneNumbersResponse) GetOutboundConfig() map[string]interface{} {
 	if g == nil {
 		return nil
 	}
 	return g.OutboundConfig
 }
 
-func (g *GetPhoneNumberManagementResponse) GetExtraProperties() map[string]interface{} {
+func (g *GetPhoneNumbersResponse) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
-func (g *GetPhoneNumberManagementResponse) require(field *big.Int) {
+func (g *GetPhoneNumbersResponse) require(field *big.Int) {
 	if g.explicitFields == nil {
 		g.explicitFields = big.NewInt(0)
 	}
@@ -736,67 +736,67 @@ func (g *GetPhoneNumberManagementResponse) require(field *big.Int) {
 
 // SetProvider sets the Provider field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetProvider(provider *GetPhoneNumberManagementResponseProvider) {
+func (g *GetPhoneNumbersResponse) SetProvider(provider *GetPhoneNumbersResponseProvider) {
 	g.Provider = provider
-	g.require(getPhoneNumberManagementResponseFieldProvider)
+	g.require(getPhoneNumbersResponseFieldProvider)
 }
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetPhoneNumber(phoneNumber *string) {
+func (g *GetPhoneNumbersResponse) SetPhoneNumber(phoneNumber *string) {
 	g.PhoneNumber = phoneNumber
-	g.require(getPhoneNumberManagementResponseFieldPhoneNumber)
+	g.require(getPhoneNumbersResponseFieldPhoneNumber)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetLabel(label *string) {
+func (g *GetPhoneNumbersResponse) SetLabel(label *string) {
 	g.Label = label
-	g.require(getPhoneNumberManagementResponseFieldLabel)
+	g.require(getPhoneNumbersResponseFieldLabel)
 }
 
 // SetInbound sets the Inbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetInbound(inbound *bool) {
+func (g *GetPhoneNumbersResponse) SetInbound(inbound *bool) {
 	g.Inbound = inbound
-	g.require(getPhoneNumberManagementResponseFieldInbound)
+	g.require(getPhoneNumbersResponseFieldInbound)
 }
 
 // SetOutbound sets the Outbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetOutbound(outbound *bool) {
+func (g *GetPhoneNumbersResponse) SetOutbound(outbound *bool) {
 	g.Outbound = outbound
-	g.require(getPhoneNumberManagementResponseFieldOutbound)
+	g.require(getPhoneNumbersResponseFieldOutbound)
 }
 
 // SetAssociatedPipeline sets the AssociatedPipeline field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetAssociatedPipeline(associatedPipeline *GetPhoneNumberManagementResponseAssociatedPipeline) {
+func (g *GetPhoneNumbersResponse) SetAssociatedPipeline(associatedPipeline *GetPhoneNumbersResponseAssociatedPipeline) {
 	g.AssociatedPipeline = associatedPipeline
-	g.require(getPhoneNumberManagementResponseFieldAssociatedPipeline)
+	g.require(getPhoneNumbersResponseFieldAssociatedPipeline)
 }
 
 // SetInboundConfig sets the InboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetInboundConfig(inboundConfig map[string]interface{}) {
+func (g *GetPhoneNumbersResponse) SetInboundConfig(inboundConfig map[string]interface{}) {
 	g.InboundConfig = inboundConfig
-	g.require(getPhoneNumberManagementResponseFieldInboundConfig)
+	g.require(getPhoneNumbersResponseFieldInboundConfig)
 }
 
 // SetOutboundConfig sets the OutboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponse) SetOutboundConfig(outboundConfig map[string]interface{}) {
+func (g *GetPhoneNumbersResponse) SetOutboundConfig(outboundConfig map[string]interface{}) {
 	g.OutboundConfig = outboundConfig
-	g.require(getPhoneNumberManagementResponseFieldOutboundConfig)
+	g.require(getPhoneNumbersResponseFieldOutboundConfig)
 }
 
-func (g *GetPhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetPhoneNumberManagementResponse
+func (g *GetPhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetPhoneNumbersResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*g = GetPhoneNumberManagementResponse(value)
+	*g = GetPhoneNumbersResponse(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
@@ -806,8 +806,8 @@ func (g *GetPhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (g *GetPhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
-	type embed GetPhoneNumberManagementResponse
+func (g *GetPhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	type embed GetPhoneNumbersResponse
 	var marshaler = struct {
 		embed
 	}{
@@ -817,7 +817,7 @@ func (g *GetPhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (g *GetPhoneNumberManagementResponse) String() string {
+func (g *GetPhoneNumbersResponse) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -831,11 +831,11 @@ func (g *GetPhoneNumberManagementResponse) String() string {
 
 // The associated pipeline information. Returns `null` if no pipeline is associated.
 var (
-	getPhoneNumberManagementResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
-	getPhoneNumberManagementResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
+	getPhoneNumbersResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
+	getPhoneNumbersResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
 )
 
-type GetPhoneNumberManagementResponseAssociatedPipeline struct {
+type GetPhoneNumbersResponseAssociatedPipeline struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 	// Pipeline name.
@@ -848,25 +848,25 @@ type GetPhoneNumberManagementResponseAssociatedPipeline struct {
 	rawJSON         json.RawMessage
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) GetPipelineID() *string {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) GetPipelineID() *string {
 	if g == nil {
 		return nil
 	}
 	return g.PipelineID
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) GetPipelineName() *string {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) GetPipelineName() *string {
 	if g == nil {
 		return nil
 	}
 	return g.PipelineName
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) require(field *big.Int) {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) require(field *big.Int) {
 	if g.explicitFields == nil {
 		g.explicitFields = big.NewInt(0)
 	}
@@ -875,25 +875,25 @@ func (g *GetPhoneNumberManagementResponseAssociatedPipeline) require(field *big.
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
 	g.PipelineID = pipelineID
-	g.require(getPhoneNumberManagementResponseAssociatedPipelineFieldPipelineID)
+	g.require(getPhoneNumbersResponseAssociatedPipelineFieldPipelineID)
 }
 
 // SetPipelineName sets the PipelineName field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
 	g.PipelineName = pipelineName
-	g.require(getPhoneNumberManagementResponseAssociatedPipelineFieldPipelineName)
+	g.require(getPhoneNumbersResponseAssociatedPipelineFieldPipelineName)
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
-	type unmarshaler GetPhoneNumberManagementResponseAssociatedPipeline
+func (g *GetPhoneNumbersResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetPhoneNumbersResponseAssociatedPipeline
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*g = GetPhoneNumberManagementResponseAssociatedPipeline(value)
+	*g = GetPhoneNumbersResponseAssociatedPipeline(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *g)
 	if err != nil {
 		return err
@@ -903,8 +903,8 @@ func (g *GetPhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(data 
 	return nil
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
-	type embed GetPhoneNumberManagementResponseAssociatedPipeline
+func (g *GetPhoneNumbersResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
+	type embed GetPhoneNumbersResponseAssociatedPipeline
 	var marshaler = struct {
 		embed
 	}{
@@ -914,7 +914,7 @@ func (g *GetPhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([]by
 	return json.Marshal(explicitMarshaler)
 }
 
-func (g *GetPhoneNumberManagementResponseAssociatedPipeline) String() string {
+func (g *GetPhoneNumbersResponseAssociatedPipeline) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -929,44 +929,44 @@ func (g *GetPhoneNumberManagementResponseAssociatedPipeline) String() string {
 // Number provider:
 // - `byo`: BYO (Bring Your Own)
 // - `twilio`: Twilio
-type GetPhoneNumberManagementResponseProvider string
+type GetPhoneNumbersResponseProvider string
 
 const (
-	GetPhoneNumberManagementResponseProviderByo    GetPhoneNumberManagementResponseProvider = "byo"
-	GetPhoneNumberManagementResponseProviderTwilio GetPhoneNumberManagementResponseProvider = "twilio"
+	GetPhoneNumbersResponseProviderByo    GetPhoneNumbersResponseProvider = "byo"
+	GetPhoneNumbersResponseProviderTwilio GetPhoneNumbersResponseProvider = "twilio"
 )
 
-func NewGetPhoneNumberManagementResponseProviderFromString(s string) (GetPhoneNumberManagementResponseProvider, error) {
+func NewGetPhoneNumbersResponseProviderFromString(s string) (GetPhoneNumbersResponseProvider, error) {
 	switch s {
 	case "byo":
-		return GetPhoneNumberManagementResponseProviderByo, nil
+		return GetPhoneNumbersResponseProviderByo, nil
 	case "twilio":
-		return GetPhoneNumberManagementResponseProviderTwilio, nil
+		return GetPhoneNumbersResponseProviderTwilio, nil
 	}
-	var t GetPhoneNumberManagementResponseProvider
+	var t GetPhoneNumbersResponseProvider
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (g GetPhoneNumberManagementResponseProvider) Ptr() *GetPhoneNumberManagementResponseProvider {
+func (g GetPhoneNumbersResponseProvider) Ptr() *GetPhoneNumbersResponseProvider {
 	return &g
 }
 
 var (
-	listPhoneNumberManagementResponseItemFieldProvider           = big.NewInt(1 << 0)
-	listPhoneNumberManagementResponseItemFieldPhoneNumber        = big.NewInt(1 << 1)
-	listPhoneNumberManagementResponseItemFieldLabel              = big.NewInt(1 << 2)
-	listPhoneNumberManagementResponseItemFieldInbound            = big.NewInt(1 << 3)
-	listPhoneNumberManagementResponseItemFieldOutbound           = big.NewInt(1 << 4)
-	listPhoneNumberManagementResponseItemFieldAssociatedPipeline = big.NewInt(1 << 5)
-	listPhoneNumberManagementResponseItemFieldInboundConfig      = big.NewInt(1 << 6)
-	listPhoneNumberManagementResponseItemFieldOutboundConfig     = big.NewInt(1 << 7)
+	listPhoneNumbersResponseItemFieldProvider           = big.NewInt(1 << 0)
+	listPhoneNumbersResponseItemFieldPhoneNumber        = big.NewInt(1 << 1)
+	listPhoneNumbersResponseItemFieldLabel              = big.NewInt(1 << 2)
+	listPhoneNumbersResponseItemFieldInbound            = big.NewInt(1 << 3)
+	listPhoneNumbersResponseItemFieldOutbound           = big.NewInt(1 << 4)
+	listPhoneNumbersResponseItemFieldAssociatedPipeline = big.NewInt(1 << 5)
+	listPhoneNumbersResponseItemFieldInboundConfig      = big.NewInt(1 << 6)
+	listPhoneNumbersResponseItemFieldOutboundConfig     = big.NewInt(1 << 7)
 )
 
-type ListPhoneNumberManagementResponseItem struct {
+type ListPhoneNumbersResponseItem struct {
 	// Number provider:
 	// - `byo`: BYO (Bring Your Own).
 	// - `twilio`: Twilio.
-	Provider *ListPhoneNumberManagementResponseItemProvider `json:"provider,omitempty" url:"provider,omitempty"`
+	Provider *ListPhoneNumbersResponseItemProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// A telephone number in E.164 format, used as a unique identifier.
 	PhoneNumber *string `json:"phone_number,omitempty" url:"phone_number,omitempty"`
 	// A label used to identify the number.
@@ -976,7 +976,7 @@ type ListPhoneNumberManagementResponseItem struct {
 	// Whether the number supports outbound calls.
 	Outbound *bool `json:"outbound,omitempty" url:"outbound,omitempty"`
 	// The associated pipeline information. Returns `null` if no pipeline is associated.
-	AssociatedPipeline *ListPhoneNumberManagementResponseItemAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
+	AssociatedPipeline *ListPhoneNumbersResponseItemAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
 	// SIP inbound call configuration details. Returns `null` if not configured.
 	InboundConfig map[string]interface{} `json:"inbound_config,omitempty" url:"inbound_config,omitempty"`
 	// SIP outbound call configuration details. Returns `null` if not configured.
@@ -989,67 +989,67 @@ type ListPhoneNumberManagementResponseItem struct {
 	rawJSON         json.RawMessage
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetProvider() *ListPhoneNumberManagementResponseItemProvider {
+func (l *ListPhoneNumbersResponseItem) GetProvider() *ListPhoneNumbersResponseItemProvider {
 	if l == nil {
 		return nil
 	}
 	return l.Provider
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetPhoneNumber() *string {
+func (l *ListPhoneNumbersResponseItem) GetPhoneNumber() *string {
 	if l == nil {
 		return nil
 	}
 	return l.PhoneNumber
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetLabel() *string {
+func (l *ListPhoneNumbersResponseItem) GetLabel() *string {
 	if l == nil {
 		return nil
 	}
 	return l.Label
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetInbound() *bool {
+func (l *ListPhoneNumbersResponseItem) GetInbound() *bool {
 	if l == nil {
 		return nil
 	}
 	return l.Inbound
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetOutbound() *bool {
+func (l *ListPhoneNumbersResponseItem) GetOutbound() *bool {
 	if l == nil {
 		return nil
 	}
 	return l.Outbound
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetAssociatedPipeline() *ListPhoneNumberManagementResponseItemAssociatedPipeline {
+func (l *ListPhoneNumbersResponseItem) GetAssociatedPipeline() *ListPhoneNumbersResponseItemAssociatedPipeline {
 	if l == nil {
 		return nil
 	}
 	return l.AssociatedPipeline
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetInboundConfig() map[string]interface{} {
+func (l *ListPhoneNumbersResponseItem) GetInboundConfig() map[string]interface{} {
 	if l == nil {
 		return nil
 	}
 	return l.InboundConfig
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetOutboundConfig() map[string]interface{} {
+func (l *ListPhoneNumbersResponseItem) GetOutboundConfig() map[string]interface{} {
 	if l == nil {
 		return nil
 	}
 	return l.OutboundConfig
 }
 
-func (l *ListPhoneNumberManagementResponseItem) GetExtraProperties() map[string]interface{} {
+func (l *ListPhoneNumbersResponseItem) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
-func (l *ListPhoneNumberManagementResponseItem) require(field *big.Int) {
+func (l *ListPhoneNumbersResponseItem) require(field *big.Int) {
 	if l.explicitFields == nil {
 		l.explicitFields = big.NewInt(0)
 	}
@@ -1058,67 +1058,67 @@ func (l *ListPhoneNumberManagementResponseItem) require(field *big.Int) {
 
 // SetProvider sets the Provider field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetProvider(provider *ListPhoneNumberManagementResponseItemProvider) {
+func (l *ListPhoneNumbersResponseItem) SetProvider(provider *ListPhoneNumbersResponseItemProvider) {
 	l.Provider = provider
-	l.require(listPhoneNumberManagementResponseItemFieldProvider)
+	l.require(listPhoneNumbersResponseItemFieldProvider)
 }
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetPhoneNumber(phoneNumber *string) {
+func (l *ListPhoneNumbersResponseItem) SetPhoneNumber(phoneNumber *string) {
 	l.PhoneNumber = phoneNumber
-	l.require(listPhoneNumberManagementResponseItemFieldPhoneNumber)
+	l.require(listPhoneNumbersResponseItemFieldPhoneNumber)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetLabel(label *string) {
+func (l *ListPhoneNumbersResponseItem) SetLabel(label *string) {
 	l.Label = label
-	l.require(listPhoneNumberManagementResponseItemFieldLabel)
+	l.require(listPhoneNumbersResponseItemFieldLabel)
 }
 
 // SetInbound sets the Inbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetInbound(inbound *bool) {
+func (l *ListPhoneNumbersResponseItem) SetInbound(inbound *bool) {
 	l.Inbound = inbound
-	l.require(listPhoneNumberManagementResponseItemFieldInbound)
+	l.require(listPhoneNumbersResponseItemFieldInbound)
 }
 
 // SetOutbound sets the Outbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetOutbound(outbound *bool) {
+func (l *ListPhoneNumbersResponseItem) SetOutbound(outbound *bool) {
 	l.Outbound = outbound
-	l.require(listPhoneNumberManagementResponseItemFieldOutbound)
+	l.require(listPhoneNumbersResponseItemFieldOutbound)
 }
 
 // SetAssociatedPipeline sets the AssociatedPipeline field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetAssociatedPipeline(associatedPipeline *ListPhoneNumberManagementResponseItemAssociatedPipeline) {
+func (l *ListPhoneNumbersResponseItem) SetAssociatedPipeline(associatedPipeline *ListPhoneNumbersResponseItemAssociatedPipeline) {
 	l.AssociatedPipeline = associatedPipeline
-	l.require(listPhoneNumberManagementResponseItemFieldAssociatedPipeline)
+	l.require(listPhoneNumbersResponseItemFieldAssociatedPipeline)
 }
 
 // SetInboundConfig sets the InboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetInboundConfig(inboundConfig map[string]interface{}) {
+func (l *ListPhoneNumbersResponseItem) SetInboundConfig(inboundConfig map[string]interface{}) {
 	l.InboundConfig = inboundConfig
-	l.require(listPhoneNumberManagementResponseItemFieldInboundConfig)
+	l.require(listPhoneNumbersResponseItemFieldInboundConfig)
 }
 
 // SetOutboundConfig sets the OutboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItem) SetOutboundConfig(outboundConfig map[string]interface{}) {
+func (l *ListPhoneNumbersResponseItem) SetOutboundConfig(outboundConfig map[string]interface{}) {
 	l.OutboundConfig = outboundConfig
-	l.require(listPhoneNumberManagementResponseItemFieldOutboundConfig)
+	l.require(listPhoneNumbersResponseItemFieldOutboundConfig)
 }
 
-func (l *ListPhoneNumberManagementResponseItem) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListPhoneNumberManagementResponseItem
+func (l *ListPhoneNumbersResponseItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler ListPhoneNumbersResponseItem
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*l = ListPhoneNumberManagementResponseItem(value)
+	*l = ListPhoneNumbersResponseItem(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
@@ -1128,8 +1128,8 @@ func (l *ListPhoneNumberManagementResponseItem) UnmarshalJSON(data []byte) error
 	return nil
 }
 
-func (l *ListPhoneNumberManagementResponseItem) MarshalJSON() ([]byte, error) {
-	type embed ListPhoneNumberManagementResponseItem
+func (l *ListPhoneNumbersResponseItem) MarshalJSON() ([]byte, error) {
+	type embed ListPhoneNumbersResponseItem
 	var marshaler = struct {
 		embed
 	}{
@@ -1139,7 +1139,7 @@ func (l *ListPhoneNumberManagementResponseItem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (l *ListPhoneNumberManagementResponseItem) String() string {
+func (l *ListPhoneNumbersResponseItem) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1153,11 +1153,11 @@ func (l *ListPhoneNumberManagementResponseItem) String() string {
 
 // The associated pipeline information. Returns `null` if no pipeline is associated.
 var (
-	listPhoneNumberManagementResponseItemAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
-	listPhoneNumberManagementResponseItemAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
+	listPhoneNumbersResponseItemAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
+	listPhoneNumbersResponseItemAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
 )
 
-type ListPhoneNumberManagementResponseItemAssociatedPipeline struct {
+type ListPhoneNumbersResponseItemAssociatedPipeline struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 	// Pipeline name.
@@ -1170,25 +1170,25 @@ type ListPhoneNumberManagementResponseItemAssociatedPipeline struct {
 	rawJSON         json.RawMessage
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) GetPipelineID() *string {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) GetPipelineID() *string {
 	if l == nil {
 		return nil
 	}
 	return l.PipelineID
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) GetPipelineName() *string {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) GetPipelineName() *string {
 	if l == nil {
 		return nil
 	}
 	return l.PipelineName
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) GetExtraProperties() map[string]interface{} {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) GetExtraProperties() map[string]interface{} {
 	return l.extraProperties
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) require(field *big.Int) {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) require(field *big.Int) {
 	if l.explicitFields == nil {
 		l.explicitFields = big.NewInt(0)
 	}
@@ -1197,25 +1197,25 @@ func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) require(field 
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) SetPipelineID(pipelineID *string) {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) SetPipelineID(pipelineID *string) {
 	l.PipelineID = pipelineID
-	l.require(listPhoneNumberManagementResponseItemAssociatedPipelineFieldPipelineID)
+	l.require(listPhoneNumbersResponseItemAssociatedPipelineFieldPipelineID)
 }
 
 // SetPipelineName sets the PipelineName field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) SetPipelineName(pipelineName *string) {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) SetPipelineName(pipelineName *string) {
 	l.PipelineName = pipelineName
-	l.require(listPhoneNumberManagementResponseItemAssociatedPipelineFieldPipelineName)
+	l.require(listPhoneNumbersResponseItemAssociatedPipelineFieldPipelineName)
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) UnmarshalJSON(data []byte) error {
-	type unmarshaler ListPhoneNumberManagementResponseItemAssociatedPipeline
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) UnmarshalJSON(data []byte) error {
+	type unmarshaler ListPhoneNumbersResponseItemAssociatedPipeline
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*l = ListPhoneNumberManagementResponseItemAssociatedPipeline(value)
+	*l = ListPhoneNumbersResponseItemAssociatedPipeline(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
@@ -1225,8 +1225,8 @@ func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) UnmarshalJSON(
 	return nil
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) MarshalJSON() ([]byte, error) {
-	type embed ListPhoneNumberManagementResponseItemAssociatedPipeline
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) MarshalJSON() ([]byte, error) {
+	type embed ListPhoneNumbersResponseItemAssociatedPipeline
 	var marshaler = struct {
 		embed
 	}{
@@ -1236,7 +1236,7 @@ func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) MarshalJSON() 
 	return json.Marshal(explicitMarshaler)
 }
 
-func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) String() string {
+func (l *ListPhoneNumbersResponseItemAssociatedPipeline) String() string {
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -1251,34 +1251,34 @@ func (l *ListPhoneNumberManagementResponseItemAssociatedPipeline) String() strin
 // Number provider:
 // - `byo`: BYO (Bring Your Own).
 // - `twilio`: Twilio.
-type ListPhoneNumberManagementResponseItemProvider string
+type ListPhoneNumbersResponseItemProvider string
 
 const (
-	ListPhoneNumberManagementResponseItemProviderByo    ListPhoneNumberManagementResponseItemProvider = "byo"
-	ListPhoneNumberManagementResponseItemProviderTwilio ListPhoneNumberManagementResponseItemProvider = "twilio"
+	ListPhoneNumbersResponseItemProviderByo    ListPhoneNumbersResponseItemProvider = "byo"
+	ListPhoneNumbersResponseItemProviderTwilio ListPhoneNumbersResponseItemProvider = "twilio"
 )
 
-func NewListPhoneNumberManagementResponseItemProviderFromString(s string) (ListPhoneNumberManagementResponseItemProvider, error) {
+func NewListPhoneNumbersResponseItemProviderFromString(s string) (ListPhoneNumbersResponseItemProvider, error) {
 	switch s {
 	case "byo":
-		return ListPhoneNumberManagementResponseItemProviderByo, nil
+		return ListPhoneNumbersResponseItemProviderByo, nil
 	case "twilio":
-		return ListPhoneNumberManagementResponseItemProviderTwilio, nil
+		return ListPhoneNumbersResponseItemProviderTwilio, nil
 	}
-	var t ListPhoneNumberManagementResponseItemProvider
+	var t ListPhoneNumbersResponseItemProvider
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (l ListPhoneNumberManagementResponseItemProvider) Ptr() *ListPhoneNumberManagementResponseItemProvider {
+func (l ListPhoneNumbersResponseItemProvider) Ptr() *ListPhoneNumbersResponseItemProvider {
 	return &l
 }
 
 // Update inbound call configuration. Passing `null` will clear the configuration.
 var (
-	updatePhoneNumberManagementRequestInboundConfigFieldPipelineID = big.NewInt(1 << 0)
+	updatePhoneNumbersRequestInboundConfigFieldPipelineID = big.NewInt(1 << 0)
 )
 
-type UpdatePhoneNumberManagementRequestInboundConfig struct {
+type UpdatePhoneNumbersRequestInboundConfig struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 
@@ -1289,18 +1289,18 @@ type UpdatePhoneNumberManagementRequestInboundConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) GetPipelineID() *string {
+func (u *UpdatePhoneNumbersRequestInboundConfig) GetPipelineID() *string {
 	if u == nil {
 		return nil
 	}
 	return u.PipelineID
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) GetExtraProperties() map[string]interface{} {
+func (u *UpdatePhoneNumbersRequestInboundConfig) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) require(field *big.Int) {
+func (u *UpdatePhoneNumbersRequestInboundConfig) require(field *big.Int) {
 	if u.explicitFields == nil {
 		u.explicitFields = big.NewInt(0)
 	}
@@ -1309,18 +1309,18 @@ func (u *UpdatePhoneNumberManagementRequestInboundConfig) require(field *big.Int
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) SetPipelineID(pipelineID *string) {
+func (u *UpdatePhoneNumbersRequestInboundConfig) SetPipelineID(pipelineID *string) {
 	u.PipelineID = pipelineID
-	u.require(updatePhoneNumberManagementRequestInboundConfigFieldPipelineID)
+	u.require(updatePhoneNumbersRequestInboundConfigFieldPipelineID)
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdatePhoneNumberManagementRequestInboundConfig
+func (u *UpdatePhoneNumbersRequestInboundConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdatePhoneNumbersRequestInboundConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdatePhoneNumberManagementRequestInboundConfig(value)
+	*u = UpdatePhoneNumbersRequestInboundConfig(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
@@ -1330,8 +1330,8 @@ func (u *UpdatePhoneNumberManagementRequestInboundConfig) UnmarshalJSON(data []b
 	return nil
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) MarshalJSON() ([]byte, error) {
-	type embed UpdatePhoneNumberManagementRequestInboundConfig
+func (u *UpdatePhoneNumbersRequestInboundConfig) MarshalJSON() ([]byte, error) {
+	type embed UpdatePhoneNumbersRequestInboundConfig
 	var marshaler = struct {
 		embed
 	}{
@@ -1341,7 +1341,7 @@ func (u *UpdatePhoneNumberManagementRequestInboundConfig) MarshalJSON() ([]byte,
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdatePhoneNumberManagementRequestInboundConfig) String() string {
+func (u *UpdatePhoneNumbersRequestInboundConfig) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1355,10 +1355,10 @@ func (u *UpdatePhoneNumberManagementRequestInboundConfig) String() string {
 
 // Update outbound call configuration. Passing `null` will clear the configuration.
 var (
-	updatePhoneNumberManagementRequestOutboundConfigFieldPipelineID = big.NewInt(1 << 0)
+	updatePhoneNumbersRequestOutboundConfigFieldPipelineID = big.NewInt(1 << 0)
 )
 
-type UpdatePhoneNumberManagementRequestOutboundConfig struct {
+type UpdatePhoneNumbersRequestOutboundConfig struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 
@@ -1369,18 +1369,18 @@ type UpdatePhoneNumberManagementRequestOutboundConfig struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) GetPipelineID() *string {
+func (u *UpdatePhoneNumbersRequestOutboundConfig) GetPipelineID() *string {
 	if u == nil {
 		return nil
 	}
 	return u.PipelineID
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) GetExtraProperties() map[string]interface{} {
+func (u *UpdatePhoneNumbersRequestOutboundConfig) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) require(field *big.Int) {
+func (u *UpdatePhoneNumbersRequestOutboundConfig) require(field *big.Int) {
 	if u.explicitFields == nil {
 		u.explicitFields = big.NewInt(0)
 	}
@@ -1389,18 +1389,18 @@ func (u *UpdatePhoneNumberManagementRequestOutboundConfig) require(field *big.In
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) SetPipelineID(pipelineID *string) {
+func (u *UpdatePhoneNumbersRequestOutboundConfig) SetPipelineID(pipelineID *string) {
 	u.PipelineID = pipelineID
-	u.require(updatePhoneNumberManagementRequestOutboundConfigFieldPipelineID)
+	u.require(updatePhoneNumbersRequestOutboundConfigFieldPipelineID)
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdatePhoneNumberManagementRequestOutboundConfig
+func (u *UpdatePhoneNumbersRequestOutboundConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdatePhoneNumbersRequestOutboundConfig
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdatePhoneNumberManagementRequestOutboundConfig(value)
+	*u = UpdatePhoneNumbersRequestOutboundConfig(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
@@ -1410,8 +1410,8 @@ func (u *UpdatePhoneNumberManagementRequestOutboundConfig) UnmarshalJSON(data []
 	return nil
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) MarshalJSON() ([]byte, error) {
-	type embed UpdatePhoneNumberManagementRequestOutboundConfig
+func (u *UpdatePhoneNumbersRequestOutboundConfig) MarshalJSON() ([]byte, error) {
+	type embed UpdatePhoneNumbersRequestOutboundConfig
 	var marshaler = struct {
 		embed
 	}{
@@ -1421,7 +1421,7 @@ func (u *UpdatePhoneNumberManagementRequestOutboundConfig) MarshalJSON() ([]byte
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdatePhoneNumberManagementRequestOutboundConfig) String() string {
+func (u *UpdatePhoneNumbersRequestOutboundConfig) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1434,21 +1434,21 @@ func (u *UpdatePhoneNumberManagementRequestOutboundConfig) String() string {
 }
 
 var (
-	updatePhoneNumberManagementResponseFieldProvider           = big.NewInt(1 << 0)
-	updatePhoneNumberManagementResponseFieldPhoneNumber        = big.NewInt(1 << 1)
-	updatePhoneNumberManagementResponseFieldLabel              = big.NewInt(1 << 2)
-	updatePhoneNumberManagementResponseFieldInbound            = big.NewInt(1 << 3)
-	updatePhoneNumberManagementResponseFieldOutbound           = big.NewInt(1 << 4)
-	updatePhoneNumberManagementResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
-	updatePhoneNumberManagementResponseFieldInboundConfig      = big.NewInt(1 << 6)
-	updatePhoneNumberManagementResponseFieldOutboundConfig     = big.NewInt(1 << 7)
+	updatePhoneNumbersResponseFieldProvider           = big.NewInt(1 << 0)
+	updatePhoneNumbersResponseFieldPhoneNumber        = big.NewInt(1 << 1)
+	updatePhoneNumbersResponseFieldLabel              = big.NewInt(1 << 2)
+	updatePhoneNumbersResponseFieldInbound            = big.NewInt(1 << 3)
+	updatePhoneNumbersResponseFieldOutbound           = big.NewInt(1 << 4)
+	updatePhoneNumbersResponseFieldAssociatedPipeline = big.NewInt(1 << 5)
+	updatePhoneNumbersResponseFieldInboundConfig      = big.NewInt(1 << 6)
+	updatePhoneNumbersResponseFieldOutboundConfig     = big.NewInt(1 << 7)
 )
 
-type UpdatePhoneNumberManagementResponse struct {
+type UpdatePhoneNumbersResponse struct {
 	// Number provider:
 	// - `byo`: BYO (Bring Your Own)
 	// - `twilio`: Twilio
-	Provider *UpdatePhoneNumberManagementResponseProvider `json:"provider,omitempty" url:"provider,omitempty"`
+	Provider *UpdatePhoneNumbersResponseProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// A telephone number in E.164 format, used as a unique identifier.
 	PhoneNumber *string `json:"phone_number,omitempty" url:"phone_number,omitempty"`
 	// A label used to identify the number.
@@ -1458,7 +1458,7 @@ type UpdatePhoneNumberManagementResponse struct {
 	// Whether the number supports outbound calls.
 	Outbound *bool `json:"outbound,omitempty" url:"outbound,omitempty"`
 	// The associated pipeline information. Returns `null` if no pipeline is associated.
-	AssociatedPipeline *UpdatePhoneNumberManagementResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
+	AssociatedPipeline *UpdatePhoneNumbersResponseAssociatedPipeline `json:"associated_pipeline,omitempty" url:"associated_pipeline,omitempty"`
 	// SIP inbound call configuration details. Returns `null` if not configured.
 	InboundConfig map[string]interface{} `json:"inbound_config,omitempty" url:"inbound_config,omitempty"`
 	// SIP outbound call configuration details. Returns `null` if not configured.
@@ -1471,67 +1471,67 @@ type UpdatePhoneNumberManagementResponse struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetProvider() *UpdatePhoneNumberManagementResponseProvider {
+func (u *UpdatePhoneNumbersResponse) GetProvider() *UpdatePhoneNumbersResponseProvider {
 	if u == nil {
 		return nil
 	}
 	return u.Provider
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetPhoneNumber() *string {
+func (u *UpdatePhoneNumbersResponse) GetPhoneNumber() *string {
 	if u == nil {
 		return nil
 	}
 	return u.PhoneNumber
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetLabel() *string {
+func (u *UpdatePhoneNumbersResponse) GetLabel() *string {
 	if u == nil {
 		return nil
 	}
 	return u.Label
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetInbound() *bool {
+func (u *UpdatePhoneNumbersResponse) GetInbound() *bool {
 	if u == nil {
 		return nil
 	}
 	return u.Inbound
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetOutbound() *bool {
+func (u *UpdatePhoneNumbersResponse) GetOutbound() *bool {
 	if u == nil {
 		return nil
 	}
 	return u.Outbound
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetAssociatedPipeline() *UpdatePhoneNumberManagementResponseAssociatedPipeline {
+func (u *UpdatePhoneNumbersResponse) GetAssociatedPipeline() *UpdatePhoneNumbersResponseAssociatedPipeline {
 	if u == nil {
 		return nil
 	}
 	return u.AssociatedPipeline
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetInboundConfig() map[string]interface{} {
+func (u *UpdatePhoneNumbersResponse) GetInboundConfig() map[string]interface{} {
 	if u == nil {
 		return nil
 	}
 	return u.InboundConfig
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetOutboundConfig() map[string]interface{} {
+func (u *UpdatePhoneNumbersResponse) GetOutboundConfig() map[string]interface{} {
 	if u == nil {
 		return nil
 	}
 	return u.OutboundConfig
 }
 
-func (u *UpdatePhoneNumberManagementResponse) GetExtraProperties() map[string]interface{} {
+func (u *UpdatePhoneNumbersResponse) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
-func (u *UpdatePhoneNumberManagementResponse) require(field *big.Int) {
+func (u *UpdatePhoneNumbersResponse) require(field *big.Int) {
 	if u.explicitFields == nil {
 		u.explicitFields = big.NewInt(0)
 	}
@@ -1540,67 +1540,67 @@ func (u *UpdatePhoneNumberManagementResponse) require(field *big.Int) {
 
 // SetProvider sets the Provider field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetProvider(provider *UpdatePhoneNumberManagementResponseProvider) {
+func (u *UpdatePhoneNumbersResponse) SetProvider(provider *UpdatePhoneNumbersResponseProvider) {
 	u.Provider = provider
-	u.require(updatePhoneNumberManagementResponseFieldProvider)
+	u.require(updatePhoneNumbersResponseFieldProvider)
 }
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetPhoneNumber(phoneNumber *string) {
+func (u *UpdatePhoneNumbersResponse) SetPhoneNumber(phoneNumber *string) {
 	u.PhoneNumber = phoneNumber
-	u.require(updatePhoneNumberManagementResponseFieldPhoneNumber)
+	u.require(updatePhoneNumbersResponseFieldPhoneNumber)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetLabel(label *string) {
+func (u *UpdatePhoneNumbersResponse) SetLabel(label *string) {
 	u.Label = label
-	u.require(updatePhoneNumberManagementResponseFieldLabel)
+	u.require(updatePhoneNumbersResponseFieldLabel)
 }
 
 // SetInbound sets the Inbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetInbound(inbound *bool) {
+func (u *UpdatePhoneNumbersResponse) SetInbound(inbound *bool) {
 	u.Inbound = inbound
-	u.require(updatePhoneNumberManagementResponseFieldInbound)
+	u.require(updatePhoneNumbersResponseFieldInbound)
 }
 
 // SetOutbound sets the Outbound field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetOutbound(outbound *bool) {
+func (u *UpdatePhoneNumbersResponse) SetOutbound(outbound *bool) {
 	u.Outbound = outbound
-	u.require(updatePhoneNumberManagementResponseFieldOutbound)
+	u.require(updatePhoneNumbersResponseFieldOutbound)
 }
 
 // SetAssociatedPipeline sets the AssociatedPipeline field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetAssociatedPipeline(associatedPipeline *UpdatePhoneNumberManagementResponseAssociatedPipeline) {
+func (u *UpdatePhoneNumbersResponse) SetAssociatedPipeline(associatedPipeline *UpdatePhoneNumbersResponseAssociatedPipeline) {
 	u.AssociatedPipeline = associatedPipeline
-	u.require(updatePhoneNumberManagementResponseFieldAssociatedPipeline)
+	u.require(updatePhoneNumbersResponseFieldAssociatedPipeline)
 }
 
 // SetInboundConfig sets the InboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetInboundConfig(inboundConfig map[string]interface{}) {
+func (u *UpdatePhoneNumbersResponse) SetInboundConfig(inboundConfig map[string]interface{}) {
 	u.InboundConfig = inboundConfig
-	u.require(updatePhoneNumberManagementResponseFieldInboundConfig)
+	u.require(updatePhoneNumbersResponseFieldInboundConfig)
 }
 
 // SetOutboundConfig sets the OutboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponse) SetOutboundConfig(outboundConfig map[string]interface{}) {
+func (u *UpdatePhoneNumbersResponse) SetOutboundConfig(outboundConfig map[string]interface{}) {
 	u.OutboundConfig = outboundConfig
-	u.require(updatePhoneNumberManagementResponseFieldOutboundConfig)
+	u.require(updatePhoneNumbersResponseFieldOutboundConfig)
 }
 
-func (u *UpdatePhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdatePhoneNumberManagementResponse
+func (u *UpdatePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdatePhoneNumbersResponse
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdatePhoneNumberManagementResponse(value)
+	*u = UpdatePhoneNumbersResponse(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
@@ -1610,8 +1610,8 @@ func (u *UpdatePhoneNumberManagementResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (u *UpdatePhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
-	type embed UpdatePhoneNumberManagementResponse
+func (u *UpdatePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	type embed UpdatePhoneNumbersResponse
 	var marshaler = struct {
 		embed
 	}{
@@ -1621,7 +1621,7 @@ func (u *UpdatePhoneNumberManagementResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdatePhoneNumberManagementResponse) String() string {
+func (u *UpdatePhoneNumbersResponse) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1635,11 +1635,11 @@ func (u *UpdatePhoneNumberManagementResponse) String() string {
 
 // The associated pipeline information. Returns `null` if no pipeline is associated.
 var (
-	updatePhoneNumberManagementResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
-	updatePhoneNumberManagementResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
+	updatePhoneNumbersResponseAssociatedPipelineFieldPipelineID   = big.NewInt(1 << 0)
+	updatePhoneNumbersResponseAssociatedPipelineFieldPipelineName = big.NewInt(1 << 1)
 )
 
-type UpdatePhoneNumberManagementResponseAssociatedPipeline struct {
+type UpdatePhoneNumbersResponseAssociatedPipeline struct {
 	// Pipeline ID.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"pipeline_id,omitempty"`
 	// Pipeline name.
@@ -1652,25 +1652,25 @@ type UpdatePhoneNumberManagementResponseAssociatedPipeline struct {
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) GetPipelineID() *string {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) GetPipelineID() *string {
 	if u == nil {
 		return nil
 	}
 	return u.PipelineID
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) GetPipelineName() *string {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) GetPipelineName() *string {
 	if u == nil {
 		return nil
 	}
 	return u.PipelineName
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) require(field *big.Int) {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) require(field *big.Int) {
 	if u.explicitFields == nil {
 		u.explicitFields = big.NewInt(0)
 	}
@@ -1679,25 +1679,25 @@ func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) require(field *b
 
 // SetPipelineID sets the PipelineID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) SetPipelineID(pipelineID *string) {
 	u.PipelineID = pipelineID
-	u.require(updatePhoneNumberManagementResponseAssociatedPipelineFieldPipelineID)
+	u.require(updatePhoneNumbersResponseAssociatedPipelineFieldPipelineID)
 }
 
 // SetPipelineName sets the PipelineName field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) SetPipelineName(pipelineName *string) {
 	u.PipelineName = pipelineName
-	u.require(updatePhoneNumberManagementResponseAssociatedPipelineFieldPipelineName)
+	u.require(updatePhoneNumbersResponseAssociatedPipelineFieldPipelineName)
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdatePhoneNumberManagementResponseAssociatedPipeline
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdatePhoneNumbersResponseAssociatedPipeline
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdatePhoneNumberManagementResponseAssociatedPipeline(value)
+	*u = UpdatePhoneNumbersResponseAssociatedPipeline(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
@@ -1707,8 +1707,8 @@ func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) UnmarshalJSON(da
 	return nil
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
-	type embed UpdatePhoneNumberManagementResponseAssociatedPipeline
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) MarshalJSON() ([]byte, error) {
+	type embed UpdatePhoneNumbersResponseAssociatedPipeline
 	var marshaler = struct {
 		embed
 	}{
@@ -1718,7 +1718,7 @@ func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) MarshalJSON() ([
 	return json.Marshal(explicitMarshaler)
 }
 
-func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) String() string {
+func (u *UpdatePhoneNumbersResponseAssociatedPipeline) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -1733,47 +1733,47 @@ func (u *UpdatePhoneNumberManagementResponseAssociatedPipeline) String() string 
 // Number provider:
 // - `byo`: BYO (Bring Your Own)
 // - `twilio`: Twilio
-type UpdatePhoneNumberManagementResponseProvider string
+type UpdatePhoneNumbersResponseProvider string
 
 const (
-	UpdatePhoneNumberManagementResponseProviderByo    UpdatePhoneNumberManagementResponseProvider = "byo"
-	UpdatePhoneNumberManagementResponseProviderTwilio UpdatePhoneNumberManagementResponseProvider = "twilio"
+	UpdatePhoneNumbersResponseProviderByo    UpdatePhoneNumbersResponseProvider = "byo"
+	UpdatePhoneNumbersResponseProviderTwilio UpdatePhoneNumbersResponseProvider = "twilio"
 )
 
-func NewUpdatePhoneNumberManagementResponseProviderFromString(s string) (UpdatePhoneNumberManagementResponseProvider, error) {
+func NewUpdatePhoneNumbersResponseProviderFromString(s string) (UpdatePhoneNumbersResponseProvider, error) {
 	switch s {
 	case "byo":
-		return UpdatePhoneNumberManagementResponseProviderByo, nil
+		return UpdatePhoneNumbersResponseProviderByo, nil
 	case "twilio":
-		return UpdatePhoneNumberManagementResponseProviderTwilio, nil
+		return UpdatePhoneNumbersResponseProviderTwilio, nil
 	}
-	var t UpdatePhoneNumberManagementResponseProvider
+	var t UpdatePhoneNumbersResponseProvider
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (u UpdatePhoneNumberManagementResponseProvider) Ptr() *UpdatePhoneNumberManagementResponseProvider {
+func (u UpdatePhoneNumbersResponseProvider) Ptr() *UpdatePhoneNumbersResponseProvider {
 	return &u
 }
 
 var (
-	updatePhoneNumberManagementRequestFieldPhoneNumber    = big.NewInt(1 << 0)
-	updatePhoneNumberManagementRequestFieldInboundConfig  = big.NewInt(1 << 1)
-	updatePhoneNumberManagementRequestFieldOutboundConfig = big.NewInt(1 << 2)
+	updatePhoneNumbersRequestFieldPhoneNumber    = big.NewInt(1 << 0)
+	updatePhoneNumbersRequestFieldInboundConfig  = big.NewInt(1 << 1)
+	updatePhoneNumbersRequestFieldOutboundConfig = big.NewInt(1 << 2)
 )
 
-type UpdatePhoneNumberManagementRequest struct {
+type UpdatePhoneNumbersRequest struct {
 	// Telephone number in E.164 format. For example, +11234567890.
 	PhoneNumber string `json:"-" url:"-"`
 	// Update inbound call configuration. Passing `null` will clear the configuration.
-	InboundConfig *UpdatePhoneNumberManagementRequestInboundConfig `json:"inbound_config,omitempty" url:"-"`
+	InboundConfig *UpdatePhoneNumbersRequestInboundConfig `json:"inbound_config,omitempty" url:"-"`
 	// Update outbound call configuration. Passing `null` will clear the configuration.
-	OutboundConfig *UpdatePhoneNumberManagementRequestOutboundConfig `json:"outbound_config,omitempty" url:"-"`
+	OutboundConfig *UpdatePhoneNumbersRequestOutboundConfig `json:"outbound_config,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (u *UpdatePhoneNumberManagementRequest) require(field *big.Int) {
+func (u *UpdatePhoneNumbersRequest) require(field *big.Int) {
 	if u.explicitFields == nil {
 		u.explicitFields = big.NewInt(0)
 	}
@@ -1782,21 +1782,21 @@ func (u *UpdatePhoneNumberManagementRequest) require(field *big.Int) {
 
 // SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementRequest) SetPhoneNumber(phoneNumber string) {
+func (u *UpdatePhoneNumbersRequest) SetPhoneNumber(phoneNumber string) {
 	u.PhoneNumber = phoneNumber
-	u.require(updatePhoneNumberManagementRequestFieldPhoneNumber)
+	u.require(updatePhoneNumbersRequestFieldPhoneNumber)
 }
 
 // SetInboundConfig sets the InboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementRequest) SetInboundConfig(inboundConfig *UpdatePhoneNumberManagementRequestInboundConfig) {
+func (u *UpdatePhoneNumbersRequest) SetInboundConfig(inboundConfig *UpdatePhoneNumbersRequestInboundConfig) {
 	u.InboundConfig = inboundConfig
-	u.require(updatePhoneNumberManagementRequestFieldInboundConfig)
+	u.require(updatePhoneNumbersRequestFieldInboundConfig)
 }
 
 // SetOutboundConfig sets the OutboundConfig field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdatePhoneNumberManagementRequest) SetOutboundConfig(outboundConfig *UpdatePhoneNumberManagementRequestOutboundConfig) {
+func (u *UpdatePhoneNumbersRequest) SetOutboundConfig(outboundConfig *UpdatePhoneNumbersRequestOutboundConfig) {
 	u.OutboundConfig = outboundConfig
-	u.require(updatePhoneNumberManagementRequestFieldOutboundConfig)
+	u.require(updatePhoneNumbersRequestFieldOutboundConfig)
 }
