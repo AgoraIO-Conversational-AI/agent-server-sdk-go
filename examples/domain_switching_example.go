@@ -5,28 +5,44 @@ import (
 	"fmt"
 	"time"
 
-	agora "github.com/fern-demo/agoraio-go-sdk/v505"
-	"github.com/fern-demo/agoraio-go-sdk/v505/client"
+	"github.com/fern-demo/agoraio-go-sdk/v505/domain"
 	"github.com/fern-demo/agoraio-go-sdk/v505/option"
 )
 
-func ExampleBasicUsage() {
-	baseURL, err := agora.GetBaseURLForRegion(agora.RegionUS)
+func ExampleSimpleUsage() {
+	c, err := domain.NewClientWithRegion(
+		domain.RegionUS,
+		option.WithBasicAuth("username", "password"),
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	c := client.NewClient(
+	fmt.Printf("Client created with US region\n")
+	_ = c
+}
+
+func ExampleWithBaseURL() {
+	baseURL, err := domain.GetBaseURLForRegion(domain.RegionUS)
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := domain.NewClientWithRegion(
+		domain.RegionEU,
 		option.WithBaseURL(baseURL),
 		option.WithBasicAuth("username", "password"),
 	)
+	if err != nil {
+		panic(err)
+	}
 
-	fmt.Printf("Client configured with base URL: %s\n", baseURL)
+	fmt.Printf("Client configured with explicit base URL: %s\n", baseURL)
 	_ = c
 }
 
 func ExampleAdvancedUsageWithDomainSwitching() {
-	ds, err := agora.NewDomainSwitcher(agora.RegionEU)
+	ds, err := domain.NewDomainSwitcher(domain.RegionEU)
 	if err != nil {
 		panic(err)
 	}
@@ -40,17 +56,21 @@ func ExampleAdvancedUsageWithDomainSwitching() {
 
 	baseURL := ds.GetBaseURL()
 
-	c := client.NewClient(
+	c, err := domain.NewClientWithRegion(
+		domain.RegionEU,
 		option.WithBaseURL(baseURL),
 		option.WithBasicAuth("username", "password"),
 	)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Printf("Client configured with base URL: %s\n", baseURL)
 	_ = c
 }
 
 func ExampleRegionFailover() {
-	ds, err := agora.NewDomainSwitcher(agora.RegionAP)
+	ds, err := domain.NewDomainSwitcher(domain.RegionAP)
 	if err != nil {
 		panic(err)
 	}
@@ -59,10 +79,14 @@ func ExampleRegionFailover() {
 		baseURL := ds.GetBaseURL()
 		fmt.Printf("Attempt %d: Using base URL: %s\n", i+1, baseURL)
 
-		c := client.NewClient(
+		c, err := domain.NewClientWithRegion(
+			domain.RegionAP,
 			option.WithBaseURL(baseURL),
 			option.WithBasicAuth("username", "password"),
 		)
+		if err != nil {
+			panic(err)
+		}
 
 		_ = c
 
@@ -73,16 +97,16 @@ func ExampleRegionFailover() {
 func ExampleAllRegions() {
 	regions := []struct {
 		name   string
-		region agora.Region
+		region domain.Region
 	}{
-		{"US", agora.RegionUS},
-		{"EU", agora.RegionEU},
-		{"AP", agora.RegionAP},
-		{"CN", agora.RegionCN},
+		{"US", domain.RegionUS},
+		{"EU", domain.RegionEU},
+		{"AP", domain.RegionAP},
+		{"CN", domain.RegionCN},
 	}
 
 	for _, r := range regions {
-		baseURL, err := agora.GetBaseURLForRegion(r.region)
+		baseURL, err := domain.GetBaseURLForRegion(r.region)
 		if err != nil {
 			fmt.Printf("Error getting base URL for %s: %v\n", r.name, err)
 			continue

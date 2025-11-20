@@ -1,4 +1,4 @@
-package Agora
+package domain
 
 import (
 	"context"
@@ -62,22 +62,22 @@ func TestGetBaseURL(t *testing.T) {
 		{
 			name:   "US region",
 			region: RegionUS,
-			want:   "https://api-us-west-1.agora.io",
+			want:   "https://api-us-west-1.agora.io/api/conversational-ai-agent",
 		},
 		{
 			name:   "EU region",
 			region: RegionEU,
-			want:   "https://api-eu-west-1.agora.io",
+			want:   "https://api-eu-west-1.agora.io/api/conversational-ai-agent",
 		},
 		{
 			name:   "AP region",
 			region: RegionAP,
-			want:   "https://api-ap-southeast-1.agora.io",
+			want:   "https://api-ap-southeast-1.agora.io/api/conversational-ai-agent",
 		},
 		{
 			name:   "CN region",
 			region: RegionCN,
-			want:   "https://api-cn-east-1.sd-rtn.com",
+			want:   "https://api-cn-east-1.sd-rtn.com/api/conversational-ai-agent",
 		},
 	}
 
@@ -105,7 +105,7 @@ func TestGetBaseURLForRegion(t *testing.T) {
 		{
 			name:    "US region",
 			region:  RegionUS,
-			want:    "https://api-us-west-1.agora.io",
+			want:    "https://api-us-west-1.agora.io/api/conversational-ai-agent",
 			wantErr: false,
 		},
 		{
@@ -137,20 +137,20 @@ func TestNextRegion(t *testing.T) {
 	}
 
 	firstURL := ds.GetBaseURL()
-	if firstURL != "https://api-us-west-1.agora.io" {
-		t.Errorf("Initial URL = %v, want https://api-us-west-1.agora.io", firstURL)
+	if firstURL != "https://api-us-west-1.agora.io/api/conversational-ai-agent" {
+		t.Errorf("Initial URL = %v, want https://api-us-west-1.agora.io/api/conversational-ai-agent", firstURL)
 	}
 
 	ds.NextRegion()
 	secondURL := ds.GetBaseURL()
-	if secondURL != "https://api-us-east-1.agora.io" {
-		t.Errorf("After NextRegion() URL = %v, want https://api-us-east-1.agora.io", secondURL)
+	if secondURL != "https://api-us-east-1.agora.io/api/conversational-ai-agent" {
+		t.Errorf("After NextRegion() URL = %v, want https://api-us-east-1.agora.io/api/conversational-ai-agent", secondURL)
 	}
 
 	ds.NextRegion()
 	thirdURL := ds.GetBaseURL()
-	if thirdURL != "https://api-us-west-1.agora.io" {
-		t.Errorf("After second NextRegion() URL = %v, want https://api-us-west-1.agora.io (should wrap around)", thirdURL)
+	if thirdURL != "https://api-us-west-1.agora.io/api/conversational-ai-agent" {
+		t.Errorf("After second NextRegion() URL = %v, want https://api-us-west-1.agora.io/api/conversational-ai-agent (should wrap around)", thirdURL)
 	}
 }
 

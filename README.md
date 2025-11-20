@@ -118,6 +118,27 @@ client := client.NewClient(
 )
 ```
 
+## Domain Selection
+
+For optimal performance, you can automatically select the best API endpoint based on your geographic region:
+
+```go
+// Simple usage - automatically configure client with region-specific endpoint
+client, err := domain.NewClientWithRegion(
+    domain.RegionUS,  // or RegionEU, RegionAP, RegionCN
+    option.WithBasicAuth("<username>", "<password>"),
+)
+
+// Advanced usage - get BaseURL for manual configuration
+baseURL, err := domain.GetBaseURLForRegion(domain.RegionUS)
+client := client.NewClient(
+    option.WithBaseURL(baseURL),
+    option.WithBasicAuth("<username>", "<password>"),
+)
+```
+
+See [examples/domain_switching_example.go](./examples/domain_switching_example.go) for more usage patterns.
+
 ## Errors
 
 Structured error types are returned from API calls that return non-success status codes. These errors are compatible

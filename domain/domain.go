@@ -1,4 +1,4 @@
-package Agora
+package domain
 
 import (
 	"context"
@@ -208,7 +208,7 @@ func (ds *DomainSwitcher) GetBaseURL() string {
 	currentRegion := ds.currentRegionPrefixes[0]
 	currentDomain := ds.currentDomain
 
-	return fmt.Sprintf("https://%s.%s", currentRegion, currentDomain)
+	return fmt.Sprintf("https://%s.%s/api/conversational-ai-agent", currentRegion, currentDomain)
 }
 
 func GetBaseURLForRegion(region Region) (string, error) {
