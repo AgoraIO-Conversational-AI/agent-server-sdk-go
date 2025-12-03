@@ -1,9 +1,12 @@
-package Agora
+// Package wrapper provides a WrapperClient that wraps the generated Agora client
+// with automatic region selection capabilities.
+package wrapper
 
 import (
 	"context"
 	"errors"
 
+	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
 	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
 	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
 )
@@ -15,7 +18,7 @@ import (
 // Example usage:
 //
 //	ctx := context.Background()
-//	client, err := Agora.NewWrapperClient(ctx, "your-app-id",
+//	wc, err := wrapper.NewWrapperClient(ctx, "your-app-id",
 //	    option.WithBasicAuth("username", "password"),
 //	)
 //	if err != nil {
@@ -23,12 +26,12 @@ import (
 //	}
 //
 //	// Access sub-clients directly
-//	resp, err := client.Agents.Start(ctx, &Agora.StartAgentsRequest{...})
+//	resp, err := wc.Agents.Start(ctx, &Agora.StartAgentsRequest{...})
 type WrapperClient struct {
 	*client.Client
 
 	// Region stores the detected or configured region for this client.
-	Region Region
+	Region Agora.Region
 }
 
 // WrapperClientConfig holds configuration options for creating a WrapperClient.
@@ -38,12 +41,12 @@ type WrapperClientConfig struct {
 
 	// Region allows explicitly setting a region, bypassing auto-detection.
 	// If set, the client will use this region instead of detecting one.
-	Region *Region
+	Region *Agora.Region
 
 	// RegionResolver is an optional custom function for determining the region.
 	// If provided, it will be used instead of the default detection logic.
 	// This is useful for implementing custom region selection strategies.
-	RegionResolver func(ctx context.Context, appID string) (Region, error)
+	RegionResolver func(ctx context.Context, appID string) (Agora.Region, error)
 }
 
 // NewWrapperClient creates a new WrapperClient with automatic region selection.
@@ -69,26 +72,26 @@ func NewWrapperClient(ctx context.Context, appID string, opts ...option.RequestO
 //
 // Example with explicit region:
 //
-//	config := Agora.WrapperClientConfig{
+//	config := wrapper.WrapperClientConfig{
 //	    AppID:  "your-app-id",
 //	    Region: &Agora.RegionEU,
 //	}
-//	client, err := Agora.NewWrapperClientWithConfig(ctx, config,
+//	wc, err := wrapper.NewWrapperClientWithConfig(ctx, config,
 //	    option.WithBasicAuth("username", "password"),
 //	)
 //
 // Example with custom resolver:
 //
-//	config := Agora.WrapperClientConfig{
+//	config := wrapper.WrapperClientConfig{
 //	    AppID: "your-app-id",
 //	    RegionResolver: func(ctx context.Context, appID string) (Agora.Region, error) {
 //	        // Custom logic to determine region
 //	        return Agora.RegionUS, nil
 //	    },
 //	}
-//	client, err := Agora.NewWrapperClientWithConfig(ctx, config, opts...)
+//	wc, err := wrapper.NewWrapperClientWithConfig(ctx, config, opts...)
 func NewWrapperClientWithConfig(ctx context.Context, config WrapperClientConfig, opts ...option.RequestOption) (*WrapperClient, error) {
-	var region Region
+	var region Agora.Region
 	var err error
 
 	if config.Region != nil {
@@ -105,11 +108,11 @@ func NewWrapperClientWithConfig(ctx context.Context, config WrapperClientConfig,
 		}
 	}
 
-	if !IsValidRegion(region) {
+	if !Agora.IsValidRegion(region) {
 		return nil, errors.New("invalid region: " + string(region))
 	}
 
-	baseURL := BaseURLForRegion(region)
+	baseURL := Agora.BaseURLForRegion(region)
 	opts = append([]option.RequestOption{option.WithBaseURL(baseURL)}, opts...)
 
 	return &WrapperClient{
@@ -124,15 +127,15 @@ func NewWrapperClientWithConfig(ctx context.Context, config WrapperClientConfig,
 //
 // Example:
 //
-//	client, err := Agora.NewWrapperClientWithRegion(Agora.RegionEU,
+//	wc, err := wrapper.NewWrapperClientWithRegion(Agora.RegionEU,
 //	    option.WithBasicAuth("username", "password"),
 //	)
-func NewWrapperClientWithRegion(region Region, opts ...option.RequestOption) (*WrapperClient, error) {
-	if !IsValidRegion(region) {
+func NewWrapperClientWithRegion(region Agora.Region, opts ...option.RequestOption) (*WrapperClient, error) {
+	if !Agora.IsValidRegion(region) {
 		return nil, errors.New("invalid region: " + string(region))
 	}
 
-	baseURL := BaseURLForRegion(region)
+	baseURL := Agora.BaseURLForRegion(region)
 	opts = append([]option.RequestOption{option.WithBaseURL(baseURL)}, opts...)
 
 	return &WrapperClient{
@@ -148,7 +151,7 @@ func NewWrapperClientWithRegion(region Region, opts ...option.RequestOption) (*W
 //   - Parse app ID prefix for region hints
 //   - Use account metadata
 //   - Geographic detection based on caller location
-func determineRegion(ctx context.Context, appID string) (Region, error) {
+func determineRegion(ctx context.Context, appID string) (Agora.Region, error) {
 	if appID == "" {
 		return "", errors.New("appID is required for region detection")
 	}
@@ -164,12 +167,12 @@ func determineRegion(ctx context.Context, appID string) (Region, error) {
 	//
 	// 2. App ID prefix parsing:
 	//    if strings.HasPrefix(appID, "eu-") {
-	//        return RegionEU, nil
+	//        return Agora.RegionEU, nil
 	//    }
 	//
 	// 3. Account metadata lookup:
 	//    account, err := fetchAccountInfo(ctx, appID)
 	//    return account.Region, nil
 
-	return RegionUS, nil
+	return Agora.RegionUS, nil
 }
