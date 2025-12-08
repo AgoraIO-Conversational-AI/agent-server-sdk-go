@@ -1,1 +1,4 @@
 # Specify files that shouldn't be modified by Fern
+core/request_option_custom.go
+option/request_option_custom.go
+tests/

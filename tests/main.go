@@ -17,6 +17,7 @@ func main() {
 			"<omitted>",
 			"<omitted>",
 		),
+		option.WithRegion(option.RegionUSWest),
 	)
 	request := &Agora.CallTelephonyRequest{
 		Appid: "appid",
