@@ -44,6 +44,7 @@ func (r *RawClient) Call(
 		r.baseURL,
 		"https://api.agora.io/api/conversational-ai-agent",
 	)
+	fmt.Printf("baseURL: %v\n", baseURL)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/v2/projects/%v/call",
 		request.Appid,
