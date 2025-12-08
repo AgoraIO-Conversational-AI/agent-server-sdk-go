@@ -12,12 +12,18 @@ import (
 
 func main() {
 	// NOTE: copied from telephony/telephony_test/telephony_test.go
+	// Create area request option with US region pool
+	areaOption, err := option.WithArea(option.AreaUS)
+	if err != nil {
+		log.Fatalf("Error creating area option: %v", err)
+	}
+
 	client := client.NewClient(
 		option.WithBasicAuth(
 			"<omitted>",
 			"<omitted>",
 		),
-		option.WithRegion(option.RegionUSWest),
+		areaOption,
 	)
 	request := &Agora.CallTelephonyRequest{
 		Appid: "appid",

@@ -4,20 +4,26 @@ import (
 	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
 )
 
-// Region type alias
-type Region = core.Region
+// Area type alias for global regions
+type Area = core.Area
 
-// Region constants
+// Area constants
 const (
-	RegionUSWest    = core.RegionUSWest
-	RegionUSEast    = core.RegionUSEast
-	RegionUSCentral = core.RegionUSCentral
-	RegionCanada    = core.RegionCanada
-	RegionMexico    = core.RegionMexico
+	AreaUnknown = core.AreaUnknown
+	AreaUS      = core.AreaUS
+	AreaEU      = core.AreaEU
+	AreaAP      = core.AreaAP
+	AreaCN      = core.AreaCN
 )
 
-func WithRegion(region core.Region) *core.RegionRequestOption {
-	return &core.RegionRequestOption{
-		Region: region,
-	}
+// WithArea creates a new AreaRequestOption with a pool for the specified area.
+// The pool manages regional URL cycling and automatic domain selection.
+func WithArea(area core.Area) (*core.AreaRequestOption, error) {
+	return core.NewAreaRequestOption(area)
+}
+
+// WithPool creates a new AreaRequestOption with a pre-configured pool.
+// Use this when you want to manage the pool lifecycle yourself.
+func WithPool(pool *core.Pool) *core.AreaRequestOption {
+	return &core.AreaRequestOption{Pool: pool}
 }
