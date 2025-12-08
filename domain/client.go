@@ -3,11 +3,8 @@ package domain
 import (
 	"context"
 
-	agents "github.com/fern-demo/agoraio-go-sdk/v505/agents"
 	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
 	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-	phonenumbers "github.com/fern-demo/agoraio-go-sdk/v505/phonenumbers"
-	telephony "github.com/fern-demo/agoraio-go-sdk/v505/telephony"
 )
 
 // DefaultAPIPath is the default API path appended to the base URL.
@@ -16,18 +13,15 @@ const DefaultAPIPath = "/api/conversational-ai-agent"
 // Client is a wrapper around the generated Fern client that provides
 // region-based URL selection. It automatically selects the appropriate
 // base URL based on the specified region/area.
+//
+// This client embeds the generated Fern client, so all sub-clients
+// (Agents, Telephony, PhoneNumbers, etc.) are automatically available.
 type Client struct {
-	// Agents provides access to the Agents API.
-	Agents *agents.Client
-	// Telephony provides access to the Telephony API.
-	Telephony *telephony.Client
-	// PhoneNumbers provides access to the PhoneNumbers API.
-	PhoneNumbers *phonenumbers.Client
+	// Embedded client - all fields and methods are promoted automatically.
+	*client.Client
 
 	// pool manages domain selection for the specified region.
 	pool *Pool
-	// baseClient is the underlying Fern-generated client.
-	baseClient *client.Client
 	// apiPath is the API path appended to the base URL.
 	apiPath string
 }
@@ -106,12 +100,9 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 	baseClient := client.NewClient(allOpts...)
 
 	return &Client{
-		Agents:       baseClient.Agents,
-		Telephony:    baseClient.Telephony,
-		PhoneNumbers: baseClient.PhoneNumbers,
-		pool:         pool,
-		baseClient:   baseClient,
-		apiPath:      options.apiPath,
+		Client:  baseClient,
+		pool:    pool,
+		apiPath: options.apiPath,
 	}, nil
 }
 
