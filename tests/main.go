@@ -53,5 +53,5 @@ func main() {
 		log.Fatalf("Error calling telephony: %v", invocationErr)
 	}
 
-	fmt.Printf("Call response: %v", response)
+	_ = response
 }

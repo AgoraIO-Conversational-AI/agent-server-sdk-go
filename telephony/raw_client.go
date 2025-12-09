@@ -44,7 +44,6 @@ func (r *RawClient) Call(
 		r.baseURL,
 		"https://api.agora.io/api/conversational-ai-agent",
 	)
-	fmt.Printf("baseURL: %v\n", baseURL)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/v2/projects/%v/call",
 		request.Appid,
@@ -54,16 +53,6 @@ func (r *RawClient) Call(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-
-	// JSON stringify and print the request body
-	requestBodyJSON, err := json.MarshalIndent(request, "", "  ")
-	if err != nil {
-		fmt.Printf("Error marshaling request body: %v\n", err)
-	} else {
-		fmt.Printf("Request Body: %s\n", string(requestBodyJSON))
-	}
-
-	fmt.Printf("headers: %v", headers)
 	var response *Agora.CallTelephonyResponse
 	raw, err := r.caller.Call(
 		ctx,
