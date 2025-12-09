@@ -3,7 +3,7 @@ package internal
 import (
 	"context"
 
-	"github.com/fern-demo/agoraio-go-sdk/v505/core"
+	"github.com/fern-demo/agoraio-go-sdk/core"
 )
 
 // PagerMode represents the different types of pagination modes.

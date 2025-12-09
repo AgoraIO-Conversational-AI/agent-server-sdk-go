@@ -261,10 +261,10 @@ func (o *AreaRequestOption) applyRequestOptions(opts *RequestOptions) {
 }
 
 // NewAreaRequestOption creates a new AreaRequestOption with a pool for the specified area
-func NewAreaRequestOption(area Area) (*AreaRequestOption, error) {
+func NewAreaRequestOption(area Area) *AreaRequestOption {
 	pool, err := NewPool(area)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return &AreaRequestOption{Pool: pool}, nil
+	return &AreaRequestOption{Pool: pool}
 }

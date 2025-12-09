@@ -2,28 +2,22 @@ package main
 
 import (
 	context "context"
-	"fmt"
 	"log"
 
-	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
-	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
-	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
+	Agora "github.com/fern-demo/agoraio-go-sdk"
+	client "github.com/fern-demo/agoraio-go-sdk/client"
+	option "github.com/fern-demo/agoraio-go-sdk/option"
 )
 
 func main() {
 	// NOTE: copied from telephony/telephony_test/telephony_test.go
-	// Create area request option with US region pool
-	areaOption, err := option.WithArea(option.AreaUS)
-	if err != nil {
-		log.Fatalf("Error creating area option: %v", err)
-	}
 
 	client := client.NewClient(
 		option.WithBasicAuth(
 			"<omitted>",
 			"<omitted>",
 		),
-		areaOption,
+		option.WithArea(option.AreaUS),
 	)
 	request := &Agora.CallTelephonyRequest{
 		Appid: "appid",

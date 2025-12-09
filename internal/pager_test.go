@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/fern-demo/agoraio-go-sdk/v505/core"
+	"github.com/fern-demo/agoraio-go-sdk/core"
 )
 
 type TestPageResponse struct {

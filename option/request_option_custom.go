@@ -1,7 +1,7 @@
 package option
 
 import (
-	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
+	core "github.com/fern-demo/agoraio-go-sdk/core"
 )
 
 // Area type alias for global regions
@@ -18,7 +18,7 @@ const (
 
 // WithArea creates a new AreaRequestOption with a pool for the specified area.
 // The pool manages regional URL cycling and automatic domain selection.
-func WithArea(area core.Area) (*core.AreaRequestOption, error) {
+func WithArea(area core.Area) *core.AreaRequestOption {
 	return core.NewAreaRequestOption(area)
 }
 
