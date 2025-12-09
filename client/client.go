@@ -3,12 +3,12 @@
 package client
 
 import (
-	agents "github.com/fern-demo/agoraio-go-sdk/v505/agents"
-	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-	phonenumbers "github.com/fern-demo/agoraio-go-sdk/v505/phonenumbers"
-	telephony "github.com/fern-demo/agoraio-go-sdk/v505/telephony"
+	agents "github.com/fern-demo/agoraio-go-sdk/agents"
+	core "github.com/fern-demo/agoraio-go-sdk/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/option"
+	phonenumbers "github.com/fern-demo/agoraio-go-sdk/phonenumbers"
+	telephony "github.com/fern-demo/agoraio-go-sdk/telephony"
 )
 
 type Client struct {

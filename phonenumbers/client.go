@@ -4,10 +4,11 @@ package phonenumbers
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
-	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/v505/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
+
+	Agora "github.com/fern-demo/agoraio-go-sdk"
+	core "github.com/fern-demo/agoraio-go-sdk/core"
+	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	option "github.com/fern-demo/agoraio-go-sdk/option"
 )
 
 type Client struct {

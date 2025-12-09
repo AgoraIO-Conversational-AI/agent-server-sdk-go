@@ -30,9 +30,9 @@ Instantiate and use the client with the following:
 package example
 
 import (
-    client "github.com/fern-demo/agoraio-go-sdk/v505/client"
-    option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-    Agora "github.com/fern-demo/agoraio-go-sdk/v505"
+    client "github.com/fern-demo/agoraio-go-sdk/client"
+    option "github.com/fern-demo/agoraio-go-sdk/option"
+    Agora "github.com/fern-demo/agoraio-go-sdk"
     context "context"
 )
 

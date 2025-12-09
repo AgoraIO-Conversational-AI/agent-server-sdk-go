@@ -6,12 +6,13 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	Agora "github.com/fern-demo/agoraio-go-sdk/v505"
-	client "github.com/fern-demo/agoraio-go-sdk/v505/client"
-	option "github.com/fern-demo/agoraio-go-sdk/v505/option"
-	require "github.com/stretchr/testify/require"
 	http "net/http"
 	testing "testing"
+
+	Agora "github.com/fern-demo/agoraio-go-sdk"
+	client "github.com/fern-demo/agoraio-go-sdk/client"
+	option "github.com/fern-demo/agoraio-go-sdk/option"
+	require "github.com/stretchr/testify/require"
 )
 
 func ResetWireMockRequests(

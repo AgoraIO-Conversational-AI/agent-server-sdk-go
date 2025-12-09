@@ -3,9 +3,10 @@
 package option
 
 import (
-	core "github.com/fern-demo/agoraio-go-sdk/v505/core"
 	http "net/http"
 	url "net/url"
+
+	core "github.com/fern-demo/agoraio-go-sdk/core"
 )
 
 // RequestOption adapts the behavior of an individual request.
