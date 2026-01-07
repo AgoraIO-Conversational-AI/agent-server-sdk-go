@@ -6,25 +6,17 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	http "net/http"
-	testing "testing"
-
 	Agora "github.com/fern-demo/agoraio-go-sdk"
 	client "github.com/fern-demo/agoraio-go-sdk/client"
 	option "github.com/fern-demo/agoraio-go-sdk/option"
 	require "github.com/stretchr/testify/require"
+	http "net/http"
+	testing "testing"
 )
-
-func ResetWireMockRequests(
-	t *testing.T,
-) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
-	require.NoError(t, err)
-}
 
 func VerifyRequestCount(
 	t *testing.T,
+	testId string,
 	method string,
 	urlPath string,
 	queryParams map[string]string,
@@ -36,7 +28,9 @@ func VerifyRequestCount(
 	reqBody.WriteString(method)
 	reqBody.WriteString(`","urlPath":"`)
 	reqBody.WriteString(urlPath)
-	reqBody.WriteString(`"}`)
+	reqBody.WriteString(`","headers":{"X-Test-Id":{"equalTo":"`)
+	reqBody.WriteString(testId)
+	reqBody.WriteString(`"}}`)
 	if len(queryParams) > 0 {
 		reqBody.WriteString(`,"queryParameters":{`)
 		first := true
@@ -53,6 +47,7 @@ func VerifyRequestCount(
 		}
 		reqBody.WriteString("}")
 	}
+	reqBody.WriteString("}")
 	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
 	require.NoError(t, err)
 	var result struct {
@@ -65,7 +60,6 @@ func VerifyRequestCount(
 func TestTelephonyListWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -78,16 +72,18 @@ func TestTelephonyListWithWireMock(
 	_, invocationErr := client.Telephony.List(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTelephonyListWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v2/projects/appid/call", nil, 1)
+	VerifyRequestCount(t, "TestTelephonyListWithWireMock", "GET", "/v2/projects/appid/call", nil, 1)
 }
 
 func TestTelephonyCallWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -115,16 +111,18 @@ func TestTelephonyCallWithWireMock(
 	_, invocationErr := client.Telephony.Call(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTelephonyCallWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/call", nil, 1)
+	VerifyRequestCount(t, "TestTelephonyCallWithWireMock", "POST", "/v2/projects/appid/call", nil, 1)
 }
 
 func TestTelephonyGetWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -138,16 +136,18 @@ func TestTelephonyGetWithWireMock(
 	_, invocationErr := client.Telephony.Get(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTelephonyGetWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v2/projects/appid/calls/agent_id", nil, 1)
+	VerifyRequestCount(t, "TestTelephonyGetWithWireMock", "GET", "/v2/projects/appid/calls/agent_id", nil, 1)
 }
 
 func TestTelephonyHangupWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -161,8 +161,11 @@ func TestTelephonyHangupWithWireMock(
 	_, invocationErr := client.Telephony.Hangup(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTelephonyHangupWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/calls/agent_id/hangup", nil, 1)
+	VerifyRequestCount(t, "TestTelephonyHangupWithWireMock", "POST", "/v2/projects/appid/calls/agent_id/hangup", nil, 1)
 }

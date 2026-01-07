@@ -6,25 +6,17 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	http "net/http"
-	testing "testing"
-
 	Agora "github.com/fern-demo/agoraio-go-sdk"
 	client "github.com/fern-demo/agoraio-go-sdk/client"
 	option "github.com/fern-demo/agoraio-go-sdk/option"
 	require "github.com/stretchr/testify/require"
+	http "net/http"
+	testing "testing"
 )
-
-func ResetWireMockRequests(
-	t *testing.T,
-) {
-	WiremockAdminURL := "http://localhost:8080/__admin"
-	_, err := http.Post(WiremockAdminURL+"/requests/reset", "application/json", nil)
-	require.NoError(t, err)
-}
 
 func VerifyRequestCount(
 	t *testing.T,
+	testId string,
 	method string,
 	urlPath string,
 	queryParams map[string]string,
@@ -36,7 +28,9 @@ func VerifyRequestCount(
 	reqBody.WriteString(method)
 	reqBody.WriteString(`","urlPath":"`)
 	reqBody.WriteString(urlPath)
-	reqBody.WriteString(`"}`)
+	reqBody.WriteString(`","headers":{"X-Test-Id":{"equalTo":"`)
+	reqBody.WriteString(testId)
+	reqBody.WriteString(`"}}`)
 	if len(queryParams) > 0 {
 		reqBody.WriteString(`,"queryParameters":{`)
 		first := true
@@ -53,6 +47,7 @@ func VerifyRequestCount(
 		}
 		reqBody.WriteString("}")
 	}
+	reqBody.WriteString("}")
 	resp, err := http.Post(WiremockAdminURL+"/requests/find", "application/json", &reqBody)
 	require.NoError(t, err)
 	var result struct {
@@ -65,7 +60,6 @@ func VerifyRequestCount(
 func TestAgentsStartWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -132,16 +126,18 @@ func TestAgentsStartWithWireMock(
 	_, invocationErr := client.Agents.Start(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsStartWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/join", nil, 1)
+	VerifyRequestCount(t, "TestAgentsStartWithWireMock", "POST", "/v2/projects/appid/join", nil, 1)
 }
 
 func TestAgentsListWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -154,16 +150,18 @@ func TestAgentsListWithWireMock(
 	_, invocationErr := client.Agents.List(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsListWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents", nil, 1)
+	VerifyRequestCount(t, "TestAgentsListWithWireMock", "GET", "/v2/projects/appid/agents", nil, 1)
 }
 
 func TestAgentsGetWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -177,16 +175,18 @@ func TestAgentsGetWithWireMock(
 	_, invocationErr := client.Agents.Get(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsGetWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId", nil, 1)
+	VerifyRequestCount(t, "TestAgentsGetWithWireMock", "GET", "/v2/projects/appid/agents/agentId", nil, 1)
 }
 
 func TestAgentsGetHistoryWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -200,16 +200,18 @@ func TestAgentsGetHistoryWithWireMock(
 	_, invocationErr := client.Agents.GetHistory(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsGetHistoryWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId/history", nil, 1)
+	VerifyRequestCount(t, "TestAgentsGetHistoryWithWireMock", "GET", "/v2/projects/appid/agents/agentId/history", nil, 1)
 }
 
 func TestAgentsStopWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -223,16 +225,18 @@ func TestAgentsStopWithWireMock(
 	invocationErr := client.Agents.Stop(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsStopWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/leave", nil, 1)
+	VerifyRequestCount(t, "TestAgentsStopWithWireMock", "POST", "/v2/projects/appid/agents/agentId/leave", nil, 1)
 }
 
 func TestAgentsUpdateWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -267,16 +271,18 @@ func TestAgentsUpdateWithWireMock(
 	_, invocationErr := client.Agents.Update(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsUpdateWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/update", nil, 1)
+	VerifyRequestCount(t, "TestAgentsUpdateWithWireMock", "POST", "/v2/projects/appid/agents/agentId/update", nil, 1)
 }
 
 func TestAgentsSpeakWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -295,16 +301,18 @@ func TestAgentsSpeakWithWireMock(
 	_, invocationErr := client.Agents.Speak(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsSpeakWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/speak", nil, 1)
+	VerifyRequestCount(t, "TestAgentsSpeakWithWireMock", "POST", "/v2/projects/appid/agents/agentId/speak", nil, 1)
 }
 
 func TestAgentsInterruptWithWireMock(
 	t *testing.T,
 ) {
-	ResetWireMockRequests(t)
 	WireMockBaseURL := "http://localhost:8080"
 	client := client.NewClient(
 		option.WithBaseURL(
@@ -318,8 +326,11 @@ func TestAgentsInterruptWithWireMock(
 	_, invocationErr := client.Agents.Interrupt(
 		context.TODO(),
 		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAgentsInterruptWithWireMock"}},
+		),
 	)
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
-	VerifyRequestCount(t, "POST", "/v2/projects/appid/agents/agentId/interrupt", nil, 1)
+	VerifyRequestCount(t, "TestAgentsInterruptWithWireMock", "POST", "/v2/projects/appid/agents/agentId/interrupt", nil, 1)
 }

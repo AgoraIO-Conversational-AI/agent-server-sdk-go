@@ -5,9 +5,8 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	big "math/big"
-
 	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	big "math/big"
 )
 
 var (

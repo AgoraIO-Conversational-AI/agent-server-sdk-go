@@ -1,8 +1,9 @@
 {
-  "cliVersion": "1.9.2",
+  "cliVersion": "3.35.2",
   "generatorName": "fernapi/fern-go-sdk",
-  "generatorVersion": "1.16.5",
+  "generatorVersion": "1.22.2",
   "generatorConfig": {
     "packageName": "Agora"
-  }
+  },
+  "sdkVersion": "v0.0.9"
 }

@@ -5,9 +5,8 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	big "math/big"
-
 	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	big "math/big"
 )
 
 var (
@@ -967,7 +966,7 @@ var (
 
 type ListAgentsResponse struct {
 	// Agent data.
-	Data *ListAgentsResponseData `json:"data,omitempty" url:"data,omitempty"`
+	Data *ListAgentsResponseData `json:"data" url:"data"`
 	// Returns meta information about the list.
 	Meta *ListAgentsResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
 	// Request status.
@@ -1082,7 +1081,7 @@ type ListAgentsResponseData struct {
 	// The number of agents returned.
 	Count *int `json:"count,omitempty" url:"count,omitempty"`
 	// A list of agents that meets the criteria.
-	List []*ListAgentsResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
+	List []*ListAgentsResponseDataListItem `json:"list" url:"list"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`

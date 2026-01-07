@@ -4,12 +4,11 @@ package telephony
 
 import (
 	context "context"
-	http "net/http"
-
 	Agora "github.com/fern-demo/agoraio-go-sdk"
 	core "github.com/fern-demo/agoraio-go-sdk/core"
 	internal "github.com/fern-demo/agoraio-go-sdk/internal"
 	option "github.com/fern-demo/agoraio-go-sdk/option"
+	http "net/http"
 )
 
 type Client struct {
@@ -39,7 +38,7 @@ func (c *Client) List(
 	ctx context.Context,
 	request *Agora.ListTelephonyRequest,
 	opts ...option.RequestOption,
-) (*core.Page[*string, *Agora.ListTelephonyResponseDataListItem], error) {
+) (*core.Page[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -77,17 +76,18 @@ func (c *Client) List(
 			Response:        pageRequest.Response,
 		}
 	}
-	readPageResponse := func(response *Agora.ListTelephonyResponse) *core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem] {
+	readPageResponse := func(response *Agora.ListTelephonyResponse) *core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse] {
 		var zeroValue *string
 		var next *string
 		if response.Meta != nil {
 			next = response.Meta.Cursor
 		}
 		results := response.GetData().GetList()
-		return &core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem]{
-			Next:    next,
-			Results: results,
-			Done:    next == zeroValue,
+		return &core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse]{
+			Results:  results,
+			Response: response,
+			Next:     next,
+			Done:     next == zeroValue,
 		}
 	}
 	pager := internal.NewCursorPager(

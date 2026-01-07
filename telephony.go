@@ -5,9 +5,8 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	big "math/big"
-
 	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	big "math/big"
 )
 
 var (
@@ -978,7 +977,7 @@ var (
 
 type ListTelephonyResponse struct {
 	// Call data object.
-	Data *ListTelephonyResponseData `json:"data,omitempty" url:"data,omitempty"`
+	Data *ListTelephonyResponseData `json:"data" url:"data"`
 	// Metadata about the list.
 	Meta *ListTelephonyResponseMeta `json:"meta,omitempty" url:"meta,omitempty"`
 	// Request status.
@@ -1093,7 +1092,7 @@ type ListTelephonyResponseData struct {
 	// The number of calls returned in this response.
 	Count *int `json:"count,omitempty" url:"count,omitempty"`
 	// A list of calls that meet the criteria.
-	List []*ListTelephonyResponseDataListItem `json:"list,omitempty" url:"list,omitempty"`
+	List []*ListTelephonyResponseDataListItem `json:"list" url:"list"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
