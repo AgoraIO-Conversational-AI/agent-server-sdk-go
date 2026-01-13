@@ -2984,7 +2984,7 @@ type GetHistoryAgentsResponse struct {
 	// Agent creation timestamp.
 	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
 	// Agent status. Only supports querying the running agent.
-	Status *string `json:"status,omitempty" url:"status,omitempty"`
+	Status *GetHistoryAgentsResponseStatus `json:"status,omitempty" url:"status,omitempty"`
 	// Agent history.
 	Contents []*GetHistoryAgentsResponseContentsItem `json:"contents,omitempty" url:"contents,omitempty"`
 
@@ -3007,6 +3007,13 @@ func (g *GetHistoryAgentsResponse) GetStartTs() *int {
 		return nil
 	}
 	return g.StartTs
+}
+
+func (g *GetHistoryAgentsResponse) GetStatus() *GetHistoryAgentsResponseStatus {
+	if g == nil {
+		return nil
+	}
+	return g.Status
 }
 
 func (g *GetHistoryAgentsResponse) GetContents() []*GetHistoryAgentsResponseContentsItem {
@@ -3043,7 +3050,7 @@ func (g *GetHistoryAgentsResponse) SetStartTs(startTs *int) {
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetHistoryAgentsResponse) SetStatus(status *string) {
+func (g *GetHistoryAgentsResponse) SetStatus(status *GetHistoryAgentsResponseStatus) {
 	g.Status = status
 	g.require(getHistoryAgentsResponseFieldStatus)
 }
@@ -3214,6 +3221,26 @@ func NewGetHistoryAgentsResponseContentsItemRoleFromString(s string) (GetHistory
 }
 
 func (g GetHistoryAgentsResponseContentsItemRole) Ptr() *GetHistoryAgentsResponseContentsItemRole {
+	return &g
+}
+
+// Agent status. Only supports querying the running agent.
+type GetHistoryAgentsResponseStatus string
+
+const (
+	GetHistoryAgentsResponseStatusRunning GetHistoryAgentsResponseStatus = "RUNNING"
+)
+
+func NewGetHistoryAgentsResponseStatusFromString(s string) (GetHistoryAgentsResponseStatus, error) {
+	switch s {
+	case "RUNNING":
+		return GetHistoryAgentsResponseStatusRunning, nil
+	}
+	var t GetHistoryAgentsResponseStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (g GetHistoryAgentsResponseStatus) Ptr() *GetHistoryAgentsResponseStatus {
 	return &g
 }
 
@@ -4005,7 +4032,8 @@ type StartAgentsRequestProperties struct {
 	AdvancedFeatures *StartAgentsRequestPropertiesAdvancedFeatures `json:"advanced_features,omitempty" url:"advanced_features,omitempty"`
 	// Automatic Speech Recognition (ASR) configuration.
 	Asr *StartAgentsRequestPropertiesAsr `json:"asr,omitempty" url:"asr,omitempty"`
-	Tts *Tts                             `json:"tts" url:"tts"`
+	// Text-to-speech (TTS) module configuration.
+	Tts *Tts `json:"tts" url:"tts"`
 	// Large language model (LLM) configuration.
 	Llm *StartAgentsRequestPropertiesLlm `json:"llm" url:"llm"`
 	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
@@ -5063,7 +5091,7 @@ type StartAgentsRequestPropertiesMllm struct {
 	Vendor *StartAgentsRequestPropertiesMllmVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The request style for MLLM completion:
 	// - `openai`: For OpenAI Realtime API format
-	Style *string `json:"style,omitempty" url:"style,omitempty"`
+	Style *StartAgentsRequestPropertiesMllmStyle `json:"style,omitempty" url:"style,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -5126,6 +5154,13 @@ func (s *StartAgentsRequestPropertiesMllm) GetVendor() *StartAgentsRequestProper
 		return nil
 	}
 	return s.Vendor
+}
+
+func (s *StartAgentsRequestPropertiesMllm) GetStyle() *StartAgentsRequestPropertiesMllmStyle {
+	if s == nil {
+		return nil
+	}
+	return s.Style
 }
 
 func (s *StartAgentsRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
@@ -5197,7 +5232,7 @@ func (s *StartAgentsRequestPropertiesMllm) SetVendor(vendor_ *StartAgentsRequest
 
 // SetStyle sets the Style field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesMllm) SetStyle(style *string) {
+func (s *StartAgentsRequestPropertiesMllm) SetStyle(style *StartAgentsRequestPropertiesMllmStyle) {
 	s.Style = style
 	s.require(startAgentsRequestPropertiesMllmFieldStyle)
 }
@@ -5239,6 +5274,27 @@ func (s *StartAgentsRequestPropertiesMllm) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+// The request style for MLLM completion:
+// - `openai`: For OpenAI Realtime API format
+type StartAgentsRequestPropertiesMllmStyle string
+
+const (
+	StartAgentsRequestPropertiesMllmStyleOpenai StartAgentsRequestPropertiesMllmStyle = "openai"
+)
+
+func NewStartAgentsRequestPropertiesMllmStyleFromString(s string) (StartAgentsRequestPropertiesMllmStyle, error) {
+	switch s {
+	case "openai":
+		return StartAgentsRequestPropertiesMllmStyleOpenai, nil
+	}
+	var t StartAgentsRequestPropertiesMllmStyle
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesMllmStyle) Ptr() *StartAgentsRequestPropertiesMllmStyle {
+	return &s
 }
 
 // MLLM provider. Currently supports:

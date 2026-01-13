@@ -12,6 +12,7 @@ and multimodal flows (MLLM) for real-time audio processing.
 - [Documentation](#documentation)
 - [Reference](#reference)
 - [Mllm Flow Multimodal](#mllm-flow-multimodal)
+- [Mllm Flow Multimodal](#mllm-flow-multimodal)
 - [Usage](#usage)
 - [Environments](#environments)
 - [Errors](#errors)
@@ -30,6 +31,71 @@ API reference documentation is available [here](https://docs.agora.io/en/convers
 ## Reference
 
 A full reference for this library is available [here](https://github.com/fern-demo/agoraio-go-sdk/blob/HEAD/./reference.md).
+
+## MLLM Flow (Multimodal)
+
+For real-time audio processing using OpenAI's Realtime API or Google Gemini Live, use the MLLM (Multimodal Large Language Model) flow instead of the cascading ASR -> LLM -> TTS flow. See the [MLLM Overview](https://docs.agora.io/en/conversational-ai/models/mllm/overview) for more details.
+
+```go
+package main
+
+import (
+    "context"
+    client "github.com/{{ owner }}/{{ repo }}/client"
+    option "github.com/{{ owner }}/{{ repo }}/option"
+    Agora "github.com/{{ owner }}/{{ repo }}"
+)
+
+func main() {
+    c := client.NewClient(
+        option.WithBasicAuth("<username>", "<password>"),
+    )
+
+    c.Agents.Start(
+        context.TODO(),
+        &Agora.StartAgentsRequest{
+            Appid: "your_app_id",
+            Name:  "mllm_agent",
+            Properties: &Agora.StartAgentsRequestProperties{
+                Channel:       "channel_name",
+                Token:         "your_token",
+                AgentRtcUID:   "1001",
+                RemoteRtcUIDs: []string{"1002"},
+                IdleTimeout:   Agora.Int(120),
+                AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
+                    EnableMllm: Agora.Bool(true),
+                },
+                Mllm: &Agora.StartAgentsRequestPropertiesMllm{
+                    URL:    Agora.String("wss://api.openai.com/v1/realtime"),
+                    APIKey: Agora.String("<your_openai_api_key>"),
+                    Vendor: Agora.StartAgentsRequestPropertiesMllmVendorOpenai,
+                    Params: map[string]any{
+                        "model": "gpt-4o-realtime-preview",
+                        "voice": "alloy",
+                    },
+                    InputModalities:  []string{"audio"},
+                    OutputModalities: []string{"text", "audio"},
+                    GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
+                },
+                TurnDetection: &Agora.StartAgentsRequestPropertiesTurnDetection{
+                    Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
+                    Threshold:         Agora.Float64(0.5),
+                    SilenceDurationMs: Agora.Int(500),
+                },
+                // TTS and LLM are still required but not used when MLLM is enabled
+                Tts: &Agora.StartAgentsRequestPropertiesTts{
+                    Vendor: Agora.StartAgentsRequestPropertiesTtsVendorMicrosoft,
+                    Params: map[string]any{},
+                },
+                Llm: &Agora.StartAgentsRequestPropertiesLlm{
+                    URL: "https://api.openai.com/v1/chat/completions",
+                },
+            },
+        },
+    )
+}
+```
+
 
 ## MLLM Flow (Multimodal)
 
