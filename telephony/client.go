@@ -38,7 +38,7 @@ func (c *Client) List(
 	ctx context.Context,
 	request *Agora.ListTelephonyRequest,
 	opts ...option.RequestOption,
-) (*core.Page[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse], error) {
+) (*core.Page[*string, *Agora.ListTelephonyResponseDataListItem], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -76,18 +76,17 @@ func (c *Client) List(
 			Response:        pageRequest.Response,
 		}
 	}
-	readPageResponse := func(response *Agora.ListTelephonyResponse) *core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse] {
+	readPageResponse := func(response *Agora.ListTelephonyResponse) *core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem] {
 		var zeroValue *string
 		var next *string
 		if response.Meta != nil {
 			next = response.Meta.Cursor
 		}
 		results := response.GetData().GetList()
-		return &core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem, *Agora.ListTelephonyResponse]{
-			Results:  results,
-			Response: response,
-			Next:     next,
-			Done:     next == zeroValue,
+		return &core.PageResponse[*string, *Agora.ListTelephonyResponseDataListItem]{
+			Next:    next,
+			Results: results,
+			Done:    next == zeroValue,
 		}
 	}
 	pager := internal.NewCursorPager(

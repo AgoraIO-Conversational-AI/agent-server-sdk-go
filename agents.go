@@ -363,6 +363,2415 @@ func (s *StopAgentsRequest) SetAgentID(agentID string) {
 	s.require(stopAgentsRequestFieldAgentID)
 }
 
+// Amazon Polly Text-to-Speech configuration (Beta).
+var (
+	amazonTtsFieldParams       = big.NewInt(1 << 0)
+	amazonTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type AmazonTts struct {
+	Params *AmazonTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AmazonTts) GetParams() *AmazonTtsParams {
+	if a == nil {
+		return nil
+	}
+	return a.Params
+}
+
+func (a *AmazonTts) GetSkipPatterns() []int {
+	if a == nil {
+		return nil
+	}
+	return a.SkipPatterns
+}
+
+func (a *AmazonTts) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AmazonTts) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTts) SetParams(params *AmazonTtsParams) {
+	a.Params = params
+	a.require(amazonTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTts) SetSkipPatterns(skipPatterns []int) {
+	a.SkipPatterns = skipPatterns
+	a.require(amazonTtsFieldSkipPatterns)
+}
+
+func (a *AmazonTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler AmazonTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AmazonTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AmazonTts) MarshalJSON() ([]byte, error) {
+	type embed AmazonTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AmazonTts) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// Amazon Polly TTS configuration parameters.
+var (
+	amazonTtsParamsFieldAccessKey = big.NewInt(1 << 0)
+	amazonTtsParamsFieldSecretKey = big.NewInt(1 << 1)
+	amazonTtsParamsFieldRegion    = big.NewInt(1 << 2)
+	amazonTtsParamsFieldVoiceID   = big.NewInt(1 << 3)
+)
+
+type AmazonTtsParams struct {
+	// AWS access key
+	AccessKey string `json:"access_key" url:"access_key"`
+	// AWS secret key
+	SecretKey string `json:"secret_key" url:"secret_key"`
+	// AWS region (e.g., "us-east-1")
+	Region string `json:"region" url:"region"`
+	// Amazon Polly voice ID
+	VoiceID string `json:"voice_id" url:"voice_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AmazonTtsParams) GetAccessKey() string {
+	if a == nil {
+		return ""
+	}
+	return a.AccessKey
+}
+
+func (a *AmazonTtsParams) GetSecretKey() string {
+	if a == nil {
+		return ""
+	}
+	return a.SecretKey
+}
+
+func (a *AmazonTtsParams) GetRegion() string {
+	if a == nil {
+		return ""
+	}
+	return a.Region
+}
+
+func (a *AmazonTtsParams) GetVoiceID() string {
+	if a == nil {
+		return ""
+	}
+	return a.VoiceID
+}
+
+func (a *AmazonTtsParams) GetExtraProperties() map[string]interface{} {
+	return a.extraProperties
+}
+
+func (a *AmazonTtsParams) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetAccessKey sets the AccessKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTtsParams) SetAccessKey(accessKey string) {
+	a.AccessKey = accessKey
+	a.require(amazonTtsParamsFieldAccessKey)
+}
+
+// SetSecretKey sets the SecretKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTtsParams) SetSecretKey(secretKey string) {
+	a.SecretKey = secretKey
+	a.require(amazonTtsParamsFieldSecretKey)
+}
+
+// SetRegion sets the Region field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTtsParams) SetRegion(region string) {
+	a.Region = region
+	a.require(amazonTtsParamsFieldRegion)
+}
+
+// SetVoiceID sets the VoiceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AmazonTtsParams) SetVoiceID(voiceID string) {
+	a.VoiceID = voiceID
+	a.require(amazonTtsParamsFieldVoiceID)
+}
+
+func (a *AmazonTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler AmazonTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*a = AmazonTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AmazonTtsParams) MarshalJSON() ([]byte, error) {
+	type embed AmazonTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AmazonTtsParams) String() string {
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+// Cartesia Text-to-Speech configuration (Beta).
+var (
+	cartesiaTtsFieldParams       = big.NewInt(1 << 0)
+	cartesiaTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type CartesiaTts struct {
+	Params *CartesiaTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CartesiaTts) GetParams() *CartesiaTtsParams {
+	if c == nil {
+		return nil
+	}
+	return c.Params
+}
+
+func (c *CartesiaTts) GetSkipPatterns() []int {
+	if c == nil {
+		return nil
+	}
+	return c.SkipPatterns
+}
+
+func (c *CartesiaTts) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CartesiaTts) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTts) SetParams(params *CartesiaTtsParams) {
+	c.Params = params
+	c.require(cartesiaTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTts) SetSkipPatterns(skipPatterns []int) {
+	c.SkipPatterns = skipPatterns
+	c.require(cartesiaTtsFieldSkipPatterns)
+}
+
+func (c *CartesiaTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler CartesiaTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CartesiaTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CartesiaTts) MarshalJSON() ([]byte, error) {
+	type embed CartesiaTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CartesiaTts) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// Cartesia TTS configuration parameters.
+var (
+	cartesiaTtsParamsFieldKey     = big.NewInt(1 << 0)
+	cartesiaTtsParamsFieldVoiceID = big.NewInt(1 << 1)
+	cartesiaTtsParamsFieldModelID = big.NewInt(1 << 2)
+)
+
+type CartesiaTtsParams struct {
+	// Cartesia API key
+	Key string `json:"key" url:"key"`
+	// Cartesia voice ID
+	VoiceID string `json:"voice_id" url:"voice_id"`
+	// Model ID (optional)
+	ModelID *string `json:"model_id,omitempty" url:"model_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CartesiaTtsParams) GetKey() string {
+	if c == nil {
+		return ""
+	}
+	return c.Key
+}
+
+func (c *CartesiaTtsParams) GetVoiceID() string {
+	if c == nil {
+		return ""
+	}
+	return c.VoiceID
+}
+
+func (c *CartesiaTtsParams) GetModelID() *string {
+	if c == nil {
+		return nil
+	}
+	return c.ModelID
+}
+
+func (c *CartesiaTtsParams) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CartesiaTtsParams) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTtsParams) SetKey(key string) {
+	c.Key = key
+	c.require(cartesiaTtsParamsFieldKey)
+}
+
+// SetVoiceID sets the VoiceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTtsParams) SetVoiceID(voiceID string) {
+	c.VoiceID = voiceID
+	c.require(cartesiaTtsParamsFieldVoiceID)
+}
+
+// SetModelID sets the ModelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTtsParams) SetModelID(modelID *string) {
+	c.ModelID = modelID
+	c.require(cartesiaTtsParamsFieldModelID)
+}
+
+func (c *CartesiaTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler CartesiaTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CartesiaTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CartesiaTtsParams) MarshalJSON() ([]byte, error) {
+	type embed CartesiaTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CartesiaTtsParams) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// ElevenLabs Text-to-Speech configuration.
+var (
+	elevenLabsTtsFieldParams       = big.NewInt(1 << 0)
+	elevenLabsTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type ElevenLabsTts struct {
+	Params *ElevenLabsTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *ElevenLabsTts) GetParams() *ElevenLabsTtsParams {
+	if e == nil {
+		return nil
+	}
+	return e.Params
+}
+
+func (e *ElevenLabsTts) GetSkipPatterns() []int {
+	if e == nil {
+		return nil
+	}
+	return e.SkipPatterns
+}
+
+func (e *ElevenLabsTts) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *ElevenLabsTts) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTts) SetParams(params *ElevenLabsTtsParams) {
+	e.Params = params
+	e.require(elevenLabsTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTts) SetSkipPatterns(skipPatterns []int) {
+	e.SkipPatterns = skipPatterns
+	e.require(elevenLabsTtsFieldSkipPatterns)
+}
+
+func (e *ElevenLabsTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler ElevenLabsTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = ElevenLabsTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *ElevenLabsTts) MarshalJSON() ([]byte, error) {
+	type embed ElevenLabsTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *ElevenLabsTts) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// ElevenLabs TTS configuration parameters.
+var (
+	elevenLabsTtsParamsFieldBaseURL    = big.NewInt(1 << 0)
+	elevenLabsTtsParamsFieldKey        = big.NewInt(1 << 1)
+	elevenLabsTtsParamsFieldModelID    = big.NewInt(1 << 2)
+	elevenLabsTtsParamsFieldVoiceID    = big.NewInt(1 << 3)
+	elevenLabsTtsParamsFieldSampleRate = big.NewInt(1 << 4)
+)
+
+type ElevenLabsTtsParams struct {
+	// WebSocket URL (e.g., "wss://api.elevenlabs.io/v1")
+	BaseURL *string `json:"base_url,omitempty" url:"base_url,omitempty"`
+	// ElevenLabs API key
+	Key string `json:"key" url:"key"`
+	// Model ID (e.g., "eleven_flash_v2_5")
+	ModelID string `json:"model_id" url:"model_id"`
+	// Voice ID (e.g., "pNInz6obpgDQGcFmaJgB")
+	VoiceID string `json:"voice_id" url:"voice_id"`
+	// Audio sample rate (e.g., 24000)
+	SampleRate *int `json:"sample_rate,omitempty" url:"sample_rate,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *ElevenLabsTtsParams) GetBaseURL() *string {
+	if e == nil {
+		return nil
+	}
+	return e.BaseURL
+}
+
+func (e *ElevenLabsTtsParams) GetKey() string {
+	if e == nil {
+		return ""
+	}
+	return e.Key
+}
+
+func (e *ElevenLabsTtsParams) GetModelID() string {
+	if e == nil {
+		return ""
+	}
+	return e.ModelID
+}
+
+func (e *ElevenLabsTtsParams) GetVoiceID() string {
+	if e == nil {
+		return ""
+	}
+	return e.VoiceID
+}
+
+func (e *ElevenLabsTtsParams) GetSampleRate() *int {
+	if e == nil {
+		return nil
+	}
+	return e.SampleRate
+}
+
+func (e *ElevenLabsTtsParams) GetExtraProperties() map[string]interface{} {
+	return e.extraProperties
+}
+
+func (e *ElevenLabsTtsParams) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetBaseURL sets the BaseURL field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTtsParams) SetBaseURL(baseURL *string) {
+	e.BaseURL = baseURL
+	e.require(elevenLabsTtsParamsFieldBaseURL)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTtsParams) SetKey(key string) {
+	e.Key = key
+	e.require(elevenLabsTtsParamsFieldKey)
+}
+
+// SetModelID sets the ModelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTtsParams) SetModelID(modelID string) {
+	e.ModelID = modelID
+	e.require(elevenLabsTtsParamsFieldModelID)
+}
+
+// SetVoiceID sets the VoiceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTtsParams) SetVoiceID(voiceID string) {
+	e.VoiceID = voiceID
+	e.require(elevenLabsTtsParamsFieldVoiceID)
+}
+
+// SetSampleRate sets the SampleRate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ElevenLabsTtsParams) SetSampleRate(sampleRate *int) {
+	e.SampleRate = sampleRate
+	e.require(elevenLabsTtsParamsFieldSampleRate)
+}
+
+func (e *ElevenLabsTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler ElevenLabsTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = ElevenLabsTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *ElevenLabsTtsParams) MarshalJSON() ([]byte, error) {
+	type embed ElevenLabsTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *ElevenLabsTtsParams) String() string {
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// Fish Audio Text-to-Speech configuration (Beta).
+var (
+	fishAudioTtsFieldParams       = big.NewInt(1 << 0)
+	fishAudioTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type FishAudioTts struct {
+	Params *FishAudioTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (f *FishAudioTts) GetParams() *FishAudioTtsParams {
+	if f == nil {
+		return nil
+	}
+	return f.Params
+}
+
+func (f *FishAudioTts) GetSkipPatterns() []int {
+	if f == nil {
+		return nil
+	}
+	return f.SkipPatterns
+}
+
+func (f *FishAudioTts) GetExtraProperties() map[string]interface{} {
+	return f.extraProperties
+}
+
+func (f *FishAudioTts) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FishAudioTts) SetParams(params *FishAudioTtsParams) {
+	f.Params = params
+	f.require(fishAudioTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FishAudioTts) SetSkipPatterns(skipPatterns []int) {
+	f.SkipPatterns = skipPatterns
+	f.require(fishAudioTtsFieldSkipPatterns)
+}
+
+func (f *FishAudioTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler FishAudioTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FishAudioTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+	f.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FishAudioTts) MarshalJSON() ([]byte, error) {
+	type embed FishAudioTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (f *FishAudioTts) String() string {
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
+}
+
+// Fish Audio TTS configuration parameters.
+var (
+	fishAudioTtsParamsFieldKey         = big.NewInt(1 << 0)
+	fishAudioTtsParamsFieldReferenceID = big.NewInt(1 << 1)
+)
+
+type FishAudioTtsParams struct {
+	// Fish Audio API key
+	Key string `json:"key" url:"key"`
+	// Fish Audio reference ID
+	ReferenceID string `json:"reference_id" url:"reference_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (f *FishAudioTtsParams) GetKey() string {
+	if f == nil {
+		return ""
+	}
+	return f.Key
+}
+
+func (f *FishAudioTtsParams) GetReferenceID() string {
+	if f == nil {
+		return ""
+	}
+	return f.ReferenceID
+}
+
+func (f *FishAudioTtsParams) GetExtraProperties() map[string]interface{} {
+	return f.extraProperties
+}
+
+func (f *FishAudioTtsParams) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FishAudioTtsParams) SetKey(key string) {
+	f.Key = key
+	f.require(fishAudioTtsParamsFieldKey)
+}
+
+// SetReferenceID sets the ReferenceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FishAudioTtsParams) SetReferenceID(referenceID string) {
+	f.ReferenceID = referenceID
+	f.require(fishAudioTtsParamsFieldReferenceID)
+}
+
+func (f *FishAudioTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler FishAudioTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FishAudioTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+	f.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FishAudioTtsParams) MarshalJSON() ([]byte, error) {
+	type embed FishAudioTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (f *FishAudioTtsParams) String() string {
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
+}
+
+// Google Text-to-Speech configuration (Beta).
+var (
+	googleTtsFieldParams       = big.NewInt(1 << 0)
+	googleTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type GoogleTts struct {
+	Params *GoogleTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GoogleTts) GetParams() *GoogleTtsParams {
+	if g == nil {
+		return nil
+	}
+	return g.Params
+}
+
+func (g *GoogleTts) GetSkipPatterns() []int {
+	if g == nil {
+		return nil
+	}
+	return g.SkipPatterns
+}
+
+func (g *GoogleTts) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GoogleTts) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTts) SetParams(params *GoogleTtsParams) {
+	g.Params = params
+	g.require(googleTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTts) SetSkipPatterns(skipPatterns []int) {
+	g.SkipPatterns = skipPatterns
+	g.require(googleTtsFieldSkipPatterns)
+}
+
+func (g *GoogleTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler GoogleTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GoogleTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GoogleTts) MarshalJSON() ([]byte, error) {
+	type embed GoogleTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GoogleTts) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Google TTS configuration parameters.
+var (
+	googleTtsParamsFieldKey          = big.NewInt(1 << 0)
+	googleTtsParamsFieldVoiceName    = big.NewInt(1 << 1)
+	googleTtsParamsFieldLanguageCode = big.NewInt(1 << 2)
+)
+
+type GoogleTtsParams struct {
+	// Google Cloud API key
+	Key string `json:"key" url:"key"`
+	// Google voice name
+	VoiceName string `json:"voice_name" url:"voice_name"`
+	// Language code (e.g., "en-US")
+	LanguageCode *string `json:"language_code,omitempty" url:"language_code,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GoogleTtsParams) GetKey() string {
+	if g == nil {
+		return ""
+	}
+	return g.Key
+}
+
+func (g *GoogleTtsParams) GetVoiceName() string {
+	if g == nil {
+		return ""
+	}
+	return g.VoiceName
+}
+
+func (g *GoogleTtsParams) GetLanguageCode() *string {
+	if g == nil {
+		return nil
+	}
+	return g.LanguageCode
+}
+
+func (g *GoogleTtsParams) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GoogleTtsParams) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTtsParams) SetKey(key string) {
+	g.Key = key
+	g.require(googleTtsParamsFieldKey)
+}
+
+// SetVoiceName sets the VoiceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTtsParams) SetVoiceName(voiceName string) {
+	g.VoiceName = voiceName
+	g.require(googleTtsParamsFieldVoiceName)
+}
+
+// SetLanguageCode sets the LanguageCode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTtsParams) SetLanguageCode(languageCode *string) {
+	g.LanguageCode = languageCode
+	g.require(googleTtsParamsFieldLanguageCode)
+}
+
+func (g *GoogleTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler GoogleTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GoogleTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GoogleTtsParams) MarshalJSON() ([]byte, error) {
+	type embed GoogleTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GoogleTtsParams) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Groq Text-to-Speech configuration (Beta).
+var (
+	groqTtsFieldParams       = big.NewInt(1 << 0)
+	groqTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type GroqTts struct {
+	Params *GroqTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GroqTts) GetParams() *GroqTtsParams {
+	if g == nil {
+		return nil
+	}
+	return g.Params
+}
+
+func (g *GroqTts) GetSkipPatterns() []int {
+	if g == nil {
+		return nil
+	}
+	return g.SkipPatterns
+}
+
+func (g *GroqTts) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GroqTts) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GroqTts) SetParams(params *GroqTtsParams) {
+	g.Params = params
+	g.require(groqTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GroqTts) SetSkipPatterns(skipPatterns []int) {
+	g.SkipPatterns = skipPatterns
+	g.require(groqTtsFieldSkipPatterns)
+}
+
+func (g *GroqTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler GroqTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GroqTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GroqTts) MarshalJSON() ([]byte, error) {
+	type embed GroqTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GroqTts) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Groq TTS configuration parameters.
+var (
+	groqTtsParamsFieldKey   = big.NewInt(1 << 0)
+	groqTtsParamsFieldModel = big.NewInt(1 << 1)
+)
+
+type GroqTtsParams struct {
+	// Groq API key
+	Key string `json:"key" url:"key"`
+	// Model name
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GroqTtsParams) GetKey() string {
+	if g == nil {
+		return ""
+	}
+	return g.Key
+}
+
+func (g *GroqTtsParams) GetModel() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Model
+}
+
+func (g *GroqTtsParams) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GroqTtsParams) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GroqTtsParams) SetKey(key string) {
+	g.Key = key
+	g.require(groqTtsParamsFieldKey)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GroqTtsParams) SetModel(model *string) {
+	g.Model = model
+	g.require(groqTtsParamsFieldModel)
+}
+
+func (g *GroqTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler GroqTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GroqTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GroqTtsParams) MarshalJSON() ([]byte, error) {
+	type embed GroqTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GroqTtsParams) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Hume AI Text-to-Speech configuration (Beta).
+var (
+	humeAiTtsFieldParams       = big.NewInt(1 << 0)
+	humeAiTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type HumeAiTts struct {
+	Params *HumeAiTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (h *HumeAiTts) GetParams() *HumeAiTtsParams {
+	if h == nil {
+		return nil
+	}
+	return h.Params
+}
+
+func (h *HumeAiTts) GetSkipPatterns() []int {
+	if h == nil {
+		return nil
+	}
+	return h.SkipPatterns
+}
+
+func (h *HumeAiTts) GetExtraProperties() map[string]interface{} {
+	return h.extraProperties
+}
+
+func (h *HumeAiTts) require(field *big.Int) {
+	if h.explicitFields == nil {
+		h.explicitFields = big.NewInt(0)
+	}
+	h.explicitFields.Or(h.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HumeAiTts) SetParams(params *HumeAiTtsParams) {
+	h.Params = params
+	h.require(humeAiTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HumeAiTts) SetSkipPatterns(skipPatterns []int) {
+	h.SkipPatterns = skipPatterns
+	h.require(humeAiTtsFieldSkipPatterns)
+}
+
+func (h *HumeAiTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler HumeAiTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*h = HumeAiTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *h)
+	if err != nil {
+		return err
+	}
+	h.extraProperties = extraProperties
+	h.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (h *HumeAiTts) MarshalJSON() ([]byte, error) {
+	type embed HumeAiTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*h),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, h.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (h *HumeAiTts) String() string {
+	if len(h.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(h); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", h)
+}
+
+// Hume AI TTS configuration parameters.
+var (
+	humeAiTtsParamsFieldKey      = big.NewInt(1 << 0)
+	humeAiTtsParamsFieldConfigID = big.NewInt(1 << 1)
+)
+
+type HumeAiTtsParams struct {
+	// Hume AI API key
+	Key string `json:"key" url:"key"`
+	// Hume AI configuration ID
+	ConfigID *string `json:"config_id,omitempty" url:"config_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (h *HumeAiTtsParams) GetKey() string {
+	if h == nil {
+		return ""
+	}
+	return h.Key
+}
+
+func (h *HumeAiTtsParams) GetConfigID() *string {
+	if h == nil {
+		return nil
+	}
+	return h.ConfigID
+}
+
+func (h *HumeAiTtsParams) GetExtraProperties() map[string]interface{} {
+	return h.extraProperties
+}
+
+func (h *HumeAiTtsParams) require(field *big.Int) {
+	if h.explicitFields == nil {
+		h.explicitFields = big.NewInt(0)
+	}
+	h.explicitFields.Or(h.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HumeAiTtsParams) SetKey(key string) {
+	h.Key = key
+	h.require(humeAiTtsParamsFieldKey)
+}
+
+// SetConfigID sets the ConfigID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HumeAiTtsParams) SetConfigID(configID *string) {
+	h.ConfigID = configID
+	h.require(humeAiTtsParamsFieldConfigID)
+}
+
+func (h *HumeAiTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler HumeAiTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*h = HumeAiTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *h)
+	if err != nil {
+		return err
+	}
+	h.extraProperties = extraProperties
+	h.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (h *HumeAiTtsParams) MarshalJSON() ([]byte, error) {
+	type embed HumeAiTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*h),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, h.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (h *HumeAiTtsParams) String() string {
+	if len(h.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(h); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", h)
+}
+
+// Microsoft Azure Text-to-Speech configuration.
+var (
+	microsoftTtsFieldParams       = big.NewInt(1 << 0)
+	microsoftTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type MicrosoftTts struct {
+	Params *MicrosoftTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MicrosoftTts) GetParams() *MicrosoftTtsParams {
+	if m == nil {
+		return nil
+	}
+	return m.Params
+}
+
+func (m *MicrosoftTts) GetSkipPatterns() []int {
+	if m == nil {
+		return nil
+	}
+	return m.SkipPatterns
+}
+
+func (m *MicrosoftTts) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MicrosoftTts) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTts) SetParams(params *MicrosoftTtsParams) {
+	m.Params = params
+	m.require(microsoftTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTts) SetSkipPatterns(skipPatterns []int) {
+	m.SkipPatterns = skipPatterns
+	m.require(microsoftTtsFieldSkipPatterns)
+}
+
+func (m *MicrosoftTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler MicrosoftTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MicrosoftTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MicrosoftTts) MarshalJSON() ([]byte, error) {
+	type embed MicrosoftTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MicrosoftTts) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// Microsoft Azure TTS configuration parameters.
+var (
+	microsoftTtsParamsFieldKey       = big.NewInt(1 << 0)
+	microsoftTtsParamsFieldRegion    = big.NewInt(1 << 1)
+	microsoftTtsParamsFieldVoiceName = big.NewInt(1 << 2)
+)
+
+type MicrosoftTtsParams struct {
+	// Microsoft Azure API key
+	Key string `json:"key" url:"key"`
+	// Azure region (e.g., "eastus")
+	Region string `json:"region" url:"region"`
+	// Voice name (e.g., "en-US-AndrewMultilingualNeural")
+	VoiceName string `json:"voice_name" url:"voice_name"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MicrosoftTtsParams) GetKey() string {
+	if m == nil {
+		return ""
+	}
+	return m.Key
+}
+
+func (m *MicrosoftTtsParams) GetRegion() string {
+	if m == nil {
+		return ""
+	}
+	return m.Region
+}
+
+func (m *MicrosoftTtsParams) GetVoiceName() string {
+	if m == nil {
+		return ""
+	}
+	return m.VoiceName
+}
+
+func (m *MicrosoftTtsParams) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MicrosoftTtsParams) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTtsParams) SetKey(key string) {
+	m.Key = key
+	m.require(microsoftTtsParamsFieldKey)
+}
+
+// SetRegion sets the Region field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTtsParams) SetRegion(region string) {
+	m.Region = region
+	m.require(microsoftTtsParamsFieldRegion)
+}
+
+// SetVoiceName sets the VoiceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTtsParams) SetVoiceName(voiceName string) {
+	m.VoiceName = voiceName
+	m.require(microsoftTtsParamsFieldVoiceName)
+}
+
+func (m *MicrosoftTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler MicrosoftTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MicrosoftTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MicrosoftTtsParams) MarshalJSON() ([]byte, error) {
+	type embed MicrosoftTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MicrosoftTtsParams) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// OpenAI Text-to-Speech configuration (Beta).
+var (
+	openAiTtsFieldParams       = big.NewInt(1 << 0)
+	openAiTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type OpenAiTts struct {
+	Params *OpenAiTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (o *OpenAiTts) GetParams() *OpenAiTtsParams {
+	if o == nil {
+		return nil
+	}
+	return o.Params
+}
+
+func (o *OpenAiTts) GetSkipPatterns() []int {
+	if o == nil {
+		return nil
+	}
+	return o.SkipPatterns
+}
+
+func (o *OpenAiTts) GetExtraProperties() map[string]interface{} {
+	return o.extraProperties
+}
+
+func (o *OpenAiTts) require(field *big.Int) {
+	if o.explicitFields == nil {
+		o.explicitFields = big.NewInt(0)
+	}
+	o.explicitFields.Or(o.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiTts) SetParams(params *OpenAiTtsParams) {
+	o.Params = params
+	o.require(openAiTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiTts) SetSkipPatterns(skipPatterns []int) {
+	o.SkipPatterns = skipPatterns
+	o.require(openAiTtsFieldSkipPatterns)
+}
+
+func (o *OpenAiTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler OpenAiTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*o = OpenAiTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *o)
+	if err != nil {
+		return err
+	}
+	o.extraProperties = extraProperties
+	o.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (o *OpenAiTts) MarshalJSON() ([]byte, error) {
+	type embed OpenAiTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*o),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, o.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (o *OpenAiTts) String() string {
+	if len(o.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(o); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", o)
+}
+
+// OpenAI TTS configuration parameters.
+var (
+	openAiTtsParamsFieldKey   = big.NewInt(1 << 0)
+	openAiTtsParamsFieldVoice = big.NewInt(1 << 1)
+	openAiTtsParamsFieldModel = big.NewInt(1 << 2)
+)
+
+type OpenAiTtsParams struct {
+	// OpenAI API key
+	Key string `json:"key" url:"key"`
+	// Voice name (e.g., "alloy", "echo", "fable", "onyx", "nova", "shimmer")
+	Voice string `json:"voice" url:"voice"`
+	// Model name (e.g., "tts-1", "tts-1-hd")
+	Model *string `json:"model,omitempty" url:"model,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (o *OpenAiTtsParams) GetKey() string {
+	if o == nil {
+		return ""
+	}
+	return o.Key
+}
+
+func (o *OpenAiTtsParams) GetVoice() string {
+	if o == nil {
+		return ""
+	}
+	return o.Voice
+}
+
+func (o *OpenAiTtsParams) GetModel() *string {
+	if o == nil {
+		return nil
+	}
+	return o.Model
+}
+
+func (o *OpenAiTtsParams) GetExtraProperties() map[string]interface{} {
+	return o.extraProperties
+}
+
+func (o *OpenAiTtsParams) require(field *big.Int) {
+	if o.explicitFields == nil {
+		o.explicitFields = big.NewInt(0)
+	}
+	o.explicitFields.Or(o.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiTtsParams) SetKey(key string) {
+	o.Key = key
+	o.require(openAiTtsParamsFieldKey)
+}
+
+// SetVoice sets the Voice field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiTtsParams) SetVoice(voice string) {
+	o.Voice = voice
+	o.require(openAiTtsParamsFieldVoice)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiTtsParams) SetModel(model *string) {
+	o.Model = model
+	o.require(openAiTtsParamsFieldModel)
+}
+
+func (o *OpenAiTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler OpenAiTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*o = OpenAiTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *o)
+	if err != nil {
+		return err
+	}
+	o.extraProperties = extraProperties
+	o.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (o *OpenAiTtsParams) MarshalJSON() ([]byte, error) {
+	type embed OpenAiTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*o),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, o.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (o *OpenAiTtsParams) String() string {
+	if len(o.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(o); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", o)
+}
+
+// Rime Text-to-Speech configuration (Beta).
+var (
+	rimeTtsFieldParams       = big.NewInt(1 << 0)
+	rimeTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type RimeTts struct {
+	Params *RimeTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (r *RimeTts) GetParams() *RimeTtsParams {
+	if r == nil {
+		return nil
+	}
+	return r.Params
+}
+
+func (r *RimeTts) GetSkipPatterns() []int {
+	if r == nil {
+		return nil
+	}
+	return r.SkipPatterns
+}
+
+func (r *RimeTts) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
+}
+
+func (r *RimeTts) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RimeTts) SetParams(params *RimeTtsParams) {
+	r.Params = params
+	r.require(rimeTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RimeTts) SetSkipPatterns(skipPatterns []int) {
+	r.SkipPatterns = skipPatterns
+	r.require(rimeTtsFieldSkipPatterns)
+}
+
+func (r *RimeTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler RimeTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*r = RimeTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+	r.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (r *RimeTts) MarshalJSON() ([]byte, error) {
+	type embed RimeTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (r *RimeTts) String() string {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(r); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", r)
+}
+
+// Rime TTS configuration parameters.
+var (
+	rimeTtsParamsFieldKey     = big.NewInt(1 << 0)
+	rimeTtsParamsFieldSpeaker = big.NewInt(1 << 1)
+	rimeTtsParamsFieldModelID = big.NewInt(1 << 2)
+)
+
+type RimeTtsParams struct {
+	// Rime API key
+	Key string `json:"key" url:"key"`
+	// Rime speaker ID
+	Speaker string `json:"speaker" url:"speaker"`
+	// Model ID (optional)
+	ModelID *string `json:"model_id,omitempty" url:"model_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (r *RimeTtsParams) GetKey() string {
+	if r == nil {
+		return ""
+	}
+	return r.Key
+}
+
+func (r *RimeTtsParams) GetSpeaker() string {
+	if r == nil {
+		return ""
+	}
+	return r.Speaker
+}
+
+func (r *RimeTtsParams) GetModelID() *string {
+	if r == nil {
+		return nil
+	}
+	return r.ModelID
+}
+
+func (r *RimeTtsParams) GetExtraProperties() map[string]interface{} {
+	return r.extraProperties
+}
+
+func (r *RimeTtsParams) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RimeTtsParams) SetKey(key string) {
+	r.Key = key
+	r.require(rimeTtsParamsFieldKey)
+}
+
+// SetSpeaker sets the Speaker field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RimeTtsParams) SetSpeaker(speaker string) {
+	r.Speaker = speaker
+	r.require(rimeTtsParamsFieldSpeaker)
+}
+
+// SetModelID sets the ModelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *RimeTtsParams) SetModelID(modelID *string) {
+	r.ModelID = modelID
+	r.require(rimeTtsParamsFieldModelID)
+}
+
+func (r *RimeTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler RimeTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*r = RimeTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
+	if err != nil {
+		return err
+	}
+	r.extraProperties = extraProperties
+	r.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (r *RimeTtsParams) MarshalJSON() ([]byte, error) {
+	type embed RimeTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*r),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (r *RimeTtsParams) String() string {
+	if len(r.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(r); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", r)
+}
+
+type Tts struct {
+	Vendor     string
+	Microsoft  *MicrosoftTts
+	Elevenlabs *ElevenLabsTts
+	Cartesia   *CartesiaTts
+	Openai     *OpenAiTts
+	Humeai     *HumeAiTts
+	Rime       *RimeTts
+	Fishaudio  *FishAudioTts
+	Groq       *GroqTts
+	Google     *GoogleTts
+	Amazon     *AmazonTts
+}
+
+func (t *Tts) GetVendor() string {
+	if t == nil {
+		return ""
+	}
+	return t.Vendor
+}
+
+func (t *Tts) GetMicrosoft() *MicrosoftTts {
+	if t == nil {
+		return nil
+	}
+	return t.Microsoft
+}
+
+func (t *Tts) GetElevenlabs() *ElevenLabsTts {
+	if t == nil {
+		return nil
+	}
+	return t.Elevenlabs
+}
+
+func (t *Tts) GetCartesia() *CartesiaTts {
+	if t == nil {
+		return nil
+	}
+	return t.Cartesia
+}
+
+func (t *Tts) GetOpenai() *OpenAiTts {
+	if t == nil {
+		return nil
+	}
+	return t.Openai
+}
+
+func (t *Tts) GetHumeai() *HumeAiTts {
+	if t == nil {
+		return nil
+	}
+	return t.Humeai
+}
+
+func (t *Tts) GetRime() *RimeTts {
+	if t == nil {
+		return nil
+	}
+	return t.Rime
+}
+
+func (t *Tts) GetFishaudio() *FishAudioTts {
+	if t == nil {
+		return nil
+	}
+	return t.Fishaudio
+}
+
+func (t *Tts) GetGroq() *GroqTts {
+	if t == nil {
+		return nil
+	}
+	return t.Groq
+}
+
+func (t *Tts) GetGoogle() *GoogleTts {
+	if t == nil {
+		return nil
+	}
+	return t.Google
+}
+
+func (t *Tts) GetAmazon() *AmazonTts {
+	if t == nil {
+		return nil
+	}
+	return t.Amazon
+}
+
+func (t *Tts) UnmarshalJSON(data []byte) error {
+	var unmarshaler struct {
+		Vendor string `json:"vendor"`
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	t.Vendor = unmarshaler.Vendor
+	if unmarshaler.Vendor == "" {
+		return fmt.Errorf("%T did not include discriminant vendor", t)
+	}
+	switch unmarshaler.Vendor {
+	case "microsoft":
+		value := new(MicrosoftTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Microsoft = value
+	case "elevenlabs":
+		value := new(ElevenLabsTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Elevenlabs = value
+	case "cartesia":
+		value := new(CartesiaTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Cartesia = value
+	case "openai":
+		value := new(OpenAiTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Openai = value
+	case "humeai":
+		value := new(HumeAiTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Humeai = value
+	case "rime":
+		value := new(RimeTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Rime = value
+	case "fishaudio":
+		value := new(FishAudioTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Fishaudio = value
+	case "groq":
+		value := new(GroqTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Groq = value
+	case "google":
+		value := new(GoogleTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Google = value
+	case "amazon":
+		value := new(AmazonTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Amazon = value
+	}
+	return nil
+}
+
+func (t Tts) MarshalJSON() ([]byte, error) {
+	if err := t.validate(); err != nil {
+		return nil, err
+	}
+	if t.Microsoft != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Microsoft, "vendor", "microsoft")
+	}
+	if t.Elevenlabs != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Elevenlabs, "vendor", "elevenlabs")
+	}
+	if t.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Cartesia, "vendor", "cartesia")
+	}
+	if t.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Openai, "vendor", "openai")
+	}
+	if t.Humeai != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Humeai, "vendor", "humeai")
+	}
+	if t.Rime != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Rime, "vendor", "rime")
+	}
+	if t.Fishaudio != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Fishaudio, "vendor", "fishaudio")
+	}
+	if t.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Groq, "vendor", "groq")
+	}
+	if t.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Google, "vendor", "google")
+	}
+	if t.Amazon != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Amazon, "vendor", "amazon")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+type TtsVisitor interface {
+	VisitMicrosoft(*MicrosoftTts) error
+	VisitElevenlabs(*ElevenLabsTts) error
+	VisitCartesia(*CartesiaTts) error
+	VisitOpenai(*OpenAiTts) error
+	VisitHumeai(*HumeAiTts) error
+	VisitRime(*RimeTts) error
+	VisitFishaudio(*FishAudioTts) error
+	VisitGroq(*GroqTts) error
+	VisitGoogle(*GoogleTts) error
+	VisitAmazon(*AmazonTts) error
+}
+
+func (t *Tts) Accept(visitor TtsVisitor) error {
+	if t.Microsoft != nil {
+		return visitor.VisitMicrosoft(t.Microsoft)
+	}
+	if t.Elevenlabs != nil {
+		return visitor.VisitElevenlabs(t.Elevenlabs)
+	}
+	if t.Cartesia != nil {
+		return visitor.VisitCartesia(t.Cartesia)
+	}
+	if t.Openai != nil {
+		return visitor.VisitOpenai(t.Openai)
+	}
+	if t.Humeai != nil {
+		return visitor.VisitHumeai(t.Humeai)
+	}
+	if t.Rime != nil {
+		return visitor.VisitRime(t.Rime)
+	}
+	if t.Fishaudio != nil {
+		return visitor.VisitFishaudio(t.Fishaudio)
+	}
+	if t.Groq != nil {
+		return visitor.VisitGroq(t.Groq)
+	}
+	if t.Google != nil {
+		return visitor.VisitGoogle(t.Google)
+	}
+	if t.Amazon != nil {
+		return visitor.VisitAmazon(t.Amazon)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *Tts) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.Microsoft != nil {
+		fields = append(fields, "microsoft")
+	}
+	if t.Elevenlabs != nil {
+		fields = append(fields, "elevenlabs")
+	}
+	if t.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if t.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if t.Humeai != nil {
+		fields = append(fields, "humeai")
+	}
+	if t.Rime != nil {
+		fields = append(fields, "rime")
+	}
+	if t.Fishaudio != nil {
+		fields = append(fields, "fishaudio")
+	}
+	if t.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if t.Google != nil {
+		fields = append(fields, "google")
+	}
+	if t.Amazon != nil {
+		fields = append(fields, "amazon")
+	}
+	if len(fields) == 0 {
+		if t.Vendor != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Vendor)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.Vendor != "" {
+		field := fields[0]
+		if t.Vendor != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.Vendor,
+				t,
+			)
+		}
+	}
+	return nil
+}
+
 var (
 	getAgentsResponseFieldMessage = big.NewInt(1 << 0)
 	getAgentsResponseFieldStartTs = big.NewInt(1 << 1)
@@ -1596,8 +4005,7 @@ type StartAgentsRequestProperties struct {
 	AdvancedFeatures *StartAgentsRequestPropertiesAdvancedFeatures `json:"advanced_features,omitempty" url:"advanced_features,omitempty"`
 	// Automatic Speech Recognition (ASR) configuration.
 	Asr *StartAgentsRequestPropertiesAsr `json:"asr,omitempty" url:"asr,omitempty"`
-	// Text-to-speech (TTS) module configuration.
-	Tts *StartAgentsRequestPropertiesTts `json:"tts" url:"tts"`
+	Tts *Tts                             `json:"tts" url:"tts"`
 	// Large language model (LLM) configuration.
 	Llm *StartAgentsRequestPropertiesLlm `json:"llm" url:"llm"`
 	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
@@ -1674,7 +4082,7 @@ func (s *StartAgentsRequestProperties) GetAsr() *StartAgentsRequestPropertiesAsr
 	return s.Asr
 }
 
-func (s *StartAgentsRequestProperties) GetTts() *StartAgentsRequestPropertiesTts {
+func (s *StartAgentsRequestProperties) GetTts() *Tts {
 	if s == nil {
 		return nil
 	}
@@ -1792,7 +4200,7 @@ func (s *StartAgentsRequestProperties) SetAsr(asr *StartAgentsRequestPropertiesA
 
 // SetTts sets the Tts field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestProperties) SetTts(tts *StartAgentsRequestPropertiesTts) {
+func (s *StartAgentsRequestProperties) SetTts(tts *Tts) {
 	s.Tts = tts
 	s.require(startAgentsRequestPropertiesFieldTts)
 }
@@ -3408,196 +5816,6 @@ func NewStartAgentsRequestPropertiesSalSalModeFromString(s string) (StartAgentsR
 }
 
 func (s StartAgentsRequestPropertiesSalSalMode) Ptr() *StartAgentsRequestPropertiesSalSalMode {
-	return &s
-}
-
-// Text-to-speech (TTS) module configuration.
-var (
-	startAgentsRequestPropertiesTtsFieldVendor       = big.NewInt(1 << 0)
-	startAgentsRequestPropertiesTtsFieldParams       = big.NewInt(1 << 1)
-	startAgentsRequestPropertiesTtsFieldSkipPatterns = big.NewInt(1 << 2)
-)
-
-type StartAgentsRequestPropertiesTts struct {
-	// TTS provider:
-	// - `microsoft`: Microsoft Azure
-	// - `elevenlabs`: ElevenLabs
-	// - `cartesia`: Cartesia (Beta)
-	// - `openai`: OpenAI (Beta)
-	// - `humeai`: Hume AI (Beta)
-	// - `rime`: Rime (Beta)
-	// - `fishaudio`: Fish Audio (Beta)
-	// - `groq`: Groq (Beta)
-	// - `google`: Google (Beta)
-	// - `amazon`: Amazon Polly (Beta)
-	Vendor StartAgentsRequestPropertiesTtsVendor `json:"vendor" url:"vendor"`
-	// The configuration parameters for the TTS vendor. See [TTS Overview](https://docs.agora.io/en/conversational-ai/models/tts/overview) for details.
-	Params map[string]interface{} `json:"params" url:"params"`
-	// Controls whether the TTS module skips bracketed content when reading LLM response text. Enable this feature by specifying one or more values:
-	// - `1`: Skip content in Chinese parentheses （）
-	// - `2`: Skip content in Chinese square brackets 【】
-	// - `3`: Skip content in parentheses ( )
-	// - `4`: Skip content in square brackets [ ]
-	// - `5`: Skip content in curly braces { }
-	//
-	// > - **Nested brackets**: When input text contains nested brackets and multiple bracket types are configured to be skipped, the system processes only the outermost brackets. The system matches from the beginning of the text and skips the first outermost bracket pair that meets the skip rule, including all nested content.
-	// > - **Agent memory**: The agent's short-term memory always contains the complete, unfiltered LLM text, regardless of live captioning settings.
-	// > - **Real-time transcript**: When enabled, transcript excludes filtered content during TTS playback but restores the complete text after each sentence finishes.
-	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (s *StartAgentsRequestPropertiesTts) GetVendor() StartAgentsRequestPropertiesTtsVendor {
-	if s == nil {
-		return ""
-	}
-	return s.Vendor
-}
-
-func (s *StartAgentsRequestPropertiesTts) GetParams() map[string]interface{} {
-	if s == nil {
-		return nil
-	}
-	return s.Params
-}
-
-func (s *StartAgentsRequestPropertiesTts) GetSkipPatterns() []int {
-	if s == nil {
-		return nil
-	}
-	return s.SkipPatterns
-}
-
-func (s *StartAgentsRequestPropertiesTts) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
-}
-
-func (s *StartAgentsRequestPropertiesTts) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
-	}
-	s.explicitFields.Or(s.explicitFields, field)
-}
-
-// SetVendor sets the Vendor field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesTts) SetVendor(vendor_ StartAgentsRequestPropertiesTtsVendor) {
-	s.Vendor = vendor_
-	s.require(startAgentsRequestPropertiesTtsFieldVendor)
-}
-
-// SetParams sets the Params field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesTts) SetParams(params map[string]interface{}) {
-	s.Params = params
-	s.require(startAgentsRequestPropertiesTtsFieldParams)
-}
-
-// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesTts) SetSkipPatterns(skipPatterns []int) {
-	s.SkipPatterns = skipPatterns
-	s.require(startAgentsRequestPropertiesTtsFieldSkipPatterns)
-}
-
-func (s *StartAgentsRequestPropertiesTts) UnmarshalJSON(data []byte) error {
-	type unmarshaler StartAgentsRequestPropertiesTts
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*s = StartAgentsRequestPropertiesTts(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
-	if err != nil {
-		return err
-	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (s *StartAgentsRequestPropertiesTts) MarshalJSON() ([]byte, error) {
-	type embed StartAgentsRequestPropertiesTts
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*s),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (s *StartAgentsRequestPropertiesTts) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(s); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", s)
-}
-
-// TTS provider:
-// - `microsoft`: Microsoft Azure
-// - `elevenlabs`: ElevenLabs
-// - `cartesia`: Cartesia (Beta)
-// - `openai`: OpenAI (Beta)
-// - `humeai`: Hume AI (Beta)
-// - `rime`: Rime (Beta)
-// - `fishaudio`: Fish Audio (Beta)
-// - `groq`: Groq (Beta)
-// - `google`: Google (Beta)
-// - `amazon`: Amazon Polly (Beta)
-type StartAgentsRequestPropertiesTtsVendor string
-
-const (
-	StartAgentsRequestPropertiesTtsVendorMicrosoft  StartAgentsRequestPropertiesTtsVendor = "microsoft"
-	StartAgentsRequestPropertiesTtsVendorElevenlabs StartAgentsRequestPropertiesTtsVendor = "elevenlabs"
-	StartAgentsRequestPropertiesTtsVendorCartesia   StartAgentsRequestPropertiesTtsVendor = "cartesia"
-	StartAgentsRequestPropertiesTtsVendorOpenai     StartAgentsRequestPropertiesTtsVendor = "openai"
-	StartAgentsRequestPropertiesTtsVendorHumeai     StartAgentsRequestPropertiesTtsVendor = "humeai"
-	StartAgentsRequestPropertiesTtsVendorRime       StartAgentsRequestPropertiesTtsVendor = "rime"
-	StartAgentsRequestPropertiesTtsVendorFishaudio  StartAgentsRequestPropertiesTtsVendor = "fishaudio"
-	StartAgentsRequestPropertiesTtsVendorGroq       StartAgentsRequestPropertiesTtsVendor = "groq"
-	StartAgentsRequestPropertiesTtsVendorGoogle     StartAgentsRequestPropertiesTtsVendor = "google"
-	StartAgentsRequestPropertiesTtsVendorAmazon     StartAgentsRequestPropertiesTtsVendor = "amazon"
-)
-
-func NewStartAgentsRequestPropertiesTtsVendorFromString(s string) (StartAgentsRequestPropertiesTtsVendor, error) {
-	switch s {
-	case "microsoft":
-		return StartAgentsRequestPropertiesTtsVendorMicrosoft, nil
-	case "elevenlabs":
-		return StartAgentsRequestPropertiesTtsVendorElevenlabs, nil
-	case "cartesia":
-		return StartAgentsRequestPropertiesTtsVendorCartesia, nil
-	case "openai":
-		return StartAgentsRequestPropertiesTtsVendorOpenai, nil
-	case "humeai":
-		return StartAgentsRequestPropertiesTtsVendorHumeai, nil
-	case "rime":
-		return StartAgentsRequestPropertiesTtsVendorRime, nil
-	case "fishaudio":
-		return StartAgentsRequestPropertiesTtsVendorFishaudio, nil
-	case "groq":
-		return StartAgentsRequestPropertiesTtsVendorGroq, nil
-	case "google":
-		return StartAgentsRequestPropertiesTtsVendorGoogle, nil
-	case "amazon":
-		return StartAgentsRequestPropertiesTtsVendorAmazon, nil
-	}
-	var t StartAgentsRequestPropertiesTtsVendor
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (s StartAgentsRequestPropertiesTtsVendor) Ptr() *StartAgentsRequestPropertiesTtsVendor {
 	return &s
 }
 

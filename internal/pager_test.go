@@ -123,7 +123,7 @@ func TestPager(t *testing.T) {
 						Response: request.Response,
 					}
 				},
-				func(response *TestPageResponse) *core.PageResponse[*string, *TestPageItem, *TestPageResponse] {
+				func(response *TestPageResponse) *core.PageResponse[*string, *TestPageItem] {
 					var items []*TestPageItem
 					for _, item := range response.Items {
 						itemCopy := item
@@ -133,11 +133,10 @@ func TestPager(t *testing.T) {
 					if response.Next != "" {
 						next = &response.Next
 					}
-					return &core.PageResponse[*string, *TestPageItem, *TestPageResponse]{
-						Results:  items,
-						Response: response,
-						Next:     next,
-						Done:     response.Next == "",
+					return &core.PageResponse[*string, *TestPageItem]{
+						Results: items,
+						Next:    next,
+						Done:    response.Next == "",
 					}
 				},
 			)
@@ -148,12 +147,6 @@ func TestPager(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
-
-			require.NotNil(t, page.Response)
-			if len(tt.givePages) > 0 {
-				assert.Equal(t, tt.givePages[0].Items, page.Response.Items)
-				assert.Equal(t, tt.givePages[0].Next, page.Response.Next)
-			}
 
 			var items []TestPageItem
 			iter := page.Iterator()

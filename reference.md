@@ -50,12 +50,13 @@ request := &Agora.StartAgentsRequest{
                     "en-US",
                 ),
             },
-            Tts: &Agora.StartAgentsRequestPropertiesTts{
-                Vendor: Agora.StartAgentsRequestPropertiesTtsVendorMicrosoft,
-                Params: map[string]any{
-                    "key": "<your_tts_api_key>",
-                    "region": "eastus",
-                    "voice_name": "en-US-AndrewMultilingualNeural",
+            Tts: &Agora.Tts{
+                Microsoft: &Agora.MicrosoftTts{
+                    Params: &Agora.MicrosoftTtsParams{
+                        Key: "key",
+                        Region: "region",
+                        VoiceName: "voice_name",
+                    },
                 },
             },
             Llm: &Agora.StartAgentsRequestPropertiesLlm{
