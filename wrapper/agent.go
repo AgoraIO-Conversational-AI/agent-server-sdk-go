@@ -1,55 +1,46 @@
 package wrapper
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
 
 	Agora "github.com/fern-demo/agoraio-go-sdk"
+	"github.com/fern-demo/agoraio-go-sdk/wrapper/vendors"
 )
 
-var vendorURLs = map[string]string{
-	"openai":    "https://api.openai.com/v1/chat/completions",
-	"anthropic": "https://api.anthropic.com/v1/messages",
-	"azure":     "https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT/chat/completions",
-	"gemini":    "https://generativelanguage.googleapis.com/v1beta/models",
+func mapToStruct(m map[string]interface{}, target interface{}) error {
+	data, err := json.Marshal(m)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config map: %w", err)
+	}
+	if err := json.Unmarshal(data, target); err != nil {
+		return fmt.Errorf("failed to unmarshal config into struct: %w", err)
+	}
+	return nil
 }
 
-var sttVendorMap = map[string]Agora.StartAgentsRequestPropertiesAsrVendor{
-	"ares":        "ares",
-	"microsoft":   "microsoft",
-	"deepgram":    "deepgram",
-	"openai":      "openai",
-	"google":      "google",
-	"amazon":      "amazon",
-	"assemblyai":  "assemblyai",
-	"speechmatics": "speechmatics",
-}
-
-type LlmConfig = Agora.StartAgentsRequestPropertiesLlm
-type SttConfig = Agora.StartAgentsRequestPropertiesAsr
-type TtsConfig = Agora.Tts
-type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
 type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal
-type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
 
 type Agent struct {
-	name             string
-	instructions     string
-	greeting         string
-	failureMessage   string
-	maxHistory       *int
-	llm              *LlmConfig
-	tts              *TtsConfig
-	stt              *SttConfig
-	mllm             *MllmConfig
-	turnDetection    *TurnDetectionConfig
-	sal              *SalConfig
-	avatar           *AvatarConfig
-	advancedFeatures *AdvancedFeatures
-	parameters       *SessionParams
+	name                    string
+	instructions            string
+	greeting                string
+	failureMessage          string
+	maxHistory              *int
+	llm                     map[string]interface{}
+	tts                     map[string]interface{}
+	stt                     map[string]interface{}
+	mllm                    map[string]interface{}
+	ttsSampleRate           *vendors.SampleRate
+	avatar                  map[string]interface{}
+	avatarRequiredSampleRate *vendors.SampleRate
+	turnDetection           *TurnDetectionConfig
+	sal                     *SalConfig
+	advancedFeatures        *AdvancedFeatures
+	parameters              *SessionParams
 }
 
 type AgentOption func(*Agent)
@@ -92,42 +83,6 @@ func WithMaxHistory(n int) AgentOption {
 	}
 }
 
-func WithLlmConfig(llm *LlmConfig) AgentOption {
-	return func(a *Agent) {
-		a.llm = llm
-	}
-}
-
-func WithLlmShorthand(shorthand string) AgentOption {
-	return func(a *Agent) {
-		a.llm = parseLlmShorthand(shorthand)
-	}
-}
-
-func WithTtsConfig(tts *TtsConfig) AgentOption {
-	return func(a *Agent) {
-		a.tts = tts
-	}
-}
-
-func WithSttConfig(stt *SttConfig) AgentOption {
-	return func(a *Agent) {
-		a.stt = stt
-	}
-}
-
-func WithSttShorthand(shorthand string) AgentOption {
-	return func(a *Agent) {
-		a.stt = parseSttShorthand(shorthand)
-	}
-}
-
-func WithMllmConfig(mllm *MllmConfig) AgentOption {
-	return func(a *Agent) {
-		a.mllm = mllm
-	}
-}
-
 func WithTurnDetectionConfig(td *TurnDetectionConfig) AgentOption {
 	return func(a *Agent) {
 		a.turnDetection = td
@@ -137,12 +92,6 @@ func WithTurnDetectionConfig(td *TurnDetectionConfig) AgentOption {
 func WithSalConfig(sal *SalConfig) AgentOption {
 	return func(a *Agent) {
 		a.sal = sal
-	}
-}
-
-func WithAvatarConfig(avatar *AvatarConfig) AgentOption {
-	return func(a *Agent) {
-		a.avatar = avatar
 	}
 }
 
@@ -158,73 +107,79 @@ func WithParameters(params *SessionParams) AgentOption {
 	}
 }
 
-func (a *Agent) SetLlm(llm *LlmConfig) *Agent {
+func (a *Agent) WithLlm(vendor vendors.LLM) *Agent {
 	clone := a.clone()
-	clone.llm = llm
+	clone.llm = vendor.ToConfig()
 	return clone
 }
 
-func (a *Agent) SetLlmShorthand(shorthand string) *Agent {
+func (a *Agent) WithTts(vendor vendors.TTS) *Agent {
 	clone := a.clone()
-	clone.llm = parseLlmShorthand(shorthand)
+	clone.tts = vendor.ToConfig()
+	clone.ttsSampleRate = vendor.GetSampleRate()
 	return clone
 }
 
-func (a *Agent) SetTts(tts *TtsConfig) *Agent {
+func (a *Agent) WithStt(vendor vendors.STT) *Agent {
 	clone := a.clone()
-	clone.tts = tts
+	clone.stt = vendor.ToConfig()
 	return clone
 }
 
-func (a *Agent) SetStt(stt *SttConfig) *Agent {
+func (a *Agent) WithMllm(vendor vendors.MLLM) *Agent {
 	clone := a.clone()
-	clone.stt = stt
+	clone.mllm = vendor.ToConfig()
 	return clone
 }
 
-func (a *Agent) SetSttShorthand(shorthand string) *Agent {
+func (a *Agent) WithAvatar(vendor vendors.Avatar) *Agent {
+	requiredSR := vendor.RequiredSampleRate()
+	if a.ttsSampleRate != nil && *a.ttsSampleRate != requiredSR {
+		panic(fmt.Sprintf(
+			"Avatar requires TTS sample rate of %d Hz, but TTS is configured with %d Hz. "+
+				"Please update your TTS sample_rate to %d.",
+			int(requiredSR), int(*a.ttsSampleRate), int(requiredSR),
+		))
+	}
 	clone := a.clone()
-	clone.stt = parseSttShorthand(shorthand)
+	clone.avatar = vendor.ToConfig()
+	clone.avatarRequiredSampleRate = &requiredSR
 	return clone
 }
 
-func (a *Agent) SetMllm(mllm *MllmConfig) *Agent {
-	clone := a.clone()
-	clone.mllm = mllm
-	return clone
-}
-
-func (a *Agent) SetTurnDetection(td *TurnDetectionConfig) *Agent {
+func (a *Agent) WithTurnDetection(td *TurnDetectionConfig) *Agent {
 	clone := a.clone()
 	clone.turnDetection = td
 	return clone
 }
 
-func (a *Agent) SetInstructions(instructions string) *Agent {
+func (a *Agent) WithInstructions(instructions string) *Agent {
 	clone := a.clone()
 	clone.instructions = instructions
 	return clone
 }
 
-func (a *Agent) SetGreeting(greeting string) *Agent {
+func (a *Agent) WithGreeting(greeting string) *Agent {
 	clone := a.clone()
 	clone.greeting = greeting
 	return clone
 }
 
-func (a *Agent) SetName(name string) *Agent {
+func (a *Agent) WithName(name string) *Agent {
 	clone := a.clone()
 	clone.name = name
 	return clone
 }
 
-func (a *Agent) Name() string           { return a.name }
-func (a *Agent) Instructions() string    { return a.instructions }
-func (a *Agent) Greeting() string        { return a.greeting }
-func (a *Agent) Llm() *LlmConfig        { return a.llm }
-func (a *Agent) Tts() *TtsConfig        { return a.tts }
-func (a *Agent) Stt() *SttConfig        { return a.stt }
-func (a *Agent) Mllm() *MllmConfig      { return a.mllm }
+func (a *Agent) Name() string                        { return a.name }
+func (a *Agent) Instructions() string                 { return a.instructions }
+func (a *Agent) Greeting() string                     { return a.greeting }
+func (a *Agent) LlmConfig() map[string]interface{}    { return a.llm }
+func (a *Agent) TtsConfig() map[string]interface{}    { return a.tts }
+func (a *Agent) SttConfig() map[string]interface{}    { return a.stt }
+func (a *Agent) MllmConfig() map[string]interface{}   { return a.mllm }
+func (a *Agent) TtsSampleRate() *vendors.SampleRate   { return a.ttsSampleRate }
+func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate { return a.avatarRequiredSampleRate }
 
 func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsRequestProperties, error) {
 	token := opts.Token
@@ -263,7 +218,11 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		props.EnableStringUID = opts.EnableStringUID
 	}
 	if a.mllm != nil {
-		props.Mllm = a.mllm
+		var mllm Agora.StartAgentsRequestPropertiesMllm
+		if err := mapToStruct(a.mllm, &mllm); err != nil {
+			return nil, fmt.Errorf("failed to convert MLLM config: %w", err)
+		}
+		props.Mllm = &mllm
 	}
 	if a.turnDetection != nil {
 		props.TurnDetection = a.turnDetection
@@ -272,7 +231,11 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		props.Sal = a.sal
 	}
 	if a.avatar != nil {
-		props.Avatar = a.avatar
+		var avatar Agora.StartAgentsRequestPropertiesAvatar
+		if err := mapToStruct(a.avatar, &avatar); err != nil {
+			return nil, fmt.Errorf("failed to convert avatar config: %w", err)
+		}
+		props.Avatar = &avatar
 	}
 	if a.advancedFeatures != nil {
 		props.AdvancedFeatures = a.advancedFeatures
@@ -287,32 +250,55 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 	}
 
 	if a.tts == nil {
-		return nil, fmt.Errorf("TTS configuration is required; use WithTtsConfig() to set it")
+		return nil, fmt.Errorf("TTS configuration is required; use WithTts() to set it")
 	}
 	if a.llm == nil {
-		return nil, fmt.Errorf("LLM configuration is required; use WithLlmConfig() or WithLlmShorthand() to set it")
+		return nil, fmt.Errorf("LLM configuration is required; use WithLlm() to set it")
 	}
 
-	llm := *a.llm
+	llmConfig := make(map[string]interface{})
+	for k, v := range a.llm {
+		llmConfig[k] = v
+	}
 	if a.instructions != "" {
-		llm.SystemMessages = []map[string]interface{}{
+		llmConfig["system_messages"] = []map[string]interface{}{
 			{"role": "system", "content": a.instructions},
 		}
 	}
-	if a.greeting != "" && llm.GreetingMessage == nil {
-		llm.GreetingMessage = &a.greeting
+	if a.greeting != "" {
+		if _, exists := llmConfig["greeting_message"]; !exists {
+			llmConfig["greeting_message"] = a.greeting
+		}
 	}
-	if a.failureMessage != "" && llm.FailureMessage == nil {
-		llm.FailureMessage = &a.failureMessage
+	if a.failureMessage != "" {
+		if _, exists := llmConfig["failure_message"]; !exists {
+			llmConfig["failure_message"] = a.failureMessage
+		}
 	}
-	if a.maxHistory != nil && llm.MaxHistory == nil {
-		llm.MaxHistory = a.maxHistory
+	if a.maxHistory != nil {
+		if _, exists := llmConfig["max_history"]; !exists {
+			llmConfig["max_history"] = *a.maxHistory
+		}
 	}
 
+	var llm Agora.StartAgentsRequestPropertiesLlm
+	if err := mapToStruct(llmConfig, &llm); err != nil {
+		return nil, fmt.Errorf("failed to convert LLM config: %w", err)
+	}
 	props.Llm = &llm
-	props.Tts = a.tts
+
+	var tts Agora.Tts
+	if err := mapToStruct(a.tts, &tts); err != nil {
+		return nil, fmt.Errorf("failed to convert TTS config: %w", err)
+	}
+	props.Tts = &tts
+
 	if a.stt != nil {
-		props.Asr = a.stt
+		var stt Agora.StartAgentsRequestPropertiesAsr
+		if err := mapToStruct(a.stt, &stt); err != nil {
+			return nil, fmt.Errorf("failed to convert STT config: %w", err)
+		}
+		props.Asr = &stt
 	}
 
 	return props, nil
@@ -334,61 +320,4 @@ type ToPropertiesOptions struct {
 func (a *Agent) clone() *Agent {
 	clone := *a
 	return &clone
-}
-
-func parseLlmShorthand(shorthand string) *LlmConfig {
-	parts := strings.SplitN(shorthand, "/", 2)
-	vendor := strings.ToLower(parts[0])
-	var model string
-	if len(parts) > 1 {
-		model = parts[1]
-	}
-
-	url, ok := vendorURLs[vendor]
-	if !ok {
-		url = vendorURLs["openai"]
-	}
-
-	var style *Agora.StartAgentsRequestPropertiesLlmStyle
-	switch vendor {
-	case "gemini":
-		s := Agora.StartAgentsRequestPropertiesLlmStyle("gemini")
-		style = &s
-	case "anthropic":
-		s := Agora.StartAgentsRequestPropertiesLlmStyle("anthropic")
-		style = &s
-	default:
-		s := Agora.StartAgentsRequestPropertiesLlmStyle("openai")
-		style = &s
-	}
-
-	llm := &LlmConfig{
-		URL:   url,
-		Style: style,
-	}
-
-	if vendor == "azure" {
-		v := "azure"
-		llm.Vendor = &v
-	}
-
-	if model != "" {
-		llm.Params = map[string]interface{}{"model": model}
-	}
-
-	return llm
-}
-
-func parseSttShorthand(shorthand string) *SttConfig {
-	parts := strings.SplitN(shorthand, "/", 2)
-	vendor := strings.ToLower(parts[0])
-
-	v, ok := sttVendorMap[vendor]
-	if !ok {
-		v = "deepgram"
-	}
-
-	return &SttConfig{
-		Vendor: &v,
-	}
 }
