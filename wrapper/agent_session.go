@@ -110,16 +110,13 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("cannot start session in %s state", s.status)
 	}
 
-	if s.agent.avatar != nil {
-		vendor := ""
-		if s.agent.avatar.Vendor != nil {
-			vendor = string(*s.agent.avatar.Vendor)
-		}
-		if IsHeyGenAvatar(vendor) || IsAkoolAvatar(vendor) {
-			if err := ValidateAvatarConfig(vendor, s.agent.avatar.Params); err != nil {
-				s.mu.Unlock()
-				return "", err
-			}
+	if s.agent.avatarRequiredSampleRate != nil && s.agent.ttsSampleRate != nil {
+		if *s.agent.ttsSampleRate != *s.agent.avatarRequiredSampleRate {
+			s.mu.Unlock()
+			return "", fmt.Errorf(
+				"avatar requires TTS sample rate of %d Hz, but TTS is configured with %d Hz",
+				int(*s.agent.avatarRequiredSampleRate), int(*s.agent.ttsSampleRate),
+			)
 		}
 	}
 
