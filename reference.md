@@ -40,11 +40,6 @@ request := &Agora.StartAgentsRequest{
             IdleTimeout: Agora.Int(
                 120,
             ),
-            AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
-                EnableAivad: Agora.Bool(
-                    true,
-                ),
-            },
             Asr: &Agora.StartAgentsRequestPropertiesAsr{
                 Language: Agora.String(
                     "en-US",
@@ -894,8 +889,8 @@ request := &Agora.CallTelephonyRequest{
         Sip: &Agora.CallTelephonyRequestSip{
             ToNumber: "+19876543210",
             FromNumber: "+11234567890",
-            SipRtcUID: "100",
-            SipRtcToken: "<agora_sip_rtc_token>",
+            RtcUID: "100",
+            RtcToken: "<agora_sip_rtc_token>",
         },
         PipelineID: Agora.String(
             "fzufjlweixxxxnlp",
@@ -904,6 +899,9 @@ request := &Agora.CallTelephonyRequest{
             Channel: "<agora_channel>",
             Token: "<agora_channel_token>",
             AgentRtcUID: "111",
+            RemoteRtcUIDs: []string{
+                "100",
+            },
         },
     }
 client.Telephony.Call(
@@ -960,7 +958,7 @@ client.Telephony.Call(
 **properties:** `*Agora.CallTelephonyRequestProperties` 
 
 Call attribute configuration. The content of this field varies depending on the invocation method:
-- **Using pipeline ID**: Simply pass in `channel`, `token`, and `agent_rtc_uid`.
+- **Using pipeline ID**: Simply pass in `channel`, `token`, `agent_rtc_uid`, and `remote_rtc_uids`.
 - **Using complete configuration**: Pass in the complete parameters of the [Start a conversational AI agent](https://docs.agora.io/en/conversational-ai/rest-api/agent/join) `properties`, including all required fields such as `channel`, `token`, `agent_rtc_uid`, `remote_rtc_uids`, `tts`, and `llm`.
     
 </dd>
@@ -1365,7 +1363,8 @@ client.PhoneNumbers.Get(
 
 Remove an imported phone number from the system.
 
-Note: This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted. After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
+After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
+> This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted.
 </dd>
 </dl>
 </dd>

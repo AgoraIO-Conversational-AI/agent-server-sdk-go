@@ -3,7 +3,7 @@
 package option
 
 import (
-	core "github.com/fern-demo/agoraio-go-sdk/core"
+	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
 	http "net/http"
 	url "net/url"
 )
@@ -68,5 +68,12 @@ func WithBasicAuth(username, password string) *core.BasicAuthOption {
 	return &core.BasicAuthOption{
 		Username: username,
 		Password: password,
+	}
+}
+
+// WithAuthorization sets the authorization request header.
+func WithAuthorization(authorization string) *core.AuthorizationOption {
+	return &core.AuthorizationOption{
+		Authorization: authorization,
 	}
 }

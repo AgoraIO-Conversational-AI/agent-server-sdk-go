@@ -4,6 +4,7 @@ package core
 
 import (
 	base64 "encoding/base64"
+	fmt "fmt"
 	http "net/http"
 	url "net/url"
 )
@@ -26,6 +27,7 @@ type RequestOptions struct {
 	MaxAttempts     uint
 	Username        string
 	Password        string
+	Authorization   string
 }
 
 // NewRequestOptions returns a new *RequestOptions value.
@@ -51,14 +53,16 @@ func (r *RequestOptions) ToHeader() http.Header {
 	if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
+	header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
 	return header
 }
 
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/fern-demo/agoraio-go-sdk")
-	headers.Set("X-Fern-SDK-Version", "v0.0.13")
+	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk")
+	headers.Set("X-Fern-SDK-Version", "v0.1.0")
+	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/0.1.0")
 	return headers
 }
 
@@ -125,4 +129,13 @@ type BasicAuthOption struct {
 func (b *BasicAuthOption) applyRequestOptions(opts *RequestOptions) {
 	opts.Username = b.Username
 	opts.Password = b.Password
+}
+
+// AuthorizationOption implements the RequestOption interface.
+type AuthorizationOption struct {
+	Authorization string
+}
+
+func (a *AuthorizationOption) applyRequestOptions(opts *RequestOptions) {
+	opts.Authorization = a.Authorization
 }

@@ -6,9 +6,9 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	client "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
+	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
 	testing "testing"
@@ -97,10 +97,10 @@ func TestTelephonyCallWithWireMock(
 		Appid: "appid",
 		Name:  "customer_service",
 		Sip: &Agora.CallTelephonyRequestSip{
-			ToNumber:    "+19876543210",
-			FromNumber:  "+11234567890",
-			SipRtcUID:   "100",
-			SipRtcToken: "<agora_sip_rtc_token>",
+			ToNumber:   "+19876543210",
+			FromNumber: "+11234567890",
+			RtcUID:     "100",
+			RtcToken:   "<agora_sip_rtc_token>",
 		},
 		PipelineID: Agora.String(
 			"fzufjlweixxxxnlp",
@@ -109,6 +109,9 @@ func TestTelephonyCallWithWireMock(
 			Channel:     "<agora_channel>",
 			Token:       "<agora_channel_token>",
 			AgentRtcUID: "111",
+			RemoteRtcUIDs: []string{
+				"100",
+			},
 		},
 	}
 	_, invocationErr := client.Telephony.Call(

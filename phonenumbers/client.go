@@ -4,10 +4,10 @@ package phonenumbers
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
+	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 )
 
 type Client struct {
@@ -83,7 +83,8 @@ func (c *Client) Get(
 
 // Remove an imported phone number from the system.
 //
-// Note: This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted. After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
+// After calling this endpoint, the number stops receiving calls routed through this system. To delete the number from the service provider, remove it in the service provider's console.
+// > This operation only removes the number configuration from the Agora system; the number stored with the phone service provider is not deleted.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *Agora.DeletePhoneNumbersRequest,

@@ -5,7 +5,7 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
 	big "math/big"
 )
 
@@ -27,7 +27,7 @@ type CallTelephonyRequest struct {
 	// The unique ID of a published project in AI Studio.
 	PipelineID *string `json:"pipeline_id,omitempty" url:"-"`
 	// Call attribute configuration. The content of this field varies depending on the invocation method:
-	// - **Using pipeline ID**: Simply pass in `channel`, `token`, and `agent_rtc_uid`.
+	// - **Using pipeline ID**: Simply pass in `channel`, `token`, `agent_rtc_uid`, and `remote_rtc_uids`.
 	// - **Using complete configuration**: Pass in the complete parameters of the [Start a conversational AI agent](https://docs.agora.io/en/conversational-ai/rest-api/agent/join) `properties`, including all required fields such as `channel`, `token`, `agent_rtc_uid`, `remote_rtc_uids`, `tts`, and `llm`.
 	Properties *CallTelephonyRequestProperties `json:"properties,omitempty" url:"-"`
 
@@ -240,12 +240,13 @@ func (l *ListTelephonyRequest) SetCursor(cursor *string) {
 }
 
 // Call attribute configuration. The content of this field varies depending on the invocation method:
-// - **Using pipeline ID**: Simply pass in `channel`, `token`, and `agent_rtc_uid`.
+// - **Using pipeline ID**: Simply pass in `channel`, `token`, `agent_rtc_uid`, and `remote_rtc_uids`.
 // - **Using complete configuration**: Pass in the complete parameters of the [Start a conversational AI agent](https://docs.agora.io/en/conversational-ai/rest-api/agent/join) `properties`, including all required fields such as `channel`, `token`, `agent_rtc_uid`, `remote_rtc_uids`, `tts`, and `llm`.
 var (
-	callTelephonyRequestPropertiesFieldChannel     = big.NewInt(1 << 0)
-	callTelephonyRequestPropertiesFieldToken       = big.NewInt(1 << 1)
-	callTelephonyRequestPropertiesFieldAgentRtcUID = big.NewInt(1 << 2)
+	callTelephonyRequestPropertiesFieldChannel       = big.NewInt(1 << 0)
+	callTelephonyRequestPropertiesFieldToken         = big.NewInt(1 << 1)
+	callTelephonyRequestPropertiesFieldAgentRtcUID   = big.NewInt(1 << 2)
+	callTelephonyRequestPropertiesFieldRemoteRtcUIDs = big.NewInt(1 << 3)
 )
 
 type CallTelephonyRequestProperties struct {
@@ -255,6 +256,8 @@ type CallTelephonyRequestProperties struct {
 	Token string `json:"token" url:"token"`
 	// The agent's user ID in the RTC channel.
 	AgentRtcUID string `json:"agent_rtc_uid" url:"agent_rtc_uid"`
+	// A list of RTC user IDs. When using pipeline ID, this should contain the SIP gateway UID.
+	RemoteRtcUIDs []string `json:"remote_rtc_uids,omitempty" url:"remote_rtc_uids,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -283,6 +286,13 @@ func (c *CallTelephonyRequestProperties) GetAgentRtcUID() string {
 		return ""
 	}
 	return c.AgentRtcUID
+}
+
+func (c *CallTelephonyRequestProperties) GetRemoteRtcUIDs() []string {
+	if c == nil {
+		return nil
+	}
+	return c.RemoteRtcUIDs
 }
 
 func (c *CallTelephonyRequestProperties) GetExtraProperties() map[string]interface{} {
@@ -315,6 +325,13 @@ func (c *CallTelephonyRequestProperties) SetToken(token string) {
 func (c *CallTelephonyRequestProperties) SetAgentRtcUID(agentRtcUID string) {
 	c.AgentRtcUID = agentRtcUID
 	c.require(callTelephonyRequestPropertiesFieldAgentRtcUID)
+}
+
+// SetRemoteRtcUIDs sets the RemoteRtcUIDs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallTelephonyRequestProperties) SetRemoteRtcUIDs(remoteRtcUIDs []string) {
+	c.RemoteRtcUIDs = remoteRtcUIDs
+	c.require(callTelephonyRequestPropertiesFieldRemoteRtcUIDs)
 }
 
 func (c *CallTelephonyRequestProperties) UnmarshalJSON(data []byte) error {
@@ -362,10 +379,10 @@ func (c *CallTelephonyRequestProperties) String() string {
 
 // SIP (Session Initiation Protocol) call configuration object.
 var (
-	callTelephonyRequestSipFieldToNumber    = big.NewInt(1 << 0)
-	callTelephonyRequestSipFieldFromNumber  = big.NewInt(1 << 1)
-	callTelephonyRequestSipFieldSipRtcUID   = big.NewInt(1 << 2)
-	callTelephonyRequestSipFieldSipRtcToken = big.NewInt(1 << 3)
+	callTelephonyRequestSipFieldToNumber   = big.NewInt(1 << 0)
+	callTelephonyRequestSipFieldFromNumber = big.NewInt(1 << 1)
+	callTelephonyRequestSipFieldRtcUID     = big.NewInt(1 << 2)
+	callTelephonyRequestSipFieldRtcToken   = big.NewInt(1 << 3)
 )
 
 type CallTelephonyRequestSip struct {
@@ -374,9 +391,9 @@ type CallTelephonyRequestSip struct {
 	// Caller ID (the number that initiated the call), in E.164 format.
 	FromNumber string `json:"from_number" url:"from_number"`
 	// The RTC UID used by the SIP gateway.
-	SipRtcUID string `json:"sip_rtc_uid" url:"sip_rtc_uid"`
+	RtcUID string `json:"rtc_uid" url:"rtc_uid"`
 	// The RTC token used by the SIP gateway.
-	SipRtcToken string `json:"sip_rtc_token" url:"sip_rtc_token"`
+	RtcToken string `json:"rtc_token" url:"rtc_token"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -399,18 +416,18 @@ func (c *CallTelephonyRequestSip) GetFromNumber() string {
 	return c.FromNumber
 }
 
-func (c *CallTelephonyRequestSip) GetSipRtcUID() string {
+func (c *CallTelephonyRequestSip) GetRtcUID() string {
 	if c == nil {
 		return ""
 	}
-	return c.SipRtcUID
+	return c.RtcUID
 }
 
-func (c *CallTelephonyRequestSip) GetSipRtcToken() string {
+func (c *CallTelephonyRequestSip) GetRtcToken() string {
 	if c == nil {
 		return ""
 	}
-	return c.SipRtcToken
+	return c.RtcToken
 }
 
 func (c *CallTelephonyRequestSip) GetExtraProperties() map[string]interface{} {
@@ -438,18 +455,18 @@ func (c *CallTelephonyRequestSip) SetFromNumber(fromNumber string) {
 	c.require(callTelephonyRequestSipFieldFromNumber)
 }
 
-// SetSipRtcUID sets the SipRtcUID field and marks it as non-optional;
+// SetRtcUID sets the RtcUID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallTelephonyRequestSip) SetSipRtcUID(sipRtcUID string) {
-	c.SipRtcUID = sipRtcUID
-	c.require(callTelephonyRequestSipFieldSipRtcUID)
+func (c *CallTelephonyRequestSip) SetRtcUID(rtcUID string) {
+	c.RtcUID = rtcUID
+	c.require(callTelephonyRequestSipFieldRtcUID)
 }
 
-// SetSipRtcToken sets the SipRtcToken field and marks it as non-optional;
+// SetRtcToken sets the RtcToken field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallTelephonyRequestSip) SetSipRtcToken(sipRtcToken string) {
-	c.SipRtcToken = sipRtcToken
-	c.require(callTelephonyRequestSipFieldSipRtcToken)
+func (c *CallTelephonyRequestSip) SetRtcToken(rtcToken string) {
+	c.RtcToken = rtcToken
+	c.require(callTelephonyRequestSipFieldRtcToken)
 }
 
 func (c *CallTelephonyRequestSip) UnmarshalJSON(data []byte) error {

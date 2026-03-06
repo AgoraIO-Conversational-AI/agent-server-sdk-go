@@ -1,6 +1,6 @@
 # Agoraio Go Library
 
-[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Ffern-demo%2Fagoraio-go-sdk)
+[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagora-agent-go-sdk)
 
 The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs, 
 enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS) 
@@ -30,7 +30,7 @@ API reference documentation is available [here](https://docs.agora.io/en/convers
 
 ## Reference
 
-A full reference for this library is available [here](https://github.com/fern-demo/agoraio-go-sdk/blob/HEAD/./reference.md).
+A full reference for this library is available [here](https://github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/blob/HEAD/./reference.md).
 
 ## MLLM Flow (Multimodal)
 
@@ -113,7 +113,7 @@ import (
 
 func main() {
     c := client.NewClient(
-        option.WithBasicAuth("<username>", "<password>"),
+        option.WithBasicAuth("<customerId>", "<customerSecret>"),
     )
 
     c.Agents.Start(
@@ -170,9 +170,9 @@ Instantiate and use the client with the following:
 package example
 
 import (
-    client "github.com/fern-demo/agoraio-go-sdk/client"
-    option "github.com/fern-demo/agoraio-go-sdk/option"
-    Agora "github.com/fern-demo/agoraio-go-sdk"
+    client "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
+    option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
     context "context"
 )
 
@@ -196,11 +196,6 @@ func do() {
             IdleTimeout: Agora.Int(
                 120,
             ),
-            AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
-                EnableAivad: Agora.Bool(
-                    true,
-                ),
-            },
             Asr: &Agora.StartAgentsRequestPropertiesAsr{
                 Language: Agora.String(
                     "en-US",

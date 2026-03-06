@@ -6,9 +6,9 @@ import (
 	bytes "bytes"
 	context "context"
 	json "encoding/json"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	client "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
+	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 	require "github.com/stretchr/testify/require"
 	http "net/http"
 	testing "testing"
@@ -84,11 +84,6 @@ func TestAgentsStartWithWireMock(
 			IdleTimeout: Agora.Int(
 				120,
 			),
-			AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
-				EnableAivad: Agora.Bool(
-					true,
-				),
-			},
 			Asr: &Agora.StartAgentsRequestPropertiesAsr{
 				Language: Agora.String(
 					"en-US",

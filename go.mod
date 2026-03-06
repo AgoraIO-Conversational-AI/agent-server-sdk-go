@@ -1,4 +1,4 @@
-module github.com/fern-demo/agoraio-go-sdk
+module github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk
 
 go 1.21
 
