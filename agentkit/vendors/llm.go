@@ -36,9 +36,11 @@ func (o *OpenAI) ToConfig() map[string]interface{} {
 		url = "https://api.openai.com/v1/chat/completions"
 	}
 
-	params := o.options.Params
-	if params == nil {
-		params = map[string]interface{}{"model": o.options.Model}
+	// model is the base; explicit Params entries override it.
+	// Always build a fresh map so we never mutate the caller's Params.
+	params := map[string]interface{}{"model": o.options.Model}
+	for k, v := range o.options.Params {
+		params[k] = v
 	}
 	if o.options.Temperature != nil {
 		params["temperature"] = *o.options.Temperature

@@ -1,7 +1,7 @@
 package option
 
 import (
-	core "github.com/fern-demo/agoraio-go-sdk/core"
+	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
 )
 
 // Area type alias for global regions

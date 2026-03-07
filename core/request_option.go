@@ -4,7 +4,6 @@ package core
 
 import (
 	base64 "encoding/base64"
-	fmt "fmt"
 	http "net/http"
 	url "net/url"
 )
@@ -50,10 +49,11 @@ func NewRequestOptions(opts ...RequestOption) *RequestOptions {
 // for the request(s).
 func (r *RequestOptions) ToHeader() http.Header {
 	header := r.cloneHeader()
-	if r.Username != "" && r.Password != "" {
+	if r.Authorization != "" {
+		header.Set("Authorization", r.Authorization)
+	} else if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
-	header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
 	return header
 }
 

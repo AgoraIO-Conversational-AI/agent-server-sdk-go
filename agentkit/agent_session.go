@@ -1,13 +1,18 @@
-package wrapper
+package agentkit
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+	"net/http"
 	"sync"
 	"time"
 
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	"github.com/fern-demo/agoraio-go-sdk/agents"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agents"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 )
 
 type SessionStatus string
@@ -24,17 +29,18 @@ const (
 type EventHandler func(data interface{})
 
 type AgentSession struct {
-	client         *agents.Client
-	agent          *Agent
-	appID          string
-	appCertificate string
-	name           string
-	channel        string
-	token          string
-	agentUID       string
-	remoteUIDs     []string
-	idleTimeout    *int
+	client          *agents.Client
+	agent           *Agent
+	appID           string
+	appCertificate  string
+	name            string
+	channel         string
+	token           string
+	agentUID        string
+	remoteUIDs      []string
+	idleTimeout     *int
 	enableStringUID *bool
+	useAppCredsREST bool // When true, generate ConvoAI token per request for REST API auth
 
 	agentID  string
 	status   SessionStatus
@@ -54,6 +60,9 @@ type AgentSessionOptions struct {
 	RemoteUIDs     []string
 	IdleTimeout    *int
 	EnableStringUID *bool
+	// UseAppCredentialsForREST when true, generates a ConvoAI token per request for REST API
+	// authentication. Use when the client was created without Basic Auth or token (app-credentials mode).
+	UseAppCredentialsForREST bool
 }
 
 func NewAgentSession(opts AgentSessionOptions) *AgentSession {
@@ -63,20 +72,43 @@ func NewAgentSession(opts AgentSessionOptions) *AgentSession {
 	}
 
 	return &AgentSession{
-		client:         opts.Client,
-		agent:          opts.Agent,
-		appID:          opts.AppID,
-		appCertificate: opts.AppCertificate,
-		name:           name,
-		channel:        opts.Channel,
-		token:          opts.Token,
-		agentUID:       opts.AgentUID,
-		remoteUIDs:     opts.RemoteUIDs,
-		idleTimeout:    opts.IdleTimeout,
-		enableStringUID: opts.EnableStringUID,
-		status:         StatusIdle,
-		handlers:       make(map[string][]EventHandler),
+		client:             opts.Client,
+		agent:              opts.Agent,
+		appID:              opts.AppID,
+		appCertificate:     opts.AppCertificate,
+		name:               name,
+		channel:            opts.Channel,
+		token:              opts.Token,
+		agentUID:           opts.AgentUID,
+		remoteUIDs:         opts.RemoteUIDs,
+		idleTimeout:        opts.IdleTimeout,
+		enableStringUID:    opts.EnableStringUID,
+		useAppCredsREST:    opts.UseAppCredentialsForREST,
+		status:             StatusIdle,
+		handlers:           make(map[string][]EventHandler),
 	}
+}
+
+// convoAIRequestOpts returns per-request options with ConvoAI token when using app credentials.
+func (s *AgentSession) convoAIRequestOpts(ctx context.Context) []option.RequestOption {
+	if !s.useAppCredsREST || s.appCertificate == "" {
+		return nil
+	}
+	token, err := GenerateConvoAIToken(GenerateConvoAITokenOptions{
+		AppID:          s.appID,
+		AppCertificate: s.appCertificate,
+		ChannelName:    s.channel,
+		Account:        s.agentUID,
+	})
+	if err != nil {
+		// Log and fall through without auth headers; the API call will fail with
+		// an auth error, but this log surfaces the real cause.
+		log.Printf("agentkit: failed to generate ConvoAI token: %v", err)
+		return nil
+	}
+	h := make(http.Header)
+	h.Set("Authorization", "agora token="+token)
+	return []option.RequestOption{option.WithHTTPHeader(h)}
 }
 
 func (s *AgentSession) ID() string {
@@ -149,7 +181,8 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		Properties: properties,
 	}
 
-	resp, err := s.client.Start(ctx, req)
+	reqOpts := s.convoAIRequestOpts(ctx)
+	resp, err := s.client.Start(ctx, req, reqOpts...)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -182,11 +215,21 @@ func (s *AgentSession) Stop(ctx context.Context) error {
 	s.status = StatusStopping
 	s.mu.Unlock()
 
+	reqOpts := s.convoAIRequestOpts(ctx)
 	err := s.client.Stop(ctx, &Agora.StopAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
-	})
+	}, reqOpts...)
 	if err != nil {
+		// Handle 404 "task not found" gracefully — agent is already stopped
+		var apiErr *core.APIError
+		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
+			s.mu.Lock()
+			s.status = StatusStopped
+			s.mu.Unlock()
+			s.emit("stopped", map[string]string{"agent_id": s.agentID})
+			return nil
+		}
 		s.mu.Lock()
 		s.status = StatusError
 		s.mu.Unlock()
@@ -221,7 +264,8 @@ func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.Spe
 		Interruptable: interruptable,
 	}
 
-	_, err := s.client.Speak(ctx, req)
+	reqOpts := s.convoAIRequestOpts(ctx)
+	_, err := s.client.Speak(ctx, req, reqOpts...)
 	return err
 }
 
@@ -237,10 +281,11 @@ func (s *AgentSession) Interrupt(ctx context.Context) error {
 	}
 	s.mu.RUnlock()
 
+	reqOpts := s.convoAIRequestOpts(ctx)
 	_, err := s.client.Interrupt(ctx, &Agora.InterruptAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
-	})
+	}, reqOpts...)
 	return err
 }
 
@@ -256,11 +301,12 @@ func (s *AgentSession) Update(ctx context.Context, properties *Agora.UpdateAgent
 	}
 	s.mu.RUnlock()
 
+	reqOpts := s.convoAIRequestOpts(ctx)
 	_, err := s.client.Update(ctx, &Agora.UpdateAgentsRequest{
 		Appid:      s.appID,
 		AgentID:    s.agentID,
 		Properties: properties,
-	})
+	}, reqOpts...)
 	return err
 }
 
@@ -272,10 +318,11 @@ func (s *AgentSession) GetHistory(ctx context.Context) (*Agora.GetHistoryAgentsR
 	}
 	s.mu.RUnlock()
 
+	reqOpts := s.convoAIRequestOpts(ctx)
 	return s.client.GetHistory(ctx, &Agora.GetHistoryAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
-	})
+	}, reqOpts...)
 }
 
 func (s *AgentSession) GetInfo(ctx context.Context) (*Agora.GetAgentsResponse, error) {
@@ -286,10 +333,11 @@ func (s *AgentSession) GetInfo(ctx context.Context) (*Agora.GetAgentsResponse, e
 	}
 	s.mu.RUnlock()
 
+	reqOpts := s.convoAIRequestOpts(ctx)
 	return s.client.Get(ctx, &Agora.GetAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
-	})
+	}, reqOpts...)
 }
 
 func (s *AgentSession) On(event string, handler EventHandler) {
@@ -305,7 +353,13 @@ func (s *AgentSession) emit(event string, data interface{}) {
 
 	for _, h := range handlers {
 		func() {
-			defer func() { recover() }()
+			defer func() {
+				if r := recover(); r != nil {
+					// Log and continue so a panicking handler does not prevent
+					// remaining handlers or session lifecycle from completing.
+					log.Printf("agentkit: recovered panic in %q event handler: %v", event, r)
+				}
+			}()
 			h(data)
 		}()
 	}

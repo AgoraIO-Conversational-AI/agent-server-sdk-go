@@ -1,11 +1,11 @@
-package wrapper
+package agentkit
 
 import (
 	"encoding/json"
 	"fmt"
 
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	"github.com/fern-demo/agoraio-go-sdk/wrapper/vendors"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
 )
 
 func mapToStruct(m map[string]interface{}, target interface{}) error {
@@ -23,6 +23,9 @@ type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
+type GeofenceConfig = Agora.StartAgentsRequestPropertiesGeofence
+type RtcConfig = Agora.StartAgentsRequestPropertiesRtc
+type FillerWordsConfig = Agora.StartAgentsRequestPropertiesFillerWords
 
 type Agent struct {
 	name                    string
@@ -41,6 +44,10 @@ type Agent struct {
 	sal                     *SalConfig
 	advancedFeatures        *AdvancedFeatures
 	parameters              *SessionParams
+	geofence                *GeofenceConfig
+	labels                  map[string]string
+	rtc                     *RtcConfig
+	fillerWords             *FillerWordsConfig
 }
 
 type AgentOption func(*Agent)
@@ -107,6 +114,30 @@ func WithParameters(params *SessionParams) AgentOption {
 	}
 }
 
+func WithGeofence(gf *GeofenceConfig) AgentOption {
+	return func(a *Agent) {
+		a.geofence = gf
+	}
+}
+
+func WithLabels(labels map[string]string) AgentOption {
+	return func(a *Agent) {
+		a.labels = labels
+	}
+}
+
+func WithRtc(rtc *RtcConfig) AgentOption {
+	return func(a *Agent) {
+		a.rtc = rtc
+	}
+}
+
+func WithFillerWords(fw *FillerWordsConfig) AgentOption {
+	return func(a *Agent) {
+		a.fillerWords = fw
+	}
+}
+
 func (a *Agent) WithLlm(vendor vendors.LLM) *Agent {
 	clone := a.clone()
 	clone.llm = vendor.ToConfig()
@@ -117,6 +148,17 @@ func (a *Agent) WithTts(vendor vendors.TTS) *Agent {
 	clone := a.clone()
 	clone.tts = vendor.ToConfig()
 	clone.ttsSampleRate = vendor.GetSampleRate()
+	// If an avatar is already set, verify the new TTS sample rate matches.
+	// Mirrors the check in WithAvatar so both call orderings fail fast.
+	if clone.avatarRequiredSampleRate != nil && clone.ttsSampleRate != nil {
+		if *clone.ttsSampleRate != *clone.avatarRequiredSampleRate {
+			panic(fmt.Sprintf(
+				"TTS sample rate %d Hz is incompatible with the configured avatar, which requires %d Hz. "+
+					"Please update your TTS sample_rate to %d.",
+				int(*clone.ttsSampleRate), int(*clone.avatarRequiredSampleRate), int(*clone.avatarRequiredSampleRate),
+			))
+		}
+	}
 	return clone
 }
 
@@ -134,6 +176,9 @@ func (a *Agent) WithMllm(vendor vendors.MLLM) *Agent {
 
 func (a *Agent) WithAvatar(vendor vendors.Avatar) *Agent {
 	requiredSR := vendor.RequiredSampleRate()
+	// If a TTS is already set, verify sample rate compatibility now.
+	// Mirrors the check in WithTts so both call orderings fail fast.
+	// AgentSession.Start also validates as a final safety net.
 	if a.ttsSampleRate != nil && *a.ttsSampleRate != requiredSR {
 		panic(fmt.Sprintf(
 			"Avatar requires TTS sample rate of %d Hz, but TTS is configured with %d Hz. "+
@@ -168,6 +213,30 @@ func (a *Agent) WithGreeting(greeting string) *Agent {
 func (a *Agent) WithName(name string) *Agent {
 	clone := a.clone()
 	clone.name = name
+	return clone
+}
+
+func (a *Agent) WithGeofence(gf *GeofenceConfig) *Agent {
+	clone := a.clone()
+	clone.geofence = gf
+	return clone
+}
+
+func (a *Agent) WithLabels(labels map[string]string) *Agent {
+	clone := a.clone()
+	clone.labels = labels
+	return clone
+}
+
+func (a *Agent) WithRtc(rtc *RtcConfig) *Agent {
+	clone := a.clone()
+	clone.rtc = rtc
+	return clone
+}
+
+func (a *Agent) WithFillerWords(fw *FillerWordsConfig) *Agent {
+	clone := a.clone()
+	clone.fillerWords = fw
 	return clone
 }
 
@@ -242,6 +311,18 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 	}
 	if a.parameters != nil {
 		props.Parameters = a.parameters
+	}
+	if a.geofence != nil {
+		props.Geofence = a.geofence
+	}
+	if len(a.labels) > 0 {
+		props.Labels = a.labels
+	}
+	if a.rtc != nil {
+		props.Rtc = a.rtc
+	}
+	if a.fillerWords != nil {
+		props.FillerWords = a.fillerWords
 	}
 
 	isMllmMode := a.advancedFeatures != nil && a.advancedFeatures.EnableMllm != nil && *a.advancedFeatures.EnableMllm
@@ -319,5 +400,11 @@ type ToPropertiesOptions struct {
 
 func (a *Agent) clone() *Agent {
 	clone := *a
+	if a.labels != nil {
+		clone.labels = make(map[string]string, len(a.labels))
+		for k, v := range a.labels {
+			clone.labels[k] = v
+		}
+	}
 	return &clone
 }
