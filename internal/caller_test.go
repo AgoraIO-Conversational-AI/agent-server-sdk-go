@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/fern-demo/agoraio-go-sdk/core"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

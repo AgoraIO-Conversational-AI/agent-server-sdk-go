@@ -5,7 +5,7 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
+	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
 	big "math/big"
 )
 
@@ -688,9 +688,10 @@ func (c *CartesiaTts) String() string {
 
 // Cartesia TTS configuration parameters.
 var (
-	cartesiaTtsParamsFieldKey     = big.NewInt(1 << 0)
-	cartesiaTtsParamsFieldVoiceID = big.NewInt(1 << 1)
-	cartesiaTtsParamsFieldModelID = big.NewInt(1 << 2)
+	cartesiaTtsParamsFieldKey        = big.NewInt(1 << 0)
+	cartesiaTtsParamsFieldVoiceID    = big.NewInt(1 << 1)
+	cartesiaTtsParamsFieldModelID    = big.NewInt(1 << 2)
+	cartesiaTtsParamsFieldSampleRate = big.NewInt(1 << 3)
 )
 
 type CartesiaTtsParams struct {
@@ -700,6 +701,8 @@ type CartesiaTtsParams struct {
 	VoiceID string `json:"voice_id" url:"voice_id"`
 	// Model ID (optional)
 	ModelID *string `json:"model_id,omitempty" url:"model_id,omitempty"`
+	// Audio sampling rate in Hz
+	SampleRate *int `json:"sample_rate,omitempty" url:"sample_rate,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -727,6 +730,13 @@ func (c *CartesiaTtsParams) GetModelID() *string {
 		return nil
 	}
 	return c.ModelID
+}
+
+func (c *CartesiaTtsParams) GetSampleRate() *int {
+	if c == nil {
+		return nil
+	}
+	return c.SampleRate
 }
 
 func (c *CartesiaTtsParams) GetExtraProperties() map[string]interface{} {
@@ -759,6 +769,13 @@ func (c *CartesiaTtsParams) SetVoiceID(voiceID string) {
 func (c *CartesiaTtsParams) SetModelID(modelID *string) {
 	c.ModelID = modelID
 	c.require(cartesiaTtsParamsFieldModelID)
+}
+
+// SetSampleRate sets the SampleRate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CartesiaTtsParams) SetSampleRate(sampleRate *int) {
+	c.SampleRate = sampleRate
+	c.require(cartesiaTtsParamsFieldSampleRate)
 }
 
 func (c *CartesiaTtsParams) UnmarshalJSON(data []byte) error {
@@ -914,7 +931,7 @@ type ElevenLabsTtsParams struct {
 	ModelID string `json:"model_id" url:"model_id"`
 	// Voice ID (e.g., "pNInz6obpgDQGcFmaJgB")
 	VoiceID string `json:"voice_id" url:"voice_id"`
-	// Audio sample rate (e.g., 24000)
+	// Audio sample rate in Hz (16kHz for Akool, 24kHz for HeyGen)
 	SampleRate *int `json:"sample_rate,omitempty" url:"sample_rate,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -1335,9 +1352,10 @@ func (g *GoogleTts) String() string {
 
 // Google TTS configuration parameters.
 var (
-	googleTtsParamsFieldKey          = big.NewInt(1 << 0)
-	googleTtsParamsFieldVoiceName    = big.NewInt(1 << 1)
-	googleTtsParamsFieldLanguageCode = big.NewInt(1 << 2)
+	googleTtsParamsFieldKey             = big.NewInt(1 << 0)
+	googleTtsParamsFieldVoiceName       = big.NewInt(1 << 1)
+	googleTtsParamsFieldLanguageCode    = big.NewInt(1 << 2)
+	googleTtsParamsFieldSampleRateHertz = big.NewInt(1 << 3)
 )
 
 type GoogleTtsParams struct {
@@ -1347,6 +1365,8 @@ type GoogleTtsParams struct {
 	VoiceName string `json:"voice_name" url:"voice_name"`
 	// Language code (e.g., "en-US")
 	LanguageCode *string `json:"language_code,omitempty" url:"language_code,omitempty"`
+	// Sample rate in Hz (default depends on selected voice)
+	SampleRateHertz *int `json:"sample_rate_hertz,omitempty" url:"sample_rate_hertz,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1374,6 +1394,13 @@ func (g *GoogleTtsParams) GetLanguageCode() *string {
 		return nil
 	}
 	return g.LanguageCode
+}
+
+func (g *GoogleTtsParams) GetSampleRateHertz() *int {
+	if g == nil {
+		return nil
+	}
+	return g.SampleRateHertz
 }
 
 func (g *GoogleTtsParams) GetExtraProperties() map[string]interface{} {
@@ -1408,6 +1435,13 @@ func (g *GoogleTtsParams) SetLanguageCode(languageCode *string) {
 	g.require(googleTtsParamsFieldLanguageCode)
 }
 
+// SetSampleRateHertz sets the SampleRateHertz field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleTtsParams) SetSampleRateHertz(sampleRateHertz *int) {
+	g.SampleRateHertz = sampleRateHertz
+	g.require(googleTtsParamsFieldSampleRateHertz)
+}
+
 func (g *GoogleTtsParams) UnmarshalJSON(data []byte) error {
 	type unmarshaler GoogleTtsParams
 	var value unmarshaler
@@ -1436,199 +1470,6 @@ func (g *GoogleTtsParams) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GoogleTtsParams) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-// Groq Text-to-Speech configuration (Beta).
-var (
-	groqTtsFieldParams       = big.NewInt(1 << 0)
-	groqTtsFieldSkipPatterns = big.NewInt(1 << 1)
-)
-
-type GroqTts struct {
-	Params *GroqTtsParams `json:"params" url:"params"`
-	// Controls whether the TTS module skips bracketed content when reading LLM response text.
-	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GroqTts) GetParams() *GroqTtsParams {
-	if g == nil {
-		return nil
-	}
-	return g.Params
-}
-
-func (g *GroqTts) GetSkipPatterns() []int {
-	if g == nil {
-		return nil
-	}
-	return g.SkipPatterns
-}
-
-func (g *GroqTts) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GroqTts) require(field *big.Int) {
-	if g.explicitFields == nil {
-		g.explicitFields = big.NewInt(0)
-	}
-	g.explicitFields.Or(g.explicitFields, field)
-}
-
-// SetParams sets the Params field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GroqTts) SetParams(params *GroqTtsParams) {
-	g.Params = params
-	g.require(groqTtsFieldParams)
-}
-
-// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GroqTts) SetSkipPatterns(skipPatterns []int) {
-	g.SkipPatterns = skipPatterns
-	g.require(groqTtsFieldSkipPatterns)
-}
-
-func (g *GroqTts) UnmarshalJSON(data []byte) error {
-	type unmarshaler GroqTts
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GroqTts(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GroqTts) MarshalJSON() ([]byte, error) {
-	type embed GroqTts
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*g),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (g *GroqTts) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-// Groq TTS configuration parameters.
-var (
-	groqTtsParamsFieldKey   = big.NewInt(1 << 0)
-	groqTtsParamsFieldModel = big.NewInt(1 << 1)
-)
-
-type GroqTtsParams struct {
-	// Groq API key
-	Key string `json:"key" url:"key"`
-	// Model name
-	Model *string `json:"model,omitempty" url:"model,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GroqTtsParams) GetKey() string {
-	if g == nil {
-		return ""
-	}
-	return g.Key
-}
-
-func (g *GroqTtsParams) GetModel() *string {
-	if g == nil {
-		return nil
-	}
-	return g.Model
-}
-
-func (g *GroqTtsParams) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GroqTtsParams) require(field *big.Int) {
-	if g.explicitFields == nil {
-		g.explicitFields = big.NewInt(0)
-	}
-	g.explicitFields.Or(g.explicitFields, field)
-}
-
-// SetKey sets the Key field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GroqTtsParams) SetKey(key string) {
-	g.Key = key
-	g.require(groqTtsParamsFieldKey)
-}
-
-// SetModel sets the Model field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GroqTtsParams) SetModel(model *string) {
-	g.Model = model
-	g.require(groqTtsParamsFieldModel)
-}
-
-func (g *GroqTtsParams) UnmarshalJSON(data []byte) error {
-	type unmarshaler GroqTtsParams
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GroqTtsParams(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GroqTtsParams) MarshalJSON() ([]byte, error) {
-	type embed GroqTtsParams
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*g),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (g *GroqTtsParams) String() string {
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -1931,9 +1772,10 @@ func (m *MicrosoftTts) String() string {
 
 // Microsoft Azure TTS configuration parameters.
 var (
-	microsoftTtsParamsFieldKey       = big.NewInt(1 << 0)
-	microsoftTtsParamsFieldRegion    = big.NewInt(1 << 1)
-	microsoftTtsParamsFieldVoiceName = big.NewInt(1 << 2)
+	microsoftTtsParamsFieldKey        = big.NewInt(1 << 0)
+	microsoftTtsParamsFieldRegion     = big.NewInt(1 << 1)
+	microsoftTtsParamsFieldVoiceName  = big.NewInt(1 << 2)
+	microsoftTtsParamsFieldSampleRate = big.NewInt(1 << 3)
 )
 
 type MicrosoftTtsParams struct {
@@ -1943,6 +1785,8 @@ type MicrosoftTtsParams struct {
 	Region string `json:"region" url:"region"`
 	// Voice name (e.g., "en-US-AndrewMultilingualNeural")
 	VoiceName string `json:"voice_name" url:"voice_name"`
+	// Audio sampling rate in Hz
+	SampleRate *int `json:"sample_rate,omitempty" url:"sample_rate,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1970,6 +1814,13 @@ func (m *MicrosoftTtsParams) GetVoiceName() string {
 		return ""
 	}
 	return m.VoiceName
+}
+
+func (m *MicrosoftTtsParams) GetSampleRate() *int {
+	if m == nil {
+		return nil
+	}
+	return m.SampleRate
 }
 
 func (m *MicrosoftTtsParams) GetExtraProperties() map[string]interface{} {
@@ -2004,6 +1855,13 @@ func (m *MicrosoftTtsParams) SetVoiceName(voiceName string) {
 	m.require(microsoftTtsParamsFieldVoiceName)
 }
 
+// SetSampleRate sets the SampleRate field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MicrosoftTtsParams) SetSampleRate(sampleRate *int) {
+	m.SampleRate = sampleRate
+	m.require(microsoftTtsParamsFieldSampleRate)
+}
+
 func (m *MicrosoftTtsParams) UnmarshalJSON(data []byte) error {
 	type unmarshaler MicrosoftTtsParams
 	var value unmarshaler
@@ -2032,6 +1890,538 @@ func (m *MicrosoftTtsParams) MarshalJSON() ([]byte, error) {
 }
 
 func (m *MicrosoftTtsParams) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// MiniMax Text-to-Speech configuration.
+var (
+	minimaxTtsFieldParams       = big.NewInt(1 << 0)
+	minimaxTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type MinimaxTts struct {
+	Params *MinimaxTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MinimaxTts) GetParams() *MinimaxTtsParams {
+	if m == nil {
+		return nil
+	}
+	return m.Params
+}
+
+func (m *MinimaxTts) GetSkipPatterns() []int {
+	if m == nil {
+		return nil
+	}
+	return m.SkipPatterns
+}
+
+func (m *MinimaxTts) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MinimaxTts) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTts) SetParams(params *MinimaxTtsParams) {
+	m.Params = params
+	m.require(minimaxTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTts) SetSkipPatterns(skipPatterns []int) {
+	m.SkipPatterns = skipPatterns
+	m.require(minimaxTtsFieldSkipPatterns)
+}
+
+func (m *MinimaxTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler MinimaxTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MinimaxTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MinimaxTts) MarshalJSON() ([]byte, error) {
+	type embed MinimaxTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MinimaxTts) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// MiniMax TTS configuration parameters.
+var (
+	minimaxTtsParamsFieldKey          = big.NewInt(1 << 0)
+	minimaxTtsParamsFieldGroupID      = big.NewInt(1 << 1)
+	minimaxTtsParamsFieldModel        = big.NewInt(1 << 2)
+	minimaxTtsParamsFieldVoiceSetting = big.NewInt(1 << 3)
+	minimaxTtsParamsFieldURL          = big.NewInt(1 << 4)
+)
+
+type MinimaxTtsParams struct {
+	// MiniMax API key
+	Key string `json:"key" url:"key"`
+	// MiniMax group identifier
+	GroupID string `json:"group_id" url:"group_id"`
+	// TTS model (e.g., speech-02-turbo)
+	Model        string                        `json:"model" url:"model"`
+	VoiceSetting *MinimaxTtsParamsVoiceSetting `json:"voice_setting" url:"voice_setting"`
+	// WebSocket endpoint (e.g., wss://api-uw.minimax.io/ws/v1/t2a_v2)
+	URL string `json:"url" url:"url"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MinimaxTtsParams) GetKey() string {
+	if m == nil {
+		return ""
+	}
+	return m.Key
+}
+
+func (m *MinimaxTtsParams) GetGroupID() string {
+	if m == nil {
+		return ""
+	}
+	return m.GroupID
+}
+
+func (m *MinimaxTtsParams) GetModel() string {
+	if m == nil {
+		return ""
+	}
+	return m.Model
+}
+
+func (m *MinimaxTtsParams) GetVoiceSetting() *MinimaxTtsParamsVoiceSetting {
+	if m == nil {
+		return nil
+	}
+	return m.VoiceSetting
+}
+
+func (m *MinimaxTtsParams) GetURL() string {
+	if m == nil {
+		return ""
+	}
+	return m.URL
+}
+
+func (m *MinimaxTtsParams) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MinimaxTtsParams) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParams) SetKey(key string) {
+	m.Key = key
+	m.require(minimaxTtsParamsFieldKey)
+}
+
+// SetGroupID sets the GroupID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParams) SetGroupID(groupID string) {
+	m.GroupID = groupID
+	m.require(minimaxTtsParamsFieldGroupID)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParams) SetModel(model string) {
+	m.Model = model
+	m.require(minimaxTtsParamsFieldModel)
+}
+
+// SetVoiceSetting sets the VoiceSetting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParams) SetVoiceSetting(voiceSetting *MinimaxTtsParamsVoiceSetting) {
+	m.VoiceSetting = voiceSetting
+	m.require(minimaxTtsParamsFieldVoiceSetting)
+}
+
+// SetURL sets the URL field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParams) SetURL(url string) {
+	m.URL = url
+	m.require(minimaxTtsParamsFieldURL)
+}
+
+func (m *MinimaxTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler MinimaxTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MinimaxTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MinimaxTtsParams) MarshalJSON() ([]byte, error) {
+	type embed MinimaxTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MinimaxTtsParams) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+var (
+	minimaxTtsParamsVoiceSettingFieldVoiceID = big.NewInt(1 << 0)
+)
+
+type MinimaxTtsParamsVoiceSetting struct {
+	// Voice style identifier (e.g., English_captivating_female1)
+	VoiceID string `json:"voice_id" url:"voice_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) GetVoiceID() string {
+	if m == nil {
+		return ""
+	}
+	return m.VoiceID
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetVoiceID sets the VoiceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MinimaxTtsParamsVoiceSetting) SetVoiceID(voiceID string) {
+	m.VoiceID = voiceID
+	m.require(minimaxTtsParamsVoiceSettingFieldVoiceID)
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) UnmarshalJSON(data []byte) error {
+	type unmarshaler MinimaxTtsParamsVoiceSetting
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MinimaxTtsParamsVoiceSetting(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) MarshalJSON() ([]byte, error) {
+	type embed MinimaxTtsParamsVoiceSetting
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MinimaxTtsParamsVoiceSetting) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// Murf Text-to-Speech configuration.
+var (
+	murfTtsFieldParams       = big.NewInt(1 << 0)
+	murfTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type MurfTts struct {
+	Params *MurfTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MurfTts) GetParams() *MurfTtsParams {
+	if m == nil {
+		return nil
+	}
+	return m.Params
+}
+
+func (m *MurfTts) GetSkipPatterns() []int {
+	if m == nil {
+		return nil
+	}
+	return m.SkipPatterns
+}
+
+func (m *MurfTts) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MurfTts) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MurfTts) SetParams(params *MurfTtsParams) {
+	m.Params = params
+	m.require(murfTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MurfTts) SetSkipPatterns(skipPatterns []int) {
+	m.SkipPatterns = skipPatterns
+	m.require(murfTtsFieldSkipPatterns)
+}
+
+func (m *MurfTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler MurfTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MurfTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MurfTts) MarshalJSON() ([]byte, error) {
+	type embed MurfTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MurfTts) String() string {
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+// Murf TTS configuration parameters.
+var (
+	murfTtsParamsFieldKey     = big.NewInt(1 << 0)
+	murfTtsParamsFieldVoiceID = big.NewInt(1 << 1)
+	murfTtsParamsFieldStyle   = big.NewInt(1 << 2)
+)
+
+type MurfTtsParams struct {
+	// Murf API key
+	Key string `json:"key" url:"key"`
+	// Voice ID (e.g., Ariana, Natalie, Ken)
+	VoiceID string `json:"voice_id" url:"voice_id"`
+	// Voice style (e.g., Angry, Sad, Conversational, Newscast)
+	Style *string `json:"style,omitempty" url:"style,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MurfTtsParams) GetKey() string {
+	if m == nil {
+		return ""
+	}
+	return m.Key
+}
+
+func (m *MurfTtsParams) GetVoiceID() string {
+	if m == nil {
+		return ""
+	}
+	return m.VoiceID
+}
+
+func (m *MurfTtsParams) GetStyle() *string {
+	if m == nil {
+		return nil
+	}
+	return m.Style
+}
+
+func (m *MurfTtsParams) GetExtraProperties() map[string]interface{} {
+	return m.extraProperties
+}
+
+func (m *MurfTtsParams) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MurfTtsParams) SetKey(key string) {
+	m.Key = key
+	m.require(murfTtsParamsFieldKey)
+}
+
+// SetVoiceID sets the VoiceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MurfTtsParams) SetVoiceID(voiceID string) {
+	m.VoiceID = voiceID
+	m.require(murfTtsParamsFieldVoiceID)
+}
+
+// SetStyle sets the Style field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MurfTtsParams) SetStyle(style *string) {
+	m.Style = style
+	m.require(murfTtsParamsFieldStyle)
+}
+
+func (m *MurfTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler MurfTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MurfTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MurfTtsParams) MarshalJSON() ([]byte, error) {
+	type embed MurfTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MurfTtsParams) String() string {
 	if len(m.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
 			return value
@@ -2463,18 +2853,230 @@ func (r *RimeTtsParams) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Sarvam Text-to-Speech configuration (Beta).
+var (
+	sarvamTtsFieldParams       = big.NewInt(1 << 0)
+	sarvamTtsFieldSkipPatterns = big.NewInt(1 << 1)
+)
+
+type SarvamTts struct {
+	Params *SarvamTtsParams `json:"params" url:"params"`
+	// Controls whether the TTS module skips bracketed content when reading LLM response text.
+	SkipPatterns []int `json:"skip_patterns,omitempty" url:"skip_patterns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SarvamTts) GetParams() *SarvamTtsParams {
+	if s == nil {
+		return nil
+	}
+	return s.Params
+}
+
+func (s *SarvamTts) GetSkipPatterns() []int {
+	if s == nil {
+		return nil
+	}
+	return s.SkipPatterns
+}
+
+func (s *SarvamTts) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *SarvamTts) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetParams sets the Params field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SarvamTts) SetParams(params *SarvamTtsParams) {
+	s.Params = params
+	s.require(sarvamTtsFieldParams)
+}
+
+// SetSkipPatterns sets the SkipPatterns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SarvamTts) SetSkipPatterns(skipPatterns []int) {
+	s.SkipPatterns = skipPatterns
+	s.require(sarvamTtsFieldSkipPatterns)
+}
+
+func (s *SarvamTts) UnmarshalJSON(data []byte) error {
+	type unmarshaler SarvamTts
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SarvamTts(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SarvamTts) MarshalJSON() ([]byte, error) {
+	type embed SarvamTts
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SarvamTts) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Sarvam TTS configuration parameters.
+var (
+	sarvamTtsParamsFieldKey                = big.NewInt(1 << 0)
+	sarvamTtsParamsFieldSpeaker            = big.NewInt(1 << 1)
+	sarvamTtsParamsFieldTargetLanguageCode = big.NewInt(1 << 2)
+)
+
+type SarvamTtsParams struct {
+	// Sarvam API subscription key
+	Key string `json:"key" url:"key"`
+	// Voice ID (e.g., anushka, abhilash, karun, hitesh, manisha, vidya, arya)
+	Speaker string `json:"speaker" url:"speaker"`
+	// Target language code (e.g., en-IN)
+	TargetLanguageCode string `json:"target_language_code" url:"target_language_code"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SarvamTtsParams) GetKey() string {
+	if s == nil {
+		return ""
+	}
+	return s.Key
+}
+
+func (s *SarvamTtsParams) GetSpeaker() string {
+	if s == nil {
+		return ""
+	}
+	return s.Speaker
+}
+
+func (s *SarvamTtsParams) GetTargetLanguageCode() string {
+	if s == nil {
+		return ""
+	}
+	return s.TargetLanguageCode
+}
+
+func (s *SarvamTtsParams) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *SarvamTtsParams) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SarvamTtsParams) SetKey(key string) {
+	s.Key = key
+	s.require(sarvamTtsParamsFieldKey)
+}
+
+// SetSpeaker sets the Speaker field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SarvamTtsParams) SetSpeaker(speaker string) {
+	s.Speaker = speaker
+	s.require(sarvamTtsParamsFieldSpeaker)
+}
+
+// SetTargetLanguageCode sets the TargetLanguageCode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SarvamTtsParams) SetTargetLanguageCode(targetLanguageCode string) {
+	s.TargetLanguageCode = targetLanguageCode
+	s.require(sarvamTtsParamsFieldTargetLanguageCode)
+}
+
+func (s *SarvamTtsParams) UnmarshalJSON(data []byte) error {
+	type unmarshaler SarvamTtsParams
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SarvamTtsParams(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SarvamTtsParams) MarshalJSON() ([]byte, error) {
+	type embed SarvamTtsParams
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SarvamTtsParams) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
 type Tts struct {
 	Vendor     string
 	Microsoft  *MicrosoftTts
 	Elevenlabs *ElevenLabsTts
+	Minimax    *MinimaxTts
+	Murf       *MurfTts
 	Cartesia   *CartesiaTts
 	Openai     *OpenAiTts
 	Humeai     *HumeAiTts
 	Rime       *RimeTts
 	Fishaudio  *FishAudioTts
-	Groq       *GroqTts
 	Google     *GoogleTts
 	Amazon     *AmazonTts
+	Sarvam     *SarvamTts
 }
 
 func (t *Tts) GetVendor() string {
@@ -2496,6 +3098,20 @@ func (t *Tts) GetElevenlabs() *ElevenLabsTts {
 		return nil
 	}
 	return t.Elevenlabs
+}
+
+func (t *Tts) GetMinimax() *MinimaxTts {
+	if t == nil {
+		return nil
+	}
+	return t.Minimax
+}
+
+func (t *Tts) GetMurf() *MurfTts {
+	if t == nil {
+		return nil
+	}
+	return t.Murf
 }
 
 func (t *Tts) GetCartesia() *CartesiaTts {
@@ -2533,13 +3149,6 @@ func (t *Tts) GetFishaudio() *FishAudioTts {
 	return t.Fishaudio
 }
 
-func (t *Tts) GetGroq() *GroqTts {
-	if t == nil {
-		return nil
-	}
-	return t.Groq
-}
-
 func (t *Tts) GetGoogle() *GoogleTts {
 	if t == nil {
 		return nil
@@ -2552,6 +3161,13 @@ func (t *Tts) GetAmazon() *AmazonTts {
 		return nil
 	}
 	return t.Amazon
+}
+
+func (t *Tts) GetSarvam() *SarvamTts {
+	if t == nil {
+		return nil
+	}
+	return t.Sarvam
 }
 
 func (t *Tts) UnmarshalJSON(data []byte) error {
@@ -2578,6 +3194,18 @@ func (t *Tts) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		t.Elevenlabs = value
+	case "minimax":
+		value := new(MinimaxTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Minimax = value
+	case "murf":
+		value := new(MurfTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Murf = value
 	case "cartesia":
 		value := new(CartesiaTts)
 		if err := json.Unmarshal(data, &value); err != nil {
@@ -2608,12 +3236,6 @@ func (t *Tts) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		t.Fishaudio = value
-	case "groq":
-		value := new(GroqTts)
-		if err := json.Unmarshal(data, &value); err != nil {
-			return err
-		}
-		t.Groq = value
 	case "google":
 		value := new(GoogleTts)
 		if err := json.Unmarshal(data, &value); err != nil {
@@ -2626,6 +3248,12 @@ func (t *Tts) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		t.Amazon = value
+	case "sarvam":
+		value := new(SarvamTts)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Sarvam = value
 	}
 	return nil
 }
@@ -2639,6 +3267,12 @@ func (t Tts) MarshalJSON() ([]byte, error) {
 	}
 	if t.Elevenlabs != nil {
 		return internal.MarshalJSONWithExtraProperty(t.Elevenlabs, "vendor", "elevenlabs")
+	}
+	if t.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Minimax, "vendor", "minimax")
+	}
+	if t.Murf != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Murf, "vendor", "murf")
 	}
 	if t.Cartesia != nil {
 		return internal.MarshalJSONWithExtraProperty(t.Cartesia, "vendor", "cartesia")
@@ -2655,14 +3289,14 @@ func (t Tts) MarshalJSON() ([]byte, error) {
 	if t.Fishaudio != nil {
 		return internal.MarshalJSONWithExtraProperty(t.Fishaudio, "vendor", "fishaudio")
 	}
-	if t.Groq != nil {
-		return internal.MarshalJSONWithExtraProperty(t.Groq, "vendor", "groq")
-	}
 	if t.Google != nil {
 		return internal.MarshalJSONWithExtraProperty(t.Google, "vendor", "google")
 	}
 	if t.Amazon != nil {
 		return internal.MarshalJSONWithExtraProperty(t.Amazon, "vendor", "amazon")
+	}
+	if t.Sarvam != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Sarvam, "vendor", "sarvam")
 	}
 	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
@@ -2670,14 +3304,16 @@ func (t Tts) MarshalJSON() ([]byte, error) {
 type TtsVisitor interface {
 	VisitMicrosoft(*MicrosoftTts) error
 	VisitElevenlabs(*ElevenLabsTts) error
+	VisitMinimax(*MinimaxTts) error
+	VisitMurf(*MurfTts) error
 	VisitCartesia(*CartesiaTts) error
 	VisitOpenai(*OpenAiTts) error
 	VisitHumeai(*HumeAiTts) error
 	VisitRime(*RimeTts) error
 	VisitFishaudio(*FishAudioTts) error
-	VisitGroq(*GroqTts) error
 	VisitGoogle(*GoogleTts) error
 	VisitAmazon(*AmazonTts) error
+	VisitSarvam(*SarvamTts) error
 }
 
 func (t *Tts) Accept(visitor TtsVisitor) error {
@@ -2686,6 +3322,12 @@ func (t *Tts) Accept(visitor TtsVisitor) error {
 	}
 	if t.Elevenlabs != nil {
 		return visitor.VisitElevenlabs(t.Elevenlabs)
+	}
+	if t.Minimax != nil {
+		return visitor.VisitMinimax(t.Minimax)
+	}
+	if t.Murf != nil {
+		return visitor.VisitMurf(t.Murf)
 	}
 	if t.Cartesia != nil {
 		return visitor.VisitCartesia(t.Cartesia)
@@ -2702,14 +3344,14 @@ func (t *Tts) Accept(visitor TtsVisitor) error {
 	if t.Fishaudio != nil {
 		return visitor.VisitFishaudio(t.Fishaudio)
 	}
-	if t.Groq != nil {
-		return visitor.VisitGroq(t.Groq)
-	}
 	if t.Google != nil {
 		return visitor.VisitGoogle(t.Google)
 	}
 	if t.Amazon != nil {
 		return visitor.VisitAmazon(t.Amazon)
+	}
+	if t.Sarvam != nil {
+		return visitor.VisitSarvam(t.Sarvam)
 	}
 	return fmt.Errorf("type %T does not define a non-empty union type", t)
 }
@@ -2724,6 +3366,12 @@ func (t *Tts) validate() error {
 	}
 	if t.Elevenlabs != nil {
 		fields = append(fields, "elevenlabs")
+	}
+	if t.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if t.Murf != nil {
+		fields = append(fields, "murf")
 	}
 	if t.Cartesia != nil {
 		fields = append(fields, "cartesia")
@@ -2740,14 +3388,14 @@ func (t *Tts) validate() error {
 	if t.Fishaudio != nil {
 		fields = append(fields, "fishaudio")
 	}
-	if t.Groq != nil {
-		fields = append(fields, "groq")
-	}
 	if t.Google != nil {
 		fields = append(fields, "google")
 	}
 	if t.Amazon != nil {
 		fields = append(fields, "amazon")
+	}
+	if t.Sarvam != nil {
+		fields = append(fields, "sarvam")
 	}
 	if len(fields) == 0 {
 		if t.Vendor != "" {
@@ -2984,7 +3632,7 @@ type GetHistoryAgentsResponse struct {
 	// Agent creation timestamp.
 	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
 	// Agent status. Only supports querying the running agent.
-	Status *GetHistoryAgentsResponseStatus `json:"status,omitempty" url:"status,omitempty"`
+	Status *string `json:"status,omitempty" url:"status,omitempty"`
 	// Agent history.
 	Contents []*GetHistoryAgentsResponseContentsItem `json:"contents,omitempty" url:"contents,omitempty"`
 
@@ -3007,13 +3655,6 @@ func (g *GetHistoryAgentsResponse) GetStartTs() *int {
 		return nil
 	}
 	return g.StartTs
-}
-
-func (g *GetHistoryAgentsResponse) GetStatus() *GetHistoryAgentsResponseStatus {
-	if g == nil {
-		return nil
-	}
-	return g.Status
 }
 
 func (g *GetHistoryAgentsResponse) GetContents() []*GetHistoryAgentsResponseContentsItem {
@@ -3050,7 +3691,7 @@ func (g *GetHistoryAgentsResponse) SetStartTs(startTs *int) {
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GetHistoryAgentsResponse) SetStatus(status *GetHistoryAgentsResponseStatus) {
+func (g *GetHistoryAgentsResponse) SetStatus(status *string) {
 	g.Status = status
 	g.require(getHistoryAgentsResponseFieldStatus)
 }
@@ -3221,26 +3862,6 @@ func NewGetHistoryAgentsResponseContentsItemRoleFromString(s string) (GetHistory
 }
 
 func (g GetHistoryAgentsResponseContentsItemRole) Ptr() *GetHistoryAgentsResponseContentsItemRole {
-	return &g
-}
-
-// Agent status. Only supports querying the running agent.
-type GetHistoryAgentsResponseStatus string
-
-const (
-	GetHistoryAgentsResponseStatusRunning GetHistoryAgentsResponseStatus = "RUNNING"
-)
-
-func NewGetHistoryAgentsResponseStatusFromString(s string) (GetHistoryAgentsResponseStatus, error) {
-	switch s {
-	case "RUNNING":
-		return GetHistoryAgentsResponseStatusRunning, nil
-	}
-	var t GetHistoryAgentsResponseStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (g GetHistoryAgentsResponseStatus) Ptr() *GetHistoryAgentsResponseStatus {
 	return &g
 }
 
@@ -4002,15 +4623,19 @@ var (
 	startAgentsRequestPropertiesFieldRemoteRtcUIDs    = big.NewInt(1 << 3)
 	startAgentsRequestPropertiesFieldEnableStringUID  = big.NewInt(1 << 4)
 	startAgentsRequestPropertiesFieldIdleTimeout      = big.NewInt(1 << 5)
-	startAgentsRequestPropertiesFieldAdvancedFeatures = big.NewInt(1 << 6)
-	startAgentsRequestPropertiesFieldAsr              = big.NewInt(1 << 7)
-	startAgentsRequestPropertiesFieldTts              = big.NewInt(1 << 8)
-	startAgentsRequestPropertiesFieldLlm              = big.NewInt(1 << 9)
-	startAgentsRequestPropertiesFieldMllm             = big.NewInt(1 << 10)
-	startAgentsRequestPropertiesFieldAvatar           = big.NewInt(1 << 11)
-	startAgentsRequestPropertiesFieldTurnDetection    = big.NewInt(1 << 12)
-	startAgentsRequestPropertiesFieldSal              = big.NewInt(1 << 13)
-	startAgentsRequestPropertiesFieldParameters       = big.NewInt(1 << 14)
+	startAgentsRequestPropertiesFieldGeofence         = big.NewInt(1 << 6)
+	startAgentsRequestPropertiesFieldAdvancedFeatures = big.NewInt(1 << 7)
+	startAgentsRequestPropertiesFieldAsr              = big.NewInt(1 << 8)
+	startAgentsRequestPropertiesFieldTts              = big.NewInt(1 << 9)
+	startAgentsRequestPropertiesFieldLlm              = big.NewInt(1 << 10)
+	startAgentsRequestPropertiesFieldMllm             = big.NewInt(1 << 11)
+	startAgentsRequestPropertiesFieldAvatar           = big.NewInt(1 << 12)
+	startAgentsRequestPropertiesFieldTurnDetection    = big.NewInt(1 << 13)
+	startAgentsRequestPropertiesFieldSal              = big.NewInt(1 << 14)
+	startAgentsRequestPropertiesFieldLabels           = big.NewInt(1 << 15)
+	startAgentsRequestPropertiesFieldRtc              = big.NewInt(1 << 16)
+	startAgentsRequestPropertiesFieldFillerWords      = big.NewInt(1 << 17)
+	startAgentsRequestPropertiesFieldParameters       = big.NewInt(1 << 18)
 )
 
 type StartAgentsRequestProperties struct {
@@ -4028,6 +4653,8 @@ type StartAgentsRequestProperties struct {
 	EnableStringUID *bool `json:"enable_string_uid,omitempty" url:"enable_string_uid,omitempty"`
 	// Sets the timeout after all the users specified in `remote_rtc_uids` are detected to have left the channel. When the timeout value is exceeded, the agent automatically stops and exits the channel. A value of `0` means that the agent does not exit until it is stopped manually.
 	IdleTimeout *int `json:"idle_timeout,omitempty" url:"idle_timeout,omitempty"`
+	// Regional access restriction configuration. Use this to limit which Agora servers the Conversational AI Engine can access based on geographic regions.
+	Geofence *StartAgentsRequestPropertiesGeofence `json:"geofence,omitempty" url:"geofence,omitempty"`
 	// Advanced features configuration.
 	AdvancedFeatures *StartAgentsRequestPropertiesAdvancedFeatures `json:"advanced_features,omitempty" url:"advanced_features,omitempty"`
 	// Automatic Speech Recognition (ASR) configuration.
@@ -4040,10 +4667,16 @@ type StartAgentsRequestProperties struct {
 	Mllm *StartAgentsRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
 	// Avatar configuration.
 	Avatar *StartAgentsRequestPropertiesAvatar `json:"avatar,omitempty" url:"avatar,omitempty"`
-	// Conversation turn detection settings.
+	// Conversation turn detection settings. Controls the logic for voice activity detection and conversation turn determination.
 	TurnDetection *StartAgentsRequestPropertiesTurnDetection `json:"turn_detection,omitempty" url:"turn_detection,omitempty"`
 	// Selective Attention Locking (SAL) configuration.
 	Sal *StartAgentsRequestPropertiesSal `json:"sal,omitempty" url:"sal,omitempty"`
+	// Custom labels in key-value pair format, where the key is the label name and the value is the label value. Enables agents to carry custom business information. These labels are bound to the agent and returned in the `payload` field of all message notification callbacks from the conversational AI engine.
+	Labels map[string]string `json:"labels,omitempty" url:"labels,omitempty"`
+	// RTC media encryption configuration.
+	Rtc *StartAgentsRequestPropertiesRtc `json:"rtc,omitempty" url:"rtc,omitempty"`
+	// Filler word configuration. Plays filler words while waiting for LLM responses to reduce user anxiety and improve conversation flow.
+	FillerWords *StartAgentsRequestPropertiesFillerWords `json:"filler_words,omitempty" url:"filler_words,omitempty"`
 	// Agent configuration parameters.
 	Parameters *StartAgentsRequestPropertiesParameters `json:"parameters,omitempty" url:"parameters,omitempty"`
 
@@ -4094,6 +4727,13 @@ func (s *StartAgentsRequestProperties) GetIdleTimeout() *int {
 		return nil
 	}
 	return s.IdleTimeout
+}
+
+func (s *StartAgentsRequestProperties) GetGeofence() *StartAgentsRequestPropertiesGeofence {
+	if s == nil {
+		return nil
+	}
+	return s.Geofence
 }
 
 func (s *StartAgentsRequestProperties) GetAdvancedFeatures() *StartAgentsRequestPropertiesAdvancedFeatures {
@@ -4150,6 +4790,27 @@ func (s *StartAgentsRequestProperties) GetSal() *StartAgentsRequestPropertiesSal
 		return nil
 	}
 	return s.Sal
+}
+
+func (s *StartAgentsRequestProperties) GetLabels() map[string]string {
+	if s == nil {
+		return nil
+	}
+	return s.Labels
+}
+
+func (s *StartAgentsRequestProperties) GetRtc() *StartAgentsRequestPropertiesRtc {
+	if s == nil {
+		return nil
+	}
+	return s.Rtc
+}
+
+func (s *StartAgentsRequestProperties) GetFillerWords() *StartAgentsRequestPropertiesFillerWords {
+	if s == nil {
+		return nil
+	}
+	return s.FillerWords
 }
 
 func (s *StartAgentsRequestProperties) GetParameters() *StartAgentsRequestPropertiesParameters {
@@ -4212,6 +4873,13 @@ func (s *StartAgentsRequestProperties) SetIdleTimeout(idleTimeout *int) {
 	s.require(startAgentsRequestPropertiesFieldIdleTimeout)
 }
 
+// SetGeofence sets the Geofence field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestProperties) SetGeofence(geofence *StartAgentsRequestPropertiesGeofence) {
+	s.Geofence = geofence
+	s.require(startAgentsRequestPropertiesFieldGeofence)
+}
+
 // SetAdvancedFeatures sets the AdvancedFeatures field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (s *StartAgentsRequestProperties) SetAdvancedFeatures(advancedFeatures *StartAgentsRequestPropertiesAdvancedFeatures) {
@@ -4268,6 +4936,27 @@ func (s *StartAgentsRequestProperties) SetSal(sal *StartAgentsRequestPropertiesS
 	s.require(startAgentsRequestPropertiesFieldSal)
 }
 
+// SetLabels sets the Labels field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestProperties) SetLabels(labels map[string]string) {
+	s.Labels = labels
+	s.require(startAgentsRequestPropertiesFieldLabels)
+}
+
+// SetRtc sets the Rtc field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestProperties) SetRtc(rtc *StartAgentsRequestPropertiesRtc) {
+	s.Rtc = rtc
+	s.require(startAgentsRequestPropertiesFieldRtc)
+}
+
+// SetFillerWords sets the FillerWords field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestProperties) SetFillerWords(fillerWords *StartAgentsRequestPropertiesFillerWords) {
+	s.FillerWords = fillerWords
+	s.require(startAgentsRequestPropertiesFieldFillerWords)
+}
+
 // SetParameters sets the Parameters field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (s *StartAgentsRequestProperties) SetParameters(parameters *StartAgentsRequestPropertiesParameters) {
@@ -4320,10 +5009,11 @@ var (
 	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableMllm  = big.NewInt(1 << 1)
 	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableRtm   = big.NewInt(1 << 2)
 	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableSal   = big.NewInt(1 << 3)
+	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableTools = big.NewInt(1 << 4)
 )
 
 type StartAgentsRequestPropertiesAdvancedFeatures struct {
-	// Whether to enable the intelligent interruption handling function (AIVAD). This feature is currently available only for English.
+	// Whether to enable the intelligent interruption handling function (AIVAD). This feature is currently available only for English. Deprecated. Use `turn_detection.config.end_of_speech.mode.semantic` instead.
 	EnableAivad *bool `json:"enable_aivad,omitempty" url:"enable_aivad,omitempty"`
 	// Enable Multimodal Large Language Model. Enabling MLLM automatically disables ASR, LLM, and TTS. When you set this parameter to true, `enable_aivad` is also disabled.
 	EnableMllm *bool `json:"enable_mllm,omitempty" url:"enable_mllm,omitempty"`
@@ -4331,6 +5021,8 @@ type StartAgentsRequestPropertiesAdvancedFeatures struct {
 	EnableRtm *bool `json:"enable_rtm,omitempty" url:"enable_rtm,omitempty"`
 	// Enable Selective Attention Locking (SAL). When enabled, configure the `sal` field to set up speaker recognition or locking modes.
 	EnableSal *bool `json:"enable_sal,omitempty" url:"enable_sal,omitempty"`
+	// Enable tool invocation. When enabled, the agent can invoke tools provided by the MCP server to implement advanced functionality.
+	EnableTools *bool `json:"enable_tools,omitempty" url:"enable_tools,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -4365,6 +5057,13 @@ func (s *StartAgentsRequestPropertiesAdvancedFeatures) GetEnableSal() *bool {
 		return nil
 	}
 	return s.EnableSal
+}
+
+func (s *StartAgentsRequestPropertiesAdvancedFeatures) GetEnableTools() *bool {
+	if s == nil {
+		return nil
+	}
+	return s.EnableTools
 }
 
 func (s *StartAgentsRequestPropertiesAdvancedFeatures) GetExtraProperties() map[string]interface{} {
@@ -4404,6 +5103,13 @@ func (s *StartAgentsRequestPropertiesAdvancedFeatures) SetEnableRtm(enableRtm *b
 func (s *StartAgentsRequestPropertiesAdvancedFeatures) SetEnableSal(enableSal *bool) {
 	s.EnableSal = enableSal
 	s.require(startAgentsRequestPropertiesAdvancedFeaturesFieldEnableSal)
+}
+
+// SetEnableTools sets the EnableTools field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesAdvancedFeatures) SetEnableTools(enableTools *bool) {
+	s.EnableTools = enableTools
+	s.require(startAgentsRequestPropertiesAdvancedFeaturesFieldEnableTools)
 }
 
 func (s *StartAgentsRequestPropertiesAdvancedFeatures) UnmarshalJSON(data []byte) error {
@@ -4464,6 +5170,7 @@ type StartAgentsRequestPropertiesAsr struct {
 	// - `assemblyai`: AssemblyAI (Beta)
 	// - `amazon`: Amazon Transcribe (Beta)
 	// - `google`: Google (Beta)
+	// - `sarvam`: Sarvam (Beta)
 	Vendor *StartAgentsRequestPropertiesAsrVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The configuration parameters for the ASR vendor. See [ASR Overview](https://docs.agora.io/en/conversational-ai/models/asr/overview) for details.
 	Params map[string]interface{} `json:"params,omitempty" url:"params,omitempty"`
@@ -4576,6 +5283,7 @@ func (s *StartAgentsRequestPropertiesAsr) String() string {
 // - `assemblyai`: AssemblyAI (Beta)
 // - `amazon`: Amazon Transcribe (Beta)
 // - `google`: Google (Beta)
+// - `sarvam`: Sarvam (Beta)
 type StartAgentsRequestPropertiesAsrVendor string
 
 const (
@@ -4587,6 +5295,7 @@ const (
 	StartAgentsRequestPropertiesAsrVendorAmazon       StartAgentsRequestPropertiesAsrVendor = "amazon"
 	StartAgentsRequestPropertiesAsrVendorAssemblyai   StartAgentsRequestPropertiesAsrVendor = "assemblyai"
 	StartAgentsRequestPropertiesAsrVendorSpeechmatics StartAgentsRequestPropertiesAsrVendor = "speechmatics"
+	StartAgentsRequestPropertiesAsrVendorSarvam       StartAgentsRequestPropertiesAsrVendor = "sarvam"
 )
 
 func NewStartAgentsRequestPropertiesAsrVendorFromString(s string) (StartAgentsRequestPropertiesAsrVendor, error) {
@@ -4607,6 +5316,8 @@ func NewStartAgentsRequestPropertiesAsrVendorFromString(s string) (StartAgentsRe
 		return StartAgentsRequestPropertiesAsrVendorAssemblyai, nil
 	case "speechmatics":
 		return StartAgentsRequestPropertiesAsrVendorSpeechmatics, nil
+	case "sarvam":
+		return StartAgentsRequestPropertiesAsrVendorSarvam, nil
 	}
 	var t StartAgentsRequestPropertiesAsrVendor
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -4757,19 +5468,688 @@ func (s StartAgentsRequestPropertiesAvatarVendor) Ptr() *StartAgentsRequestPrope
 	return &s
 }
 
+// Filler word configuration. Plays filler words while waiting for LLM responses to reduce user anxiety and improve conversation flow.
+var (
+	startAgentsRequestPropertiesFillerWordsFieldEnable  = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesFillerWordsFieldTrigger = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesFillerWordsFieldContent = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesFillerWords struct {
+	// Whether to enable filler words:
+	// - `true`: Enable filler words.
+	// - `false`: Disable filler words.
+	Enable *bool `json:"enable,omitempty" url:"enable,omitempty"`
+	// Filler word trigger configuration. Defines when to trigger filler word playback.
+	Trigger *StartAgentsRequestPropertiesFillerWordsTrigger `json:"trigger,omitempty" url:"trigger,omitempty"`
+	// Filler word content configuration. Defines the source and selection rules for filler words.
+	Content *StartAgentsRequestPropertiesFillerWordsContent `json:"content,omitempty" url:"content,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) GetEnable() *bool {
+	if s == nil {
+		return nil
+	}
+	return s.Enable
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) GetTrigger() *StartAgentsRequestPropertiesFillerWordsTrigger {
+	if s == nil {
+		return nil
+	}
+	return s.Trigger
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) GetContent() *StartAgentsRequestPropertiesFillerWordsContent {
+	if s == nil {
+		return nil
+	}
+	return s.Content
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetEnable sets the Enable field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWords) SetEnable(enable *bool) {
+	s.Enable = enable
+	s.require(startAgentsRequestPropertiesFillerWordsFieldEnable)
+}
+
+// SetTrigger sets the Trigger field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWords) SetTrigger(trigger *StartAgentsRequestPropertiesFillerWordsTrigger) {
+	s.Trigger = trigger
+	s.require(startAgentsRequestPropertiesFillerWordsFieldTrigger)
+}
+
+// SetContent sets the Content field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWords) SetContent(content *StartAgentsRequestPropertiesFillerWordsContent) {
+	s.Content = content
+	s.require(startAgentsRequestPropertiesFillerWordsFieldContent)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesFillerWords
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesFillerWords(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesFillerWords
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWords) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Filler word content configuration. Defines the source and selection rules for filler words.
+var (
+	startAgentsRequestPropertiesFillerWordsContentFieldMode         = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesFillerWordsContentFieldStaticConfig = big.NewInt(1 << 1)
+)
+
+type StartAgentsRequestPropertiesFillerWordsContent struct {
+	// Filler word content mode:
+	// - `static`: Static filler words. Uses a predefined list of filler words.
+	Mode *string `json:"mode,omitempty" url:"mode,omitempty"`
+	// Static filler word configuration. Used when `mode` is `static`.
+	StaticConfig *StartAgentsRequestPropertiesFillerWordsContentStaticConfig `json:"static_config,omitempty" url:"static_config,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) GetStaticConfig() *StartAgentsRequestPropertiesFillerWordsContentStaticConfig {
+	if s == nil {
+		return nil
+	}
+	return s.StaticConfig
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsContent) SetMode(mode *string) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesFillerWordsContentFieldMode)
+}
+
+// SetStaticConfig sets the StaticConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsContent) SetStaticConfig(staticConfig *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) {
+	s.StaticConfig = staticConfig
+	s.require(startAgentsRequestPropertiesFillerWordsContentFieldStaticConfig)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesFillerWordsContent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesFillerWordsContent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesFillerWordsContent
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContent) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Static filler word configuration. Used when `mode` is `static`.
+var (
+	startAgentsRequestPropertiesFillerWordsContentStaticConfigFieldPhrases       = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesFillerWordsContentStaticConfigFieldSelectionRule = big.NewInt(1 << 1)
+)
+
+type StartAgentsRequestPropertiesFillerWordsContentStaticConfig struct {
+	// List of filler word phrases. Maximum 100 filler words, each not exceeding 50 English words.
+	Phrases []string `json:"phrases,omitempty" url:"phrases,omitempty"`
+	// Filler word selection rule:
+	// - `shuffle`: Random shuffle. Already-used filler words are not repeated until all have been used once.
+	// - `round_robin`: Round-robin. Selects and plays filler words sequentially from the list.
+	SelectionRule *StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule `json:"selection_rule,omitempty" url:"selection_rule,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) GetPhrases() []string {
+	if s == nil {
+		return nil
+	}
+	return s.Phrases
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) GetSelectionRule() *StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule {
+	if s == nil {
+		return nil
+	}
+	return s.SelectionRule
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetPhrases sets the Phrases field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) SetPhrases(phrases []string) {
+	s.Phrases = phrases
+	s.require(startAgentsRequestPropertiesFillerWordsContentStaticConfigFieldPhrases)
+}
+
+// SetSelectionRule sets the SelectionRule field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) SetSelectionRule(selectionRule *StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule) {
+	s.SelectionRule = selectionRule
+	s.require(startAgentsRequestPropertiesFillerWordsContentStaticConfigFieldSelectionRule)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesFillerWordsContentStaticConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesFillerWordsContentStaticConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesFillerWordsContentStaticConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsContentStaticConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Filler word selection rule:
+// - `shuffle`: Random shuffle. Already-used filler words are not repeated until all have been used once.
+// - `round_robin`: Round-robin. Selects and plays filler words sequentially from the list.
+type StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule string
+
+const (
+	StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle    StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule = "shuffle"
+	StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleRoundRobin StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule = "round_robin"
+)
+
+func NewStartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleFromString(s string) (StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule, error) {
+	switch s {
+	case "shuffle":
+		return StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle, nil
+	case "round_robin":
+		return StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleRoundRobin, nil
+	}
+	var t StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule) Ptr() *StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule {
+	return &s
+}
+
+// Filler word trigger configuration. Defines when to trigger filler word playback.
+var (
+	startAgentsRequestPropertiesFillerWordsTriggerFieldMode            = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesFillerWordsTriggerFieldFixedTimeConfig = big.NewInt(1 << 1)
+)
+
+type StartAgentsRequestPropertiesFillerWordsTrigger struct {
+	// Filler word trigger mode:
+	// - `fixed_time`: Fixed time trigger. Triggers filler word playback when LLM response wait time exceeds the threshold.
+	Mode *string `json:"mode,omitempty" url:"mode,omitempty"`
+	// Fixed time trigger configuration. Used when `mode` is `fixed_time`.
+	FixedTimeConfig *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig `json:"fixed_time_config,omitempty" url:"fixed_time_config,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) GetFixedTimeConfig() *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig {
+	if s == nil {
+		return nil
+	}
+	return s.FixedTimeConfig
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) SetMode(mode *string) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesFillerWordsTriggerFieldMode)
+}
+
+// SetFixedTimeConfig sets the FixedTimeConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) SetFixedTimeConfig(fixedTimeConfig *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) {
+	s.FixedTimeConfig = fixedTimeConfig
+	s.require(startAgentsRequestPropertiesFillerWordsTriggerFieldFixedTimeConfig)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesFillerWordsTrigger
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesFillerWordsTrigger(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesFillerWordsTrigger
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTrigger) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Fixed time trigger configuration. Used when `mode` is `fixed_time`.
+var (
+	startAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfigFieldResponseWaitMs = big.NewInt(1 << 0)
+)
+
+type StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig struct {
+	// LLM response wait threshold in milliseconds. Triggers filler word playback when the LLM waits this duration without generating a response.
+	ResponseWaitMs *int `json:"response_wait_ms,omitempty" url:"response_wait_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) GetResponseWaitMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.ResponseWaitMs
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetResponseWaitMs sets the ResponseWaitMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) SetResponseWaitMs(responseWaitMs *int) {
+	s.ResponseWaitMs = responseWaitMs
+	s.require(startAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfigFieldResponseWaitMs)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Regional access restriction configuration. Use this to limit which Agora servers the Conversational AI Engine can access based on geographic regions.
+var (
+	startAgentsRequestPropertiesGeofenceFieldArea        = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesGeofenceFieldExcludeArea = big.NewInt(1 << 1)
+)
+
+type StartAgentsRequestPropertiesGeofence struct {
+	// The allowed region for server access.
+	Area StartAgentsRequestPropertiesGeofenceArea `json:"area" url:"area"`
+	// The excluded region. Only available when `area` is set to `GLOBAL`.
+	ExcludeArea *StartAgentsRequestPropertiesGeofenceExcludeArea `json:"exclude_area,omitempty" url:"exclude_area,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) GetArea() StartAgentsRequestPropertiesGeofenceArea {
+	if s == nil {
+		return ""
+	}
+	return s.Area
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) GetExcludeArea() *StartAgentsRequestPropertiesGeofenceExcludeArea {
+	if s == nil {
+		return nil
+	}
+	return s.ExcludeArea
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetArea sets the Area field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesGeofence) SetArea(area StartAgentsRequestPropertiesGeofenceArea) {
+	s.Area = area
+	s.require(startAgentsRequestPropertiesGeofenceFieldArea)
+}
+
+// SetExcludeArea sets the ExcludeArea field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesGeofence) SetExcludeArea(excludeArea *StartAgentsRequestPropertiesGeofenceExcludeArea) {
+	s.ExcludeArea = excludeArea
+	s.require(startAgentsRequestPropertiesGeofenceFieldExcludeArea)
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesGeofence
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesGeofence(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesGeofence
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesGeofence) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// The allowed region for server access.
+type StartAgentsRequestPropertiesGeofenceArea string
+
+const (
+	StartAgentsRequestPropertiesGeofenceAreaGlobal       StartAgentsRequestPropertiesGeofenceArea = "GLOBAL"
+	StartAgentsRequestPropertiesGeofenceAreaNorthAmerica StartAgentsRequestPropertiesGeofenceArea = "NORTH_AMERICA"
+	StartAgentsRequestPropertiesGeofenceAreaEurope       StartAgentsRequestPropertiesGeofenceArea = "EUROPE"
+	StartAgentsRequestPropertiesGeofenceAreaAsia         StartAgentsRequestPropertiesGeofenceArea = "ASIA"
+	StartAgentsRequestPropertiesGeofenceAreaIndia        StartAgentsRequestPropertiesGeofenceArea = "INDIA"
+	StartAgentsRequestPropertiesGeofenceAreaJapan        StartAgentsRequestPropertiesGeofenceArea = "JAPAN"
+)
+
+func NewStartAgentsRequestPropertiesGeofenceAreaFromString(s string) (StartAgentsRequestPropertiesGeofenceArea, error) {
+	switch s {
+	case "GLOBAL":
+		return StartAgentsRequestPropertiesGeofenceAreaGlobal, nil
+	case "NORTH_AMERICA":
+		return StartAgentsRequestPropertiesGeofenceAreaNorthAmerica, nil
+	case "EUROPE":
+		return StartAgentsRequestPropertiesGeofenceAreaEurope, nil
+	case "ASIA":
+		return StartAgentsRequestPropertiesGeofenceAreaAsia, nil
+	case "INDIA":
+		return StartAgentsRequestPropertiesGeofenceAreaIndia, nil
+	case "JAPAN":
+		return StartAgentsRequestPropertiesGeofenceAreaJapan, nil
+	}
+	var t StartAgentsRequestPropertiesGeofenceArea
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesGeofenceArea) Ptr() *StartAgentsRequestPropertiesGeofenceArea {
+	return &s
+}
+
+// The excluded region. Only available when `area` is set to `GLOBAL`.
+type StartAgentsRequestPropertiesGeofenceExcludeArea string
+
+const (
+	StartAgentsRequestPropertiesGeofenceExcludeAreaNorthAmerica StartAgentsRequestPropertiesGeofenceExcludeArea = "NORTH_AMERICA"
+	StartAgentsRequestPropertiesGeofenceExcludeAreaEurope       StartAgentsRequestPropertiesGeofenceExcludeArea = "EUROPE"
+	StartAgentsRequestPropertiesGeofenceExcludeAreaAsia         StartAgentsRequestPropertiesGeofenceExcludeArea = "ASIA"
+	StartAgentsRequestPropertiesGeofenceExcludeAreaIndia        StartAgentsRequestPropertiesGeofenceExcludeArea = "INDIA"
+	StartAgentsRequestPropertiesGeofenceExcludeAreaJapan        StartAgentsRequestPropertiesGeofenceExcludeArea = "JAPAN"
+)
+
+func NewStartAgentsRequestPropertiesGeofenceExcludeAreaFromString(s string) (StartAgentsRequestPropertiesGeofenceExcludeArea, error) {
+	switch s {
+	case "NORTH_AMERICA":
+		return StartAgentsRequestPropertiesGeofenceExcludeAreaNorthAmerica, nil
+	case "EUROPE":
+		return StartAgentsRequestPropertiesGeofenceExcludeAreaEurope, nil
+	case "ASIA":
+		return StartAgentsRequestPropertiesGeofenceExcludeAreaAsia, nil
+	case "INDIA":
+		return StartAgentsRequestPropertiesGeofenceExcludeAreaIndia, nil
+	case "JAPAN":
+		return StartAgentsRequestPropertiesGeofenceExcludeAreaJapan, nil
+	}
+	var t StartAgentsRequestPropertiesGeofenceExcludeArea
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesGeofenceExcludeArea) Ptr() *StartAgentsRequestPropertiesGeofenceExcludeArea {
+	return &s
+}
+
 // Large language model (LLM) configuration.
 var (
-	startAgentsRequestPropertiesLlmFieldURL              = big.NewInt(1 << 0)
-	startAgentsRequestPropertiesLlmFieldAPIKey           = big.NewInt(1 << 1)
-	startAgentsRequestPropertiesLlmFieldSystemMessages   = big.NewInt(1 << 2)
-	startAgentsRequestPropertiesLlmFieldParams           = big.NewInt(1 << 3)
-	startAgentsRequestPropertiesLlmFieldMaxHistory       = big.NewInt(1 << 4)
-	startAgentsRequestPropertiesLlmFieldInputModalities  = big.NewInt(1 << 5)
-	startAgentsRequestPropertiesLlmFieldOutputModalities = big.NewInt(1 << 6)
-	startAgentsRequestPropertiesLlmFieldGreetingMessage  = big.NewInt(1 << 7)
-	startAgentsRequestPropertiesLlmFieldFailureMessage   = big.NewInt(1 << 8)
-	startAgentsRequestPropertiesLlmFieldVendor           = big.NewInt(1 << 9)
-	startAgentsRequestPropertiesLlmFieldStyle            = big.NewInt(1 << 10)
+	startAgentsRequestPropertiesLlmFieldURL               = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesLlmFieldAPIKey            = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesLlmFieldSystemMessages    = big.NewInt(1 << 2)
+	startAgentsRequestPropertiesLlmFieldParams            = big.NewInt(1 << 3)
+	startAgentsRequestPropertiesLlmFieldMaxHistory        = big.NewInt(1 << 4)
+	startAgentsRequestPropertiesLlmFieldInputModalities   = big.NewInt(1 << 5)
+	startAgentsRequestPropertiesLlmFieldOutputModalities  = big.NewInt(1 << 6)
+	startAgentsRequestPropertiesLlmFieldGreetingMessage   = big.NewInt(1 << 7)
+	startAgentsRequestPropertiesLlmFieldFailureMessage    = big.NewInt(1 << 8)
+	startAgentsRequestPropertiesLlmFieldVendor            = big.NewInt(1 << 9)
+	startAgentsRequestPropertiesLlmFieldStyle             = big.NewInt(1 << 10)
+	startAgentsRequestPropertiesLlmFieldGreetingConfigs   = big.NewInt(1 << 11)
+	startAgentsRequestPropertiesLlmFieldTemplateVariables = big.NewInt(1 << 12)
+	startAgentsRequestPropertiesLlmFieldMcpServers        = big.NewInt(1 << 13)
 )
 
 type StartAgentsRequestPropertiesLlm struct {
@@ -4809,6 +6189,12 @@ type StartAgentsRequestPropertiesLlm struct {
 	// - `anthropic`: For Anthropic Claude API format
 	// - `dify`: For Dify API format
 	Style *StartAgentsRequestPropertiesLlmStyle `json:"style,omitempty" url:"style,omitempty"`
+	// Agent greeting broadcast configuration.
+	GreetingConfigs *StartAgentsRequestPropertiesLlmGreetingConfigs `json:"greeting_configs,omitempty" url:"greeting_configs,omitempty"`
+	// Template parameter configuration used to insert variables into the agent's `system_messages`, `greeting_message`, `failure_message`, and `parameters.silence_config.content` text. Uses key-value pairs, where the key is the variable name and the value is the variable's value. To insert defined variables in the prompt text, use the syntax `{{variable_name}}`. The system automatically replaces each variable with the corresponding value defined in `template_variables`. Variable values cannot reference other variables.
+	TemplateVariables map[string]string `json:"template_variables,omitempty" url:"template_variables,omitempty"`
+	// MCP (Model Context Protocol) server configuration. By configuring MCP servers, agents can call tools provided by external services to implement advanced functionality.
+	McpServers []*StartAgentsRequestPropertiesLlmMcpServersItem `json:"mcp_servers,omitempty" url:"mcp_servers,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -4892,6 +6278,27 @@ func (s *StartAgentsRequestPropertiesLlm) GetStyle() *StartAgentsRequestProperti
 		return nil
 	}
 	return s.Style
+}
+
+func (s *StartAgentsRequestPropertiesLlm) GetGreetingConfigs() *StartAgentsRequestPropertiesLlmGreetingConfigs {
+	if s == nil {
+		return nil
+	}
+	return s.GreetingConfigs
+}
+
+func (s *StartAgentsRequestPropertiesLlm) GetTemplateVariables() map[string]string {
+	if s == nil {
+		return nil
+	}
+	return s.TemplateVariables
+}
+
+func (s *StartAgentsRequestPropertiesLlm) GetMcpServers() []*StartAgentsRequestPropertiesLlmMcpServersItem {
+	if s == nil {
+		return nil
+	}
+	return s.McpServers
 }
 
 func (s *StartAgentsRequestPropertiesLlm) GetExtraProperties() map[string]interface{} {
@@ -4982,6 +6389,27 @@ func (s *StartAgentsRequestPropertiesLlm) SetStyle(style *StartAgentsRequestProp
 	s.require(startAgentsRequestPropertiesLlmFieldStyle)
 }
 
+// SetGreetingConfigs sets the GreetingConfigs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlm) SetGreetingConfigs(greetingConfigs *StartAgentsRequestPropertiesLlmGreetingConfigs) {
+	s.GreetingConfigs = greetingConfigs
+	s.require(startAgentsRequestPropertiesLlmFieldGreetingConfigs)
+}
+
+// SetTemplateVariables sets the TemplateVariables field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlm) SetTemplateVariables(templateVariables map[string]string) {
+	s.TemplateVariables = templateVariables
+	s.require(startAgentsRequestPropertiesLlmFieldTemplateVariables)
+}
+
+// SetMcpServers sets the McpServers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlm) SetMcpServers(mcpServers []*StartAgentsRequestPropertiesLlmMcpServersItem) {
+	s.McpServers = mcpServers
+	s.require(startAgentsRequestPropertiesLlmFieldMcpServers)
+}
+
 func (s *StartAgentsRequestPropertiesLlm) UnmarshalJSON(data []byte) error {
 	type unmarshaler StartAgentsRequestPropertiesLlm
 	var value unmarshaler
@@ -5010,6 +6438,276 @@ func (s *StartAgentsRequestPropertiesLlm) MarshalJSON() ([]byte, error) {
 }
 
 func (s *StartAgentsRequestPropertiesLlm) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Agent greeting broadcast configuration.
+var (
+	startAgentsRequestPropertiesLlmGreetingConfigsFieldMode = big.NewInt(1 << 0)
+)
+
+type StartAgentsRequestPropertiesLlmGreetingConfigs struct {
+	// Determines when the agent sends greeting messages to users joining the channel.
+	// - `single_every`: Broadcasts a greeting every time a user joins the channel.
+	// - `single_first`: Broadcasts a greeting only once to the first user who joins the channel.
+	Mode *StartAgentsRequestPropertiesLlmGreetingConfigsMode `json:"mode,omitempty" url:"mode,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) GetMode() *StartAgentsRequestPropertiesLlmGreetingConfigsMode {
+	if s == nil {
+		return nil
+	}
+	return s.Mode
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) SetMode(mode *StartAgentsRequestPropertiesLlmGreetingConfigsMode) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesLlmGreetingConfigsFieldMode)
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesLlmGreetingConfigs
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesLlmGreetingConfigs(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesLlmGreetingConfigs
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesLlmGreetingConfigs) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Determines when the agent sends greeting messages to users joining the channel.
+// - `single_every`: Broadcasts a greeting every time a user joins the channel.
+// - `single_first`: Broadcasts a greeting only once to the first user who joins the channel.
+type StartAgentsRequestPropertiesLlmGreetingConfigsMode string
+
+const (
+	StartAgentsRequestPropertiesLlmGreetingConfigsModeSingleEvery StartAgentsRequestPropertiesLlmGreetingConfigsMode = "single_every"
+	StartAgentsRequestPropertiesLlmGreetingConfigsModeSingleFirst StartAgentsRequestPropertiesLlmGreetingConfigsMode = "single_first"
+)
+
+func NewStartAgentsRequestPropertiesLlmGreetingConfigsModeFromString(s string) (StartAgentsRequestPropertiesLlmGreetingConfigsMode, error) {
+	switch s {
+	case "single_every":
+		return StartAgentsRequestPropertiesLlmGreetingConfigsModeSingleEvery, nil
+	case "single_first":
+		return StartAgentsRequestPropertiesLlmGreetingConfigsModeSingleFirst, nil
+	}
+	var t StartAgentsRequestPropertiesLlmGreetingConfigsMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesLlmGreetingConfigsMode) Ptr() *StartAgentsRequestPropertiesLlmGreetingConfigsMode {
+	return &s
+}
+
+var (
+	startAgentsRequestPropertiesLlmMcpServersItemFieldName         = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesLlmMcpServersItemFieldEndpoint     = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesLlmMcpServersItemFieldTransport    = big.NewInt(1 << 2)
+	startAgentsRequestPropertiesLlmMcpServersItemFieldHeaders      = big.NewInt(1 << 3)
+	startAgentsRequestPropertiesLlmMcpServersItemFieldAllowedTools = big.NewInt(1 << 4)
+	startAgentsRequestPropertiesLlmMcpServersItemFieldTimeoutMs    = big.NewInt(1 << 5)
+)
+
+type StartAgentsRequestPropertiesLlmMcpServersItem struct {
+	// A unique identifier for the MCP server. Maximum 48 characters. Accepts only English letters and numbers.
+	Name string `json:"name" url:"name"`
+	// The endpoint address of the MCP server. The agent uses this to communicate with the MCP server.
+	Endpoint string `json:"endpoint" url:"endpoint"`
+	// Transport protocol type.
+	// - `streamable_http`: Streaming HTTP protocol
+	Transport *string `json:"transport,omitempty" url:"transport,omitempty"`
+	// HTTP header information to include when requesting the MCP server, such as authentication information.
+	Headers map[string]string `json:"headers,omitempty" url:"headers,omitempty"`
+	// A list of tools that the agent is allowed to invoke. The agent can only use tools on this list.
+	// - Empty or omitted: All tools are enabled.
+	// - Empty array `[]`: No tools are enabled.
+	// - `["*"]`: All tools are enabled.
+	// - Specific tools `["aa", "bb"]`: Only listed tools are enabled.
+	// - Mix with wildcard `["aa", "*"]`: All tools are enabled (wildcard takes precedence).
+	AllowedTools []string `json:"allowed_tools,omitempty" url:"allowed_tools,omitempty"`
+	// The MCP server request timeout in milliseconds. After timeout, the agent stops waiting for the MCP server's response and continues executing subsequent logic.
+	TimeoutMs *int `json:"timeout_ms,omitempty" url:"timeout_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetName() string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetEndpoint() string {
+	if s == nil {
+		return ""
+	}
+	return s.Endpoint
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetHeaders() map[string]string {
+	if s == nil {
+		return nil
+	}
+	return s.Headers
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetAllowedTools() []string {
+	if s == nil {
+		return nil
+	}
+	return s.AllowedTools
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetTimeoutMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.TimeoutMs
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetName(name string) {
+	s.Name = name
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldName)
+}
+
+// SetEndpoint sets the Endpoint field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetEndpoint(endpoint string) {
+	s.Endpoint = endpoint
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldEndpoint)
+}
+
+// SetTransport sets the Transport field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetTransport(transport *string) {
+	s.Transport = transport
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldTransport)
+}
+
+// SetHeaders sets the Headers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetHeaders(headers map[string]string) {
+	s.Headers = headers
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldHeaders)
+}
+
+// SetAllowedTools sets the AllowedTools field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetAllowedTools(allowedTools []string) {
+	s.AllowedTools = allowedTools
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldAllowedTools)
+}
+
+// SetTimeoutMs sets the TimeoutMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) SetTimeoutMs(timeoutMs *int) {
+	s.TimeoutMs = timeoutMs
+	s.require(startAgentsRequestPropertiesLlmMcpServersItemFieldTimeoutMs)
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesLlmMcpServersItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesLlmMcpServersItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesLlmMcpServersItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesLlmMcpServersItem) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -5091,7 +6789,7 @@ type StartAgentsRequestPropertiesMllm struct {
 	Vendor *StartAgentsRequestPropertiesMllmVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The request style for MLLM completion:
 	// - `openai`: For OpenAI Realtime API format
-	Style *StartAgentsRequestPropertiesMllmStyle `json:"style,omitempty" url:"style,omitempty"`
+	Style *string `json:"style,omitempty" url:"style,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -5154,13 +6852,6 @@ func (s *StartAgentsRequestPropertiesMllm) GetVendor() *StartAgentsRequestProper
 		return nil
 	}
 	return s.Vendor
-}
-
-func (s *StartAgentsRequestPropertiesMllm) GetStyle() *StartAgentsRequestPropertiesMllmStyle {
-	if s == nil {
-		return nil
-	}
-	return s.Style
 }
 
 func (s *StartAgentsRequestPropertiesMllm) GetExtraProperties() map[string]interface{} {
@@ -5232,7 +6923,7 @@ func (s *StartAgentsRequestPropertiesMllm) SetVendor(vendor_ *StartAgentsRequest
 
 // SetStyle sets the Style field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesMllm) SetStyle(style *StartAgentsRequestPropertiesMllmStyle) {
+func (s *StartAgentsRequestPropertiesMllm) SetStyle(style *string) {
 	s.Style = style
 	s.require(startAgentsRequestPropertiesMllmFieldStyle)
 }
@@ -5274,27 +6965,6 @@ func (s *StartAgentsRequestPropertiesMllm) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
-}
-
-// The request style for MLLM completion:
-// - `openai`: For OpenAI Realtime API format
-type StartAgentsRequestPropertiesMllmStyle string
-
-const (
-	StartAgentsRequestPropertiesMllmStyleOpenai StartAgentsRequestPropertiesMllmStyle = "openai"
-)
-
-func NewStartAgentsRequestPropertiesMllmStyleFromString(s string) (StartAgentsRequestPropertiesMllmStyle, error) {
-	switch s {
-	case "openai":
-		return StartAgentsRequestPropertiesMllmStyleOpenai, nil
-	}
-	var t StartAgentsRequestPropertiesMllmStyle
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (s StartAgentsRequestPropertiesMllmStyle) Ptr() *StartAgentsRequestPropertiesMllmStyle {
-	return &s
 }
 
 // MLLM provider. Currently supports:
@@ -5739,6 +7409,128 @@ func (s StartAgentsRequestPropertiesParametersSilenceConfigAction) Ptr() *StartA
 	return &s
 }
 
+// RTC media encryption configuration.
+var (
+	startAgentsRequestPropertiesRtcFieldEncryptionKey  = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesRtcFieldEncryptionSalt = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesRtcFieldEncryptionMode = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesRtc struct {
+	// The encryption key for RTC media content. The key has no length limit. Agora recommends using a 32-byte key. If no encryption key is set or if the key is empty, built-in encryption is not used.
+	EncryptionKey *string `json:"encryption_key,omitempty" url:"encryption_key,omitempty"`
+	// The salt value used for encryption. This is a Base64-encoded string that is 32 bytes long after decoding. This parameter only takes effect when `encryption_mode` is set to `7` (AES_128_GCM2) or `8` (AES_256_GCM2). Ensure that the salt parameter is not empty for these encryption modes.
+	EncryptionSalt *string `json:"encryption_salt,omitempty" url:"encryption_salt,omitempty"`
+	// The built-in encryption mode.
+	// - `1`: AES_128_XTS - 128-bit AES encryption, XTS mode.
+	// - `2`: AES_128_ECB - 128-bit AES encryption, ECB mode.
+	// - `3`: AES_256_XTS - 256-bit AES encryption, XTS mode.
+	// - `4`: SM4_128_ECB - 128-bit SM4 encryption, ECB mode.
+	// - `5`: AES_128_GCM - 128-bit AES encryption, GCM mode.
+	// - `6`: AES_256_GCM - 256-bit AES encryption, GCM mode.
+	// - `7`: AES_128_GCM2 - 128-bit AES encryption, GCM mode. Requires setting `encryption_salt`.
+	// - `8`: AES_256_GCM2 - 256-bit AES encryption, GCM mode. Requires setting `encryption_salt`.
+	EncryptionMode *int `json:"encryption_mode,omitempty" url:"encryption_mode,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesRtc) GetEncryptionKey() *string {
+	if s == nil {
+		return nil
+	}
+	return s.EncryptionKey
+}
+
+func (s *StartAgentsRequestPropertiesRtc) GetEncryptionSalt() *string {
+	if s == nil {
+		return nil
+	}
+	return s.EncryptionSalt
+}
+
+func (s *StartAgentsRequestPropertiesRtc) GetEncryptionMode() *int {
+	if s == nil {
+		return nil
+	}
+	return s.EncryptionMode
+}
+
+func (s *StartAgentsRequestPropertiesRtc) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesRtc) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetEncryptionKey sets the EncryptionKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesRtc) SetEncryptionKey(encryptionKey *string) {
+	s.EncryptionKey = encryptionKey
+	s.require(startAgentsRequestPropertiesRtcFieldEncryptionKey)
+}
+
+// SetEncryptionSalt sets the EncryptionSalt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesRtc) SetEncryptionSalt(encryptionSalt *string) {
+	s.EncryptionSalt = encryptionSalt
+	s.require(startAgentsRequestPropertiesRtcFieldEncryptionSalt)
+}
+
+// SetEncryptionMode sets the EncryptionMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesRtc) SetEncryptionMode(encryptionMode *int) {
+	s.EncryptionMode = encryptionMode
+	s.require(startAgentsRequestPropertiesRtcFieldEncryptionMode)
+}
+
+func (s *StartAgentsRequestPropertiesRtc) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesRtc
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesRtc(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesRtc) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesRtc
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesRtc) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
 // Selective Attention Locking (SAL) configuration.
 var (
 	startAgentsRequestPropertiesSalFieldSalMode    = big.NewInt(1 << 0)
@@ -5753,10 +7545,9 @@ type StartAgentsRequestPropertiesSal struct {
 	//
 	// - `recognition`: Voiceprint recognition mode. The agent identifies different speakers and suppresses other background voices and environmental noise.
 	SalMode *StartAgentsRequestPropertiesSalSalMode `json:"sal_mode,omitempty" url:"sal_mode,omitempty"`
-	// The registered voiceprint URLs as key-value pairs, where each key is the voiceprint name and each value is the download URL for that speaker's voiceprint.
+	// The registered voiceprint URL as a key-value pair, where the key is the voiceprint name and the value is the download URL for the speaker's voiceprint. Only one voiceprint URL is supported.
 	// > - Do not set the incoming voiceprint name to "unknown"; this is a reserved keyword used to identify unknown speakers.
 	// > - For a registered voiceprint, ensure that:
-	// >   - Quantity: You must register at least 1 voiceprint URL, with a maximum of 3 per task request.
 	// >   - Size: A single voiceprint file must not exceed 2 MB.
 	// >   - Duration: 10 to 15 seconds, with at least 8 seconds of effective audio without silent segments.
 	// >   - Format: 16kHz sampling rate, 16-bit depth, mono PCM audio file. The file name extension must be ".pcm".
@@ -5875,26 +7666,35 @@ func (s StartAgentsRequestPropertiesSalSalMode) Ptr() *StartAgentsRequestPropert
 	return &s
 }
 
-// Conversation turn detection settings.
+// Conversation turn detection settings. Controls the logic for voice activity detection and conversation turn determination.
 var (
-	startAgentsRequestPropertiesTurnDetectionFieldType                = big.NewInt(1 << 0)
-	startAgentsRequestPropertiesTurnDetectionFieldInterruptMode       = big.NewInt(1 << 1)
-	startAgentsRequestPropertiesTurnDetectionFieldInterruptDurationMs = big.NewInt(1 << 2)
-	startAgentsRequestPropertiesTurnDetectionFieldInterruptKeywords   = big.NewInt(1 << 3)
-	startAgentsRequestPropertiesTurnDetectionFieldPrefixPaddingMs     = big.NewInt(1 << 4)
-	startAgentsRequestPropertiesTurnDetectionFieldSilenceDurationMs   = big.NewInt(1 << 5)
-	startAgentsRequestPropertiesTurnDetectionFieldThreshold           = big.NewInt(1 << 6)
-	startAgentsRequestPropertiesTurnDetectionFieldCreateResponse      = big.NewInt(1 << 7)
-	startAgentsRequestPropertiesTurnDetectionFieldInterruptResponse   = big.NewInt(1 << 8)
-	startAgentsRequestPropertiesTurnDetectionFieldEagerness           = big.NewInt(1 << 9)
+	startAgentsRequestPropertiesTurnDetectionFieldMode                = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionFieldConfig              = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionFieldType                = big.NewInt(1 << 2)
+	startAgentsRequestPropertiesTurnDetectionFieldInterruptMode       = big.NewInt(1 << 3)
+	startAgentsRequestPropertiesTurnDetectionFieldInterruptDurationMs = big.NewInt(1 << 4)
+	startAgentsRequestPropertiesTurnDetectionFieldInterruptKeywords   = big.NewInt(1 << 5)
+	startAgentsRequestPropertiesTurnDetectionFieldPrefixPaddingMs     = big.NewInt(1 << 6)
+	startAgentsRequestPropertiesTurnDetectionFieldSilenceDurationMs   = big.NewInt(1 << 7)
+	startAgentsRequestPropertiesTurnDetectionFieldThreshold           = big.NewInt(1 << 8)
+	startAgentsRequestPropertiesTurnDetectionFieldCreateResponse      = big.NewInt(1 << 9)
+	startAgentsRequestPropertiesTurnDetectionFieldInterruptResponse   = big.NewInt(1 << 10)
+	startAgentsRequestPropertiesTurnDetectionFieldEagerness           = big.NewInt(1 << 11)
 )
 
 type StartAgentsRequestPropertiesTurnDetection struct {
+	// Conversation turn detection mode:
+	// - `default`: Uses standard conversation turn detection configuration.
+	Mode *string `json:"mode,omitempty" url:"mode,omitempty"`
+	// Detailed configuration for conversation turn detection.
+	Config *StartAgentsRequestPropertiesTurnDetectionConfig `json:"config,omitempty" url:"config,omitempty"`
+	// Deprecated. Use `turn_detection.mode` and `turn_detection.config` instead.
 	// Turn detection mechanism:
 	// - `agora_vad`: Agora VAD
 	// - `server_vad`: The model detects the start and end of speech based on audio volume. Only available when `mllm` is enabled and OpenAI is selected.
 	// - `semantic_vad`: Uses a turn detection model with VAD to semantically estimate whether the user has finished speaking. Only available when `mllm` is enabled and OpenAI is selected.
 	Type *StartAgentsRequestPropertiesTurnDetectionType `json:"type,omitempty" url:"type,omitempty"`
+	// Deprecated. Use `turn_detection.config.start_of_speech` instead.
 	// Sets the agent's behavior when human voice interrupts the agent while it is interacting (speaking or thinking):
 	// - `interrupt`: The agent immediately stops the current interaction and processes the human voice input.
 	// - `append`: The agent completes the current interaction, then processes the human voice input.
@@ -5902,26 +7702,25 @@ type StartAgentsRequestPropertiesTurnDetection struct {
 	// - `keyword`: The agent stops its current interaction after detecting any of the keywords specified in `interrupt_keywords`.
 	// - `adaptive`: The agent dynamically increases the voice continuity threshold while speaking to reduce accidental interruptions.
 	InterruptMode *StartAgentsRequestPropertiesTurnDetectionInterruptMode `json:"interrupt_mode,omitempty" url:"interrupt_mode,omitempty"`
-	// The amount of time in milliseconds that the user's voice must exceed the VAD threshold before an interruption is triggered.
+	// Deprecated. Use `turn_detection.config.start_of_speech.vad_config.interrupt_duration_ms` instead. The amount of time in milliseconds that the user's voice must exceed the VAD threshold before an interruption is triggered.
 	InterruptDurationMs *float64 `json:"interrupt_duration_ms,omitempty" url:"interrupt_duration_ms,omitempty"`
-	// Specifies the list of keywords that trigger an interruption when `interrupt_mode` is set to `keyword`. You can configure up to 128 keywords.
+	// Deprecated. Use `turn_detection.config.start_of_speech.keywords_config.triggered_keywords` instead. Specifies the list of keywords that trigger an interruption when `interrupt_mode` is set to `keyword`. You can configure up to 128 keywords.
 	InterruptKeywords []string `json:"interrupt_keywords,omitempty" url:"interrupt_keywords,omitempty"`
-	// The extra forward padding time in milliseconds before the processing system starts to process the speech input. This padding helps capture the beginning of the speech.
+	// Deprecated. Use `turn_detection.config.start_of_speech.vad_config.prefix_padding_ms` instead. The extra forward padding time in milliseconds before the processing system starts to process the speech input.
 	PrefixPaddingMs *int `json:"prefix_padding_ms,omitempty" url:"prefix_padding_ms,omitempty"`
-	// The duration of audio silence in milliseconds. If no voice activity is detected during this period, the agent assumes that the user has stopped speaking.
+	// Deprecated. Use `turn_detection.config.end_of_speech.vad_config.silence_duration_ms` instead. The duration of audio silence in milliseconds. If no voice activity is detected during this period, the agent assumes that the user has stopped speaking.
 	SilenceDurationMs *int `json:"silence_duration_ms,omitempty" url:"silence_duration_ms,omitempty"`
-	// Identification sensitivity determines the level of sound in the audio signal that is considered voice activity. Lower values make it easier for the agent to detect speech, and higher values ignore weak sounds.
+	// Deprecated. Use `turn_detection.config.speech_threshold` instead. Identification sensitivity determines the level of sound in the audio signal that is considered voice activity.
 	Threshold *float64 `json:"threshold,omitempty" url:"threshold,omitempty"`
 	// Whether to automatically generate a response when a VAD stop event occurs. Only available in `server_vad` and `semantic_vad` modes when using OpenAI Realtime API.
 	CreateResponse *bool `json:"create_response,omitempty" url:"create_response,omitempty"`
 	// Whether to automatically interrupt any ongoing response when a VAD start event occurs. Only available in `server_vad` and `semantic_vad` modes when using OpenAI Realtime API.
 	InterruptResponse *bool `json:"interrupt_response,omitempty" url:"interrupt_response,omitempty"`
+	// Deprecated. Only available in `semantic_vad` mode when using OpenAI Realtime API.
 	// The eagerness of the model to respond:
 	// - `auto`: Equivalent to medium
 	// - `low`: Wait longer for the user to continue speaking
 	// - `high`: Respond more quickly
-	//
-	// Only available in `semantic_vad` mode when using OpenAI Realtime API.
 	Eagerness *StartAgentsRequestPropertiesTurnDetectionEagerness `json:"eagerness,omitempty" url:"eagerness,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -5929,6 +7728,13 @@ type StartAgentsRequestPropertiesTurnDetection struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetection) GetConfig() *StartAgentsRequestPropertiesTurnDetectionConfig {
+	if s == nil {
+		return nil
+	}
+	return s.Config
 }
 
 func (s *StartAgentsRequestPropertiesTurnDetection) GetType() *StartAgentsRequestPropertiesTurnDetectionType {
@@ -6010,6 +7816,20 @@ func (s *StartAgentsRequestPropertiesTurnDetection) require(field *big.Int) {
 		s.explicitFields = big.NewInt(0)
 	}
 	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetection) SetMode(mode *string) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesTurnDetectionFieldMode)
+}
+
+// SetConfig sets the Config field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetection) SetConfig(config *StartAgentsRequestPropertiesTurnDetectionConfig) {
+	s.Config = config
+	s.require(startAgentsRequestPropertiesTurnDetectionFieldConfig)
 }
 
 // SetType sets the Type field and marks it as non-optional;
@@ -6121,12 +7941,932 @@ func (s *StartAgentsRequestPropertiesTurnDetection) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Detailed configuration for conversation turn detection.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigFieldSpeechThreshold = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigFieldStartOfSpeech   = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionConfigFieldEndOfSpeech     = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfig struct {
+	// Voice activity detection sensitivity. Determines the sound level in the audio signal that is considered voice activity. Lower values make it easier for the agent to detect speech, and higher values ignore weak sounds.
+	SpeechThreshold *float64 `json:"speech_threshold,omitempty" url:"speech_threshold,omitempty"`
+	// Start of Speech (SoS) detection configuration. Determines when a user begins speaking.
+	StartOfSpeech *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech `json:"start_of_speech,omitempty" url:"start_of_speech,omitempty"`
+	// End of Speech (EoS) detection configuration. Determines when a user ends their speech.
+	EndOfSpeech *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech `json:"end_of_speech,omitempty" url:"end_of_speech,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) GetSpeechThreshold() *float64 {
+	if s == nil {
+		return nil
+	}
+	return s.SpeechThreshold
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) GetStartOfSpeech() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech {
+	if s == nil {
+		return nil
+	}
+	return s.StartOfSpeech
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) GetEndOfSpeech() *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech {
+	if s == nil {
+		return nil
+	}
+	return s.EndOfSpeech
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetSpeechThreshold sets the SpeechThreshold field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) SetSpeechThreshold(speechThreshold *float64) {
+	s.SpeechThreshold = speechThreshold
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigFieldSpeechThreshold)
+}
+
+// SetStartOfSpeech sets the StartOfSpeech field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) SetStartOfSpeech(startOfSpeech *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) {
+	s.StartOfSpeech = startOfSpeech
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigFieldStartOfSpeech)
+}
+
+// SetEndOfSpeech sets the EndOfSpeech field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) SetEndOfSpeech(endOfSpeech *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) {
+	s.EndOfSpeech = endOfSpeech
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigFieldEndOfSpeech)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// End of Speech (EoS) detection configuration. Determines when a user ends their speech.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldMode           = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldVadConfig      = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldSemanticConfig = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech struct {
+	// End of speech detection mode:
+	// - `vad`: Based on VAD (Voice Activity Detection). Detects silence duration.
+	// - `semantic`: Based on semantic triggering. Uses semantic understanding to determine when conversation ends.
+	Mode *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode `json:"mode,omitempty" url:"mode,omitempty"`
+	// VAD configuration. Used when `mode` is `vad`.
+	VadConfig *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig `json:"vad_config,omitempty" url:"vad_config,omitempty"`
+	// Semantic configuration. Used when `mode` is `semantic`.
+	SemanticConfig *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig `json:"semantic_config,omitempty" url:"semantic_config,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) GetMode() *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode {
+	if s == nil {
+		return nil
+	}
+	return s.Mode
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) GetVadConfig() *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig {
+	if s == nil {
+		return nil
+	}
+	return s.VadConfig
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) GetSemanticConfig() *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig {
+	if s == nil {
+		return nil
+	}
+	return s.SemanticConfig
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) SetMode(mode *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldMode)
+}
+
+// SetVadConfig sets the VadConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) SetVadConfig(vadConfig *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) {
+	s.VadConfig = vadConfig
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldVadConfig)
+}
+
+// SetSemanticConfig sets the SemanticConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) SetSemanticConfig(semanticConfig *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) {
+	s.SemanticConfig = semanticConfig
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechFieldSemanticConfig)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// End of speech detection mode:
+// - `vad`: Based on VAD (Voice Activity Detection). Detects silence duration.
+// - `semantic`: Based on semantic triggering. Uses semantic understanding to determine when conversation ends.
+type StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode string
+
+const (
+	StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeVad      StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode = "vad"
+	StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeSemantic StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode = "semantic"
+)
+
+func NewStartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeFromString(s string) (StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode, error) {
+	switch s {
+	case "vad":
+		return StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeVad, nil
+	case "semantic":
+		return StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeSemantic, nil
+	}
+	var t StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode) Ptr() *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode {
+	return &s
+}
+
+// Semantic configuration. Used when `mode` is `semantic`.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfigFieldSilenceDurationMs = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfigFieldMaxWaitMs         = big.NewInt(1 << 1)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig struct {
+	SilenceDurationMs *int `json:"silence_duration_ms,omitempty" url:"silence_duration_ms,omitempty"`
+	MaxWaitMs         *int `json:"max_wait_ms,omitempty" url:"max_wait_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) GetSilenceDurationMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.SilenceDurationMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) GetMaxWaitMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.MaxWaitMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetSilenceDurationMs sets the SilenceDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) SetSilenceDurationMs(silenceDurationMs *int) {
+	s.SilenceDurationMs = silenceDurationMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfigFieldSilenceDurationMs)
+}
+
+// SetMaxWaitMs sets the MaxWaitMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) SetMaxWaitMs(maxWaitMs *int) {
+	s.MaxWaitMs = maxWaitMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfigFieldMaxWaitMs)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// VAD configuration. Used when `mode` is `vad`.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfigFieldSilenceDurationMs = big.NewInt(1 << 0)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig struct {
+	SilenceDurationMs *int `json:"silence_duration_ms,omitempty" url:"silence_duration_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) GetSilenceDurationMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.SilenceDurationMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetSilenceDurationMs sets the SilenceDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) SetSilenceDurationMs(silenceDurationMs *int) {
+	s.SilenceDurationMs = silenceDurationMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfigFieldSilenceDurationMs)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Start of Speech (SoS) detection configuration. Determines when a user begins speaking.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldMode           = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldVadConfig      = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldKeywordsConfig = big.NewInt(1 << 2)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldDisabledConfig = big.NewInt(1 << 3)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech struct {
+	// Start of speech detection mode:
+	// - `vad`: Based on VAD (Voice Activity Detection). Uses audio signal detection.
+	// - `keywords`: (Beta) Based on keyword trigger. Conversation begins when the agent detects a specified keyword.
+	// - `disabled`: Disables start of speech detection. Does not actively trigger new conversation turns.
+	Mode StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode `json:"mode" url:"mode"`
+	// VAD configuration. Used when `mode` is `vad`.
+	VadConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig `json:"vad_config,omitempty" url:"vad_config,omitempty"`
+	// Keywords configuration. Used when `mode` is `keywords`.
+	KeywordsConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig `json:"keywords_config,omitempty" url:"keywords_config,omitempty"`
+	// Disabled mode configuration. Used when `mode` is `disabled`.
+	DisabledConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig `json:"disabled_config,omitempty" url:"disabled_config,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) GetMode() StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode {
+	if s == nil {
+		return ""
+	}
+	return s.Mode
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) GetVadConfig() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig {
+	if s == nil {
+		return nil
+	}
+	return s.VadConfig
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) GetKeywordsConfig() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig {
+	if s == nil {
+		return nil
+	}
+	return s.KeywordsConfig
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) GetDisabledConfig() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig {
+	if s == nil {
+		return nil
+	}
+	return s.DisabledConfig
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMode sets the Mode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) SetMode(mode StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode) {
+	s.Mode = mode
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldMode)
+}
+
+// SetVadConfig sets the VadConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) SetVadConfig(vadConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) {
+	s.VadConfig = vadConfig
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldVadConfig)
+}
+
+// SetKeywordsConfig sets the KeywordsConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) SetKeywordsConfig(keywordsConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) {
+	s.KeywordsConfig = keywordsConfig
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldKeywordsConfig)
+}
+
+// SetDisabledConfig sets the DisabledConfig field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) SetDisabledConfig(disabledConfig *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) {
+	s.DisabledConfig = disabledConfig
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechFieldDisabledConfig)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Disabled mode configuration. Used when `mode` is `disabled`.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigFieldStrategy = big.NewInt(1 << 0)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig struct {
+	// Voice processing strategy when the agent is interacting:
+	// - `append`: Human voice does not interrupt the agent. The agent processes the human voice input after the current interaction ends.
+	// - `ignored`: The agent ignores human voice input and discards it without storing in context.
+	Strategy *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy `json:"strategy,omitempty" url:"strategy,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) GetStrategy() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy {
+	if s == nil {
+		return nil
+	}
+	return s.Strategy
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetStrategy sets the Strategy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) SetStrategy(strategy *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy) {
+	s.Strategy = strategy
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigFieldStrategy)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Voice processing strategy when the agent is interacting:
+// - `append`: Human voice does not interrupt the agent. The agent processes the human voice input after the current interaction ends.
+// - `ignored`: The agent ignores human voice input and discards it without storing in context.
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy string
+
+const (
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyAppend  StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "append"
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnored StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "ignored"
+)
+
+func NewStartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyFromString(s string) (StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy, error) {
+	switch s {
+	case "append":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyAppend, nil
+	case "ignored":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnored, nil
+	}
+	var t StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy) Ptr() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy {
+	return &s
+}
+
+// Keywords configuration. Used when `mode` is `keywords`.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldInterruptDurationMs = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldPrefixPaddingMs     = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldTriggeredKeywords   = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig struct {
+	InterruptDurationMs *int     `json:"interrupt_duration_ms,omitempty" url:"interrupt_duration_ms,omitempty"`
+	PrefixPaddingMs     *int     `json:"prefix_padding_ms,omitempty" url:"prefix_padding_ms,omitempty"`
+	TriggeredKeywords   []string `json:"triggered_keywords,omitempty" url:"triggered_keywords,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) GetInterruptDurationMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.InterruptDurationMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) GetPrefixPaddingMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.PrefixPaddingMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) GetTriggeredKeywords() []string {
+	if s == nil {
+		return nil
+	}
+	return s.TriggeredKeywords
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetInterruptDurationMs sets the InterruptDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) SetInterruptDurationMs(interruptDurationMs *int) {
+	s.InterruptDurationMs = interruptDurationMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldInterruptDurationMs)
+}
+
+// SetPrefixPaddingMs sets the PrefixPaddingMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) SetPrefixPaddingMs(prefixPaddingMs *int) {
+	s.PrefixPaddingMs = prefixPaddingMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldPrefixPaddingMs)
+}
+
+// SetTriggeredKeywords sets the TriggeredKeywords field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) SetTriggeredKeywords(triggeredKeywords []string) {
+	s.TriggeredKeywords = triggeredKeywords
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfigFieldTriggeredKeywords)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Start of speech detection mode:
+// - `vad`: Based on VAD (Voice Activity Detection). Uses audio signal detection.
+// - `keywords`: (Beta) Based on keyword trigger. Conversation begins when the agent detects a specified keyword.
+// - `disabled`: Disables start of speech detection. Does not actively trigger new conversation turns.
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode string
+
+const (
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeVad      StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode = "vad"
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeKeywords StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode = "keywords"
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeDisabled StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode = "disabled"
+)
+
+func NewStartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeFromString(s string) (StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode, error) {
+	switch s {
+	case "vad":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeVad, nil
+	case "keywords":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeKeywords, nil
+	case "disabled":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechModeDisabled, nil
+	}
+	var t StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode) Ptr() *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode {
+	return &s
+}
+
+// VAD configuration. Used when `mode` is `vad`.
+var (
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldInterruptDurationMs         = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldSpeakingInterruptDurationMs = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldPrefixPaddingMs             = big.NewInt(1 << 2)
+)
+
+type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig struct {
+	InterruptDurationMs         *int `json:"interrupt_duration_ms,omitempty" url:"interrupt_duration_ms,omitempty"`
+	SpeakingInterruptDurationMs *int `json:"speaking_interrupt_duration_ms,omitempty" url:"speaking_interrupt_duration_ms,omitempty"`
+	PrefixPaddingMs             *int `json:"prefix_padding_ms,omitempty" url:"prefix_padding_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) GetInterruptDurationMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.InterruptDurationMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) GetSpeakingInterruptDurationMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.SpeakingInterruptDurationMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) GetPrefixPaddingMs() *int {
+	if s == nil {
+		return nil
+	}
+	return s.PrefixPaddingMs
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetInterruptDurationMs sets the InterruptDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) SetInterruptDurationMs(interruptDurationMs *int) {
+	s.InterruptDurationMs = interruptDurationMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldInterruptDurationMs)
+}
+
+// SetSpeakingInterruptDurationMs sets the SpeakingInterruptDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) SetSpeakingInterruptDurationMs(speakingInterruptDurationMs *int) {
+	s.SpeakingInterruptDurationMs = speakingInterruptDurationMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldSpeakingInterruptDurationMs)
+}
+
+// SetPrefixPaddingMs sets the PrefixPaddingMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) SetPrefixPaddingMs(prefixPaddingMs *int) {
+	s.PrefixPaddingMs = prefixPaddingMs
+	s.require(startAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfigFieldPrefixPaddingMs)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) UnmarshalJSON(data []byte) error {
+	type unmarshaler StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) MarshalJSON() ([]byte, error) {
+	type embed StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// Deprecated. Only available in `semantic_vad` mode when using OpenAI Realtime API.
 // The eagerness of the model to respond:
 // - `auto`: Equivalent to medium
 // - `low`: Wait longer for the user to continue speaking
 // - `high`: Respond more quickly
-//
-// Only available in `semantic_vad` mode when using OpenAI Realtime API.
 type StartAgentsRequestPropertiesTurnDetectionEagerness string
 
 const (
@@ -6152,6 +8892,7 @@ func (s StartAgentsRequestPropertiesTurnDetectionEagerness) Ptr() *StartAgentsRe
 	return &s
 }
 
+// Deprecated. Use `turn_detection.config.start_of_speech` instead.
 // Sets the agent's behavior when human voice interrupts the agent while it is interacting (speaking or thinking):
 // - `interrupt`: The agent immediately stops the current interaction and processes the human voice input.
 // - `append`: The agent completes the current interaction, then processes the human voice input.
@@ -6189,6 +8930,7 @@ func (s StartAgentsRequestPropertiesTurnDetectionInterruptMode) Ptr() *StartAgen
 	return &s
 }
 
+// Deprecated. Use `turn_detection.mode` and `turn_detection.config` instead.
 // Turn detection mechanism:
 // - `agora_vad`: Agora VAD
 // - `server_vad`: The model detects the start and end of speech based on audio volume. Only available when `mllm` is enabled and OpenAI is selected.

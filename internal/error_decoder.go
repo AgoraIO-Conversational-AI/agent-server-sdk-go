@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/fern-demo/agoraio-go-sdk/core"
+	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
 )
 
 // ErrorCodes maps HTTP status codes to error constructors.

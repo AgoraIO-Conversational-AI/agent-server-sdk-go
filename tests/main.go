@@ -4,9 +4,9 @@ import (
 	context "context"
 	"log"
 
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	client "github.com/fern-demo/agoraio-go-sdk/client"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	client "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
+	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 )
 
 func main() {
@@ -23,10 +23,10 @@ func main() {
 		Appid: "appid",
 		Name:  "customer_service",
 		Sip: &Agora.CallTelephonyRequestSip{
-			ToNumber:    "+19876543210",
-			FromNumber:  "+11234567890",
-			SipRtcUID:   "100",
-			SipRtcToken: "<agora_sip_rtc_token>",
+			ToNumber:   "+19876543210",
+			FromNumber: "+11234567890",
+			RtcUID:     "100",
+			RtcToken:   "<agora_sip_rtc_token>",
 		},
 		PipelineID: Agora.String(
 			"fzufjlweixxxxnlp",

@@ -4,10 +4,10 @@ package agents
 
 import (
 	context "context"
-	Agora "github.com/fern-demo/agoraio-go-sdk"
-	core "github.com/fern-demo/agoraio-go-sdk/core"
-	internal "github.com/fern-demo/agoraio-go-sdk/internal"
-	option "github.com/fern-demo/agoraio-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
+	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
 	http "net/http"
 )
 
