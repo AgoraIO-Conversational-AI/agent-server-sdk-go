@@ -4,6 +4,7 @@ package core
 
 import (
 	base64 "encoding/base64"
+	fmt "fmt"
 	http "net/http"
 	url "net/url"
 )
@@ -26,7 +27,7 @@ type RequestOptions struct {
 	MaxAttempts     uint
 	Username        string
 	Password        string
-	Authorization   string
+	AuthToken       string
 }
 
 // NewRequestOptions returns a new *RequestOptions value.
@@ -49,20 +50,19 @@ func NewRequestOptions(opts ...RequestOption) *RequestOptions {
 // for the request(s).
 func (r *RequestOptions) ToHeader() http.Header {
 	header := r.cloneHeader()
-	if r.Authorization != "" {
-		header.Set("Authorization", r.Authorization)
-	} else if r.Username != "" && r.Password != "" {
+	if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
+	header.Set("Authorization", fmt.Sprintf("%v", r.AuthToken))
 	return header
 }
 
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk")
-	headers.Set("X-Fern-SDK-Version", "v0.1.0")
-	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/0.1.0")
+	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go")
+	headers.Set("X-Fern-SDK-Version", "v1.1.0")
+	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/1.1.0")
 	return headers
 }
 
@@ -131,11 +131,11 @@ func (b *BasicAuthOption) applyRequestOptions(opts *RequestOptions) {
 	opts.Password = b.Password
 }
 
-// AuthorizationOption implements the RequestOption interface.
-type AuthorizationOption struct {
-	Authorization string
+// AuthTokenOption implements the RequestOption interface.
+type AuthTokenOption struct {
+	AuthToken string
 }
 
-func (a *AuthorizationOption) applyRequestOptions(opts *RequestOptions) {
-	opts.Authorization = a.Authorization
+func (a *AuthTokenOption) applyRequestOptions(opts *RequestOptions) {
+	opts.AuthToken = a.AuthToken
 }

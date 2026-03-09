@@ -4,10 +4,11 @@ package phonenumbers
 
 import (
 	context "context"
-	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
-	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	os "os"
 )
 
 type Client struct {
@@ -19,6 +20,9 @@ type Client struct {
 }
 
 func NewClient(options *core.RequestOptions) *Client {
+	if options.AuthToken == "" {
+		options.AuthToken = os.Getenv("AGORA_AUTH_TOKEN")
+	}
 	return &Client{
 		WithRawResponse: NewRawClient(options),
 		options:         options,

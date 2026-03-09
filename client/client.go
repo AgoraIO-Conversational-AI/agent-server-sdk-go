@@ -3,12 +3,13 @@
 package client
 
 import (
-	agents "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agents"
-	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
-	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-	phonenumbers "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/phonenumbers"
-	telephony "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/telephony"
+	agents "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
+	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	phonenumbers "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/phonenumbers"
+	telephony "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/telephony"
+	os "os"
 )
 
 type Client struct {
@@ -23,6 +24,9 @@ type Client struct {
 
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
+	if options.AuthToken == "" {
+		options.AuthToken = os.Getenv("AGORA_AUTH_TOKEN")
+	}
 	return &Client{
 		Agents:       agents.NewClient(options),
 		Telephony:    telephony.NewClient(options),
