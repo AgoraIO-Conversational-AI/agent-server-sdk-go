@@ -2,6 +2,7 @@ package agentkit
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/AgoraIO-Community/go-tokenbuilder/rtctokenbuilder2"
 )
@@ -10,8 +11,38 @@ const (
 	RolePublisher  = 1
 	RoleSubscriber = 2
 
-	DefaultExpirySeconds = 3600
+	// DefaultExpirySeconds is the default token lifetime (24 hours, the Agora maximum).
+	DefaultExpirySeconds = 86400
+
+	// MaxExpirySeconds is the maximum token lifetime allowed by Agora (24 hours).
+	MaxExpirySeconds = 86400
 )
+
+// ValidateExpiresIn validates an expiresIn value in seconds.
+// Returns an error if secs <= 0.
+// Logs a warning and returns MaxExpirySeconds if secs > MaxExpirySeconds.
+func ValidateExpiresIn(secs int) (int, error) {
+	if secs <= 0 {
+		return 0, fmt.Errorf("expiresIn must be between 1 and 86400 seconds (24h)")
+	}
+	if secs > MaxExpirySeconds {
+		log.Println("agora-agent-sdk: expiresIn capped at 24h (Agora max)")
+		return MaxExpirySeconds, nil
+	}
+	return secs, nil
+}
+
+// ExpiresInHours converts hours to seconds for use as ExpiresIn.
+// Returns an error if hours <= 0; caps at MaxExpirySeconds with a warning.
+func ExpiresInHours(hours float64) (int, error) {
+	return ValidateExpiresIn(int(hours * 3600))
+}
+
+// ExpiresInMinutes converts minutes to seconds for use as ExpiresIn.
+// Returns an error if minutes <= 0; caps at MaxExpirySeconds with a warning.
+func ExpiresInMinutes(minutes float64) (int, error) {
+	return ValidateExpiresIn(int(minutes * 60))
+}
 
 type GenerateTokenOptions struct {
 	AppID          string
@@ -29,7 +60,7 @@ type GenerateConvoAITokenOptions struct {
 	AppCertificate  string
 	ChannelName     string
 	Account         string // Agent UID as string (e.g. "1001")
-	TokenExpire     int    // Seconds until expiry (default 3600)
+	TokenExpire     int    // Seconds until expiry (default 86400)
 	PrivilegeExpire int    // 0 means same as TokenExpire
 }
 

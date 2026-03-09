@@ -40,6 +40,7 @@ type AgentSession struct {
 	remoteUIDs      []string
 	idleTimeout     *int
 	enableStringUID *bool
+	expiresIn       int  // Token lifetime in seconds (0 = use DefaultExpirySeconds)
 	useAppCredsREST bool // When true, generate ConvoAI token per request for REST API auth
 
 	agentID  string
@@ -49,17 +50,21 @@ type AgentSession struct {
 }
 
 type AgentSessionOptions struct {
-	Client         *agents.Client
-	Agent          *Agent
-	AppID          string
-	AppCertificate string
-	Name           string
-	Channel        string
-	Token          string
-	AgentUID       string
-	RemoteUIDs     []string
-	IdleTimeout    *int
+	Client          *agents.Client
+	Agent           *Agent
+	AppID           string
+	AppCertificate  string
+	Name            string
+	Channel         string
+	Token           string
+	AgentUID        string
+	RemoteUIDs      []string
+	IdleTimeout     *int
 	EnableStringUID *bool
+	// ExpiresIn is the token lifetime in seconds (default: 86400 = 24 hours, Agora maximum).
+	// Only applies when the SDK auto-generates a token. Valid range: 1–86400.
+	// Use ExpiresInHours() / ExpiresInMinutes() for clarity.
+	ExpiresIn int
 	// UseAppCredentialsForREST when true, generates a ConvoAI token per request for REST API
 	// authentication. Use when the client was created without Basic Auth or token (app-credentials mode).
 	UseAppCredentialsForREST bool
@@ -83,6 +88,7 @@ func NewAgentSession(opts AgentSessionOptions) *AgentSession {
 		remoteUIDs:         opts.RemoteUIDs,
 		idleTimeout:        opts.IdleTimeout,
 		enableStringUID:    opts.EnableStringUID,
+		expiresIn:          opts.ExpiresIn,
 		useAppCredsREST:    opts.UseAppCredentialsForREST,
 		status:             StatusIdle,
 		handlers:           make(map[string][]EventHandler),
@@ -162,6 +168,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		Token:           s.token,
 		AppID:           s.appID,
 		AppCertificate:  s.appCertificate,
+		ExpiresIn:       s.expiresIn,
 		IdleTimeout:     s.idleTimeout,
 		EnableStringUID: s.enableStringUID,
 	}
