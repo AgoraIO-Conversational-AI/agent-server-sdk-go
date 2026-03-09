@@ -189,16 +189,15 @@ Returns an error if:
 
 ```go
 type ToPropertiesOptions struct {
-    Channel            string
-    AgentUID           string
-    RemoteUIDs         []string
-    Token              string
-    AppID              string
-    AppCertificate     string
-    UID                uint32
-    TokenExpirySeconds int
-    IdleTimeout        *int
-    EnableStringUID    *bool
+    Channel         string
+    AgentUID        string
+    RemoteUIDs      []string
+    Token           string
+    AppID           string
+    AppCertificate  string
+    ExpiresIn       int
+    IdleTimeout     *int
+    EnableStringUID *bool
 }
 ```
 
@@ -207,11 +206,10 @@ type ToPropertiesOptions struct {
 | `Channel` | `string` | Agora channel name |
 | `AgentUID` | `string` | Agent's UID in the channel |
 | `RemoteUIDs` | `[]string` | Remote participant UIDs |
-| `Token` | `string` | Pre-generated RTC token (skips generation if set) |
+| `Token` | `string` | Pre-generated RTC+RTM token (skips generation if set) |
 | `AppID` | `string` | Agora App ID (for token generation) |
 | `AppCertificate` | `string` | Agora App Certificate (for token generation) |
-| `UID` | `uint32` | Numeric UID for token generation |
-| `TokenExpirySeconds` | `int` | Token TTL in seconds (default: 3600) |
+| `ExpiresIn` | `int` | Token lifetime in seconds (default: `86400` = 24 h, Agora max). Use `ExpiresInHours()` / `ExpiresInMinutes()` for clarity. Valid range: 1–86400. |
 | `IdleTimeout` | `*int` | Session idle timeout |
 | `EnableStringUID` | `*bool` | Enable string UID mode |
 

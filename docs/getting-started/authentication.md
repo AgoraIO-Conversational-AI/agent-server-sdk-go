@@ -41,7 +41,7 @@ c := client.NewClient(
 
 ## 3. App Credentials (Agentkit Layer)
 
-When using the `agentkit` package, pass `AppID` and `AppCertificate` to `AgentSessionOptions`. The agentkit package automatically generates an RTC token for the Agora channel using HMAC-SHA256.
+When using the `agentkit` package, pass `AppID` and `AppCertificate` to `AgentSessionOptions`. The agentkit package automatically generates a combined RTC+RTM token for the Agora channel using HMAC-SHA256.
 
 ```go
 package main
@@ -87,7 +87,7 @@ session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
     Client:     c.Agents,
     Agent:      agent,
     AppID:      "<your_app_id>",
-    Token:      "<pre_generated_rtc_token>",
+    Token:      "<pre_generated_rtc_rtm_token>",
     Channel:    "my-channel",
     AgentUID:   "1001",
     RemoteUIDs: []string{"1002"},
@@ -104,23 +104,47 @@ session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
 
 ## Token Generation Details
 
-When using app credentials, the agentkit package calls `agentkit.GenerateRtcToken` internally with these defaults:
+When using app credentials, the agentkit package calls `agentkit.GenerateConvoAIToken` internally (RTC + RTM combined token) with these defaults:
 
 - **Role:** Publisher (`RolePublisher = 1`)
-- **Expiry:** 3600 seconds (1 hour), configurable via `AgentSessionOptions.TokenExpirySeconds` (set on `ToPropertiesOptions`)
+- **Expiry:** `86400` seconds (24 hours, Agora maximum), configurable via `AgentSessionOptions.ExpiresIn`
 - **Algorithm:** HMAC-SHA256
 
-You can also call `GenerateRtcToken` directly if you need a token outside of a session:
+You can also call `GenerateConvoAIToken` directly if you need a token outside of a session:
 
 ```go
-token, err := agentkit.GenerateRtcToken(agentkit.GenerateTokenOptions{
+token, err := agentkit.GenerateConvoAIToken(agentkit.GenerateConvoAITokenOptions{
     AppID:          "<your_app_id>",
     AppCertificate: "<your_app_certificate>",
-    Channel:        "my-channel",
-    UID:            0,
-    ExpirySeconds:  7200,
+    ChannelName:    "my-channel",
+    Account:        "1001",
+    TokenExpire:    86400,
 })
 if err != nil {
     log.Fatalf("Token generation failed: %v", err)
 }
 ```
+
+## Token Expiry
+
+To customise the token lifetime, set `ExpiresIn` on `AgentSessionOptions`. Use the `ExpiresInHours` or `ExpiresInMinutes` helpers to avoid raw second values:
+
+```go
+expiresIn, err := agentkit.ExpiresInHours(12) // 12-hour token
+if err != nil {
+    log.Fatalf("Invalid expiry: %v", err)
+}
+
+session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
+    Client:         c.Agents,
+    Agent:          agent,
+    AppID:          "<your_app_id>",
+    AppCertificate: "<your_app_certificate>",
+    Channel:        "my-channel",
+    AgentUID:       "1001",
+    RemoteUIDs:     []string{"1002"},
+    ExpiresIn:      expiresIn,
+})
+```
+
+`ExpiresInHours` and `ExpiresInMinutes` return an error if the value is ≤ 0, and log a warning + cap at 86400 if it exceeds 24 hours. Valid range: **1–86400 seconds**.
