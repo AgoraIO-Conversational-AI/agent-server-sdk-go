@@ -256,17 +256,23 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		if opts.AppID == "" || opts.AppCertificate == "" {
 			return nil, fmt.Errorf("either token or app_id+app_certificate must be provided")
 		}
-		expiry := opts.TokenExpirySeconds
-		if expiry <= 0 {
-			expiry = DefaultExpirySeconds
+		expiry := opts.ExpiresIn
+		if expiry > 0 {
+			var err error
+			expiry, err = ValidateExpiresIn(expiry)
+			if err != nil {
+				return nil, fmt.Errorf("invalid expiresIn: %w", err)
+			}
 		}
+		// Use GenerateConvoAIToken (RTC + RTM) so the token works whether or
+		// not the caller enables advanced_features.enable_rtm.
 		var err error
-		token, err = GenerateRtcToken(GenerateTokenOptions{
+		token, err = GenerateConvoAIToken(GenerateConvoAITokenOptions{
 			AppID:          opts.AppID,
 			AppCertificate: opts.AppCertificate,
-			Channel:        opts.Channel,
-			UID:            opts.UID,
-			ExpirySeconds:  expiry,
+			ChannelName:    opts.Channel,
+			Account:        opts.AgentUID,
+			TokenExpire:    expiry,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate token: %w", err)
@@ -386,16 +392,17 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 }
 
 type ToPropertiesOptions struct {
-	Channel            string
-	AgentUID           string
-	RemoteUIDs         []string
-	Token              string
-	AppID              string
-	AppCertificate     string
-	UID                uint32
-	TokenExpirySeconds int
-	IdleTimeout        *int
-	EnableStringUID    *bool
+	Channel         string
+	AgentUID        string
+	RemoteUIDs      []string
+	Token           string
+	AppID           string
+	AppCertificate  string
+	// ExpiresIn is the token lifetime in seconds (default: 86400 = 24 hours, Agora maximum).
+	// Valid range: 1–86400. Use ExpiresInHours() / ExpiresInMinutes() for clarity.
+	ExpiresIn       int
+	IdleTimeout     *int
+	EnableStringUID *bool
 }
 
 func (a *Agent) clone() *Agent {
