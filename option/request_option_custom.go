@@ -1,8 +1,15 @@
 package option
 
 import (
-	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 )
+
+// WithToken sets the Authorization header to "agora token=<token>" for ConvoAI REST API auth.
+func WithToken(token string) *core.AuthorizationOption {
+	return &core.AuthorizationOption{
+		Authorization: "agora token=" + token,
+	}
+}
 
 // Area type alias for global regions
 type Area = core.Area

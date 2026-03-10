@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func mapToStruct(m map[string]interface{}, target interface{}) error {

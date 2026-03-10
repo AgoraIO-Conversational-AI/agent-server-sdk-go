@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agents"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 // AuthMode represents the authentication mode for the Agora client.
