@@ -4,6 +4,7 @@ package core
 
 import (
 	base64 "encoding/base64"
+	fmt "fmt"
 	http "net/http"
 	url "net/url"
 )
@@ -49,20 +50,19 @@ func NewRequestOptions(opts ...RequestOption) *RequestOptions {
 // for the request(s).
 func (r *RequestOptions) ToHeader() http.Header {
 	header := r.cloneHeader()
-	if r.Authorization != "" {
-		header.Set("Authorization", r.Authorization)
-	} else if r.Username != "" && r.Password != "" {
+	if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
+	header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
 	return header
 }
 
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk")
-	headers.Set("X-Fern-SDK-Version", "v0.1.0")
-	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/0.1.0")
+	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go")
+	headers.Set("X-Fern-SDK-Version", "v1.1.0")
+	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/1.1.0")
 	return headers
 }
 

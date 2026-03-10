@@ -3,7 +3,7 @@
 package option
 
 import (
-	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 	http "net/http"
 	url "net/url"
 )
@@ -76,11 +76,4 @@ func WithAuthorization(authorization string) *core.AuthorizationOption {
 	return &core.AuthorizationOption{
 		Authorization: authorization,
 	}
-}
-
-// WithToken sets the Authorization header for ConvoAI token auth.
-// Pass the raw token; the header will be set as "agora token=" + token.
-// For other formats (e.g. Bearer), use WithAuthorization.
-func WithToken(token string) *core.AuthorizationOption {
-	return &core.AuthorizationOption{Authorization: "agora token=" + token}
 }
