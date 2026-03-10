@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agents"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 type SessionStatus string

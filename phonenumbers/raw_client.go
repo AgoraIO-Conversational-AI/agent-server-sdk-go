@@ -4,10 +4,10 @@ package phonenumbers
 
 import (
 	context "context"
-	Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-	core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-	internal "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/internal"
-	option "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 	http "net/http"
 )
 
