@@ -1,11 +1,10 @@
-# Agoraio Go Library
+# Agora Agent Server SDK for Go
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-server-sdk-go)
 
-The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs, 
-enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS) 
+The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs,
+enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS)
 and multimodal flows (MLLM) for real-time audio processing.
-
 
 ## Table of Contents
 
@@ -101,6 +100,7 @@ func main() {
 There are two ways to stop a session depending on how your server is structured:
 
 **Option 1 — Hold the session in memory:**
+
 ```go
 // start-session handler
 agentSessionId, err := session.Start(ctx) // unique ID for this session
@@ -109,6 +109,7 @@ _ = session.Stop(ctx)
 ```
 
 **Option 2 — Store the session ID and stop by ID (stateless servers):**
+
 ```go
 // start-session handler: return session ID to your client app
 agentSessionId, err := session.Start(ctx)
@@ -265,7 +266,6 @@ func main() {
     )
 }
 ```
-
 
 ## Usage
 
