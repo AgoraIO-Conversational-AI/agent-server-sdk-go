@@ -2,9 +2,10 @@
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-server-sdk-go)
 
-The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs,
-enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS)
+The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs, 
+enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS) 
 and multimodal flows (MLLM) for real-time audio processing.
+
 
 ## Table of Contents
 
@@ -12,6 +13,7 @@ and multimodal flows (MLLM) for real-time audio processing.
 - [Quick Start](#quick-start)
 - [Documentation](#documentation)
 - [Reference](#reference)
+- [Mllm Flow Multimodal](#mllm-flow-multimodal)
 - [Mllm Flow Multimodal](#mllm-flow-multimodal)
 - [Usage](#usage)
 - [Environments](#environments)
@@ -267,6 +269,71 @@ func main() {
     )
 }
 ```
+
+## MLLM Flow (Multimodal)
+
+For real-time audio processing using OpenAI's Realtime API or Google Gemini Live, use the MLLM (Multimodal Large Language Model) flow instead of the cascading ASR -> LLM -> TTS flow. See the [MLLM Overview](https://docs.agora.io/en/conversational-ai/models/mllm/overview) for more details.
+
+```go
+package main
+
+import (
+    "context"
+    client "github.com/{{ owner }}/{{ repo }}/client"
+    option "github.com/{{ owner }}/{{ repo }}/option"
+    Agora "github.com/{{ owner }}/{{ repo }}"
+)
+
+func main() {
+    c := client.NewClient(
+        option.WithBasicAuth("<customerId>", "<customerSecret>"),
+    )
+
+    c.Agents.Start(
+        context.TODO(),
+        &Agora.StartAgentsRequest{
+            Appid: "your_app_id",
+            Name:  "mllm_agent",
+            Properties: &Agora.StartAgentsRequestProperties{
+                Channel:       "channel_name",
+                Token:         "your_token",
+                AgentRtcUID:   "1001",
+                RemoteRtcUIDs: []string{"1002"},
+                IdleTimeout:   Agora.Int(120),
+                AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
+                    EnableMllm: Agora.Bool(true),
+                },
+                Mllm: &Agora.StartAgentsRequestPropertiesMllm{
+                    URL:    Agora.String("wss://api.openai.com/v1/realtime"),
+                    APIKey: Agora.String("<your_openai_api_key>"),
+                    Vendor: Agora.StartAgentsRequestPropertiesMllmVendorOpenai,
+                    Params: map[string]any{
+                        "model": "gpt-4o-realtime-preview",
+                        "voice": "alloy",
+                    },
+                    InputModalities:  []string{"audio"},
+                    OutputModalities: []string{"text", "audio"},
+                    GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
+                },
+                TurnDetection: &Agora.StartAgentsRequestPropertiesTurnDetection{
+                    Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
+                    Threshold:         Agora.Float64(0.5),
+                    SilenceDurationMs: Agora.Int(500),
+                },
+                // TTS and LLM are still required but not used when MLLM is enabled
+                Tts: &Agora.StartAgentsRequestPropertiesTts{
+                    Vendor: Agora.StartAgentsRequestPropertiesTtsVendorMicrosoft,
+                    Params: map[string]any{},
+                },
+                Llm: &Agora.StartAgentsRequestPropertiesLlm{
+                    URL: "https://api.openai.com/v1/chat/completions",
+                },
+            },
+        },
+    )
+}
+```
+
 
 ## Usage
 
