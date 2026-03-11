@@ -27,7 +27,7 @@ and multimodal flows (MLLM) for real-time audio processing.
 ## Installation
 
 ```sh
-go get github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk
+go get github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
 ```
 
 ## Quick Start
@@ -41,10 +41,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
@@ -136,9 +136,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-	"github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
@@ -212,9 +212,10 @@ package main
 
 import (
     "context"
+    Agora "github.com/{{ owner }}/{{ repo }}"
+    "github.com/{{ owner }}/{{ repo }}/agentkit"
     client "github.com/{{ owner }}/{{ repo }}/client"
     option "github.com/{{ owner }}/{{ repo }}/option"
-    Agora "github.com/{{ owner }}/{{ repo }}"
 )
 
 func main() {
@@ -249,7 +250,7 @@ func main() {
                     GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
                 },
                 TurnDetection: &Agora.StartAgentsRequestPropertiesTurnDetection{
-                    Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
+                    Type:              agentkit.TurnDetectionTypeServerVad.Ptr(),
                     Threshold:         Agora.Float64(0.5),
                     SilenceDurationMs: Agora.Int(500),
                 },
