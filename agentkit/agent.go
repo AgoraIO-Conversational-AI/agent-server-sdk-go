@@ -19,13 +19,150 @@ func mapToStruct(m map[string]interface{}, target interface{}) error {
 	return nil
 }
 
+// =============================================================================
+// Top-level configuration aliases
+// =============================================================================
+
 type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal
+type SalMode = Agora.StartAgentsRequestPropertiesSalSalMode
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
 type GeofenceConfig = Agora.StartAgentsRequestPropertiesGeofence
 type RtcConfig = Agora.StartAgentsRequestPropertiesRtc
 type FillerWordsConfig = Agora.StartAgentsRequestPropertiesFillerWords
+
+// =============================================================================
+// SOS/EOS turn detection aliases (preferred — replaces deprecated types below)
+// =============================================================================
+
+// TurnDetectionNestedConfig is the detailed nested config within TurnDetectionConfig.Config.
+type TurnDetectionNestedConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfig
+
+// StartOfSpeechConfig configures when the agent detects the start of a user's speech.
+type StartOfSpeechConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeech
+
+// StartOfSpeechMode is the detection mode: "vad" | "keywords" | "disabled".
+type StartOfSpeechMode = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechMode
+
+// StartOfSpeechVadConfig holds VAD settings for SoS detection.
+type StartOfSpeechVadConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechVadConfig
+
+// StartOfSpeechKeywordsConfig holds keyword-trigger settings for SoS detection.
+type StartOfSpeechKeywordsConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechKeywordsConfig
+
+// StartOfSpeechDisabledConfig holds settings when SoS detection is disabled.
+type StartOfSpeechDisabledConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig
+
+// StartOfSpeechDisabledConfigStrategy is the voice processing strategy when SoS is disabled: "append" | "ignored".
+type StartOfSpeechDisabledConfigStrategy = Agora.StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy
+
+// EndOfSpeechConfig configures when the agent detects the end of a user's speech.
+type EndOfSpeechConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeech
+
+// EndOfSpeechMode is the detection mode: "vad" | "semantic".
+type EndOfSpeechMode = Agora.StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechMode
+
+// EndOfSpeechVadConfig holds VAD settings for EoS detection.
+type EndOfSpeechVadConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechVadConfig
+
+// EndOfSpeechSemanticConfig holds semantic model settings for EoS detection.
+type EndOfSpeechSemanticConfig = Agora.StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig
+
+// =============================================================================
+// Deprecated turn detection aliases
+// =============================================================================
+
+// Deprecated: Use TurnDetectionConfig with TurnDetectionNestedConfig.StartOfSpeech and
+// TurnDetectionNestedConfig.EndOfSpeech instead. The Type field and agora_vad / server_vad /
+// semantic_vad values are being removed in a future release.
+type TurnDetectionType = Agora.StartAgentsRequestPropertiesTurnDetectionType
+
+// Deprecated: Use StartOfSpeechConfig with Mode "vad" | "keywords" | "disabled" and the
+// corresponding VadConfig, KeywordsConfig, or DisabledConfig instead.
+type InterruptMode = Agora.StartAgentsRequestPropertiesTurnDetectionInterruptMode
+
+// Deprecated: Only applies to server_vad / semantic_vad modes with OpenAI Realtime API (MLLM).
+// Has no equivalent in the standard ASR + LLM + TTS pipeline.
+type Eagerness = Agora.StartAgentsRequestPropertiesTurnDetectionEagerness
+
+// =============================================================================
+// LLM sub-type aliases
+// =============================================================================
+
+// LlmGreetingConfigs configures how greeting messages are broadcast when multiple
+// remote users are in the channel (llm.greeting_configs).
+type LlmGreetingConfigs = Agora.StartAgentsRequestPropertiesLlmGreetingConfigs
+
+// LlmGreetingConfigsMode is the greeting broadcast mode: "single_every" | "single_first".
+type LlmGreetingConfigsMode = Agora.StartAgentsRequestPropertiesLlmGreetingConfigsMode
+
+// McpServersItem is a single MCP server config entry (llm.mcp_servers[]).
+type McpServersItem = Agora.StartAgentsRequestPropertiesLlmMcpServersItem
+
+// =============================================================================
+// Parameters (SessionParams) sub-type aliases
+// =============================================================================
+
+// SilenceConfig configures agent behaviour during user silence (parameters.silence_config).
+type SilenceConfig = Agora.StartAgentsRequestPropertiesParametersSilenceConfig
+
+// SilenceAction is the action taken after the silence timeout elapses.
+type SilenceAction = Agora.StartAgentsRequestPropertiesParametersSilenceConfigAction
+
+// FarewellConfig configures graceful hang-up behaviour (parameters.farewell_config).
+type FarewellConfig = Agora.StartAgentsRequestPropertiesParametersFarewellConfig
+
+// ParametersDataChannel is the agent data-transmission channel: "rtm" | "datastream".
+type ParametersDataChannel = Agora.StartAgentsRequestPropertiesParametersDataChannel
+
+// =============================================================================
+// Geofence sub-type aliases
+// =============================================================================
+
+// GeofenceArea is an allowed geographic region for server access.
+type GeofenceArea = Agora.StartAgentsRequestPropertiesGeofenceArea
+
+// GeofenceExcludeArea is a geographic region to exclude when Area is "GLOBAL".
+type GeofenceExcludeArea = Agora.StartAgentsRequestPropertiesGeofenceExcludeArea
+
+// =============================================================================
+// Concrete API payload config aliases (for constructing or inspecting ToProperties output)
+// =============================================================================
+
+// LlmConfig is the concrete LLM configuration payload (start_agents_request_properties.llm).
+type LlmConfig = Agora.StartAgentsRequestPropertiesLlm
+
+// MllmConfig is the concrete MLLM configuration payload (start_agents_request_properties.mllm).
+type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
+
+// AsrConfig is the concrete ASR/STT configuration payload (start_agents_request_properties.asr).
+type AsrConfig = Agora.StartAgentsRequestPropertiesAsr
+
+// TtsConfig is the concrete TTS configuration payload (start_agents_request_properties.tts).
+type TtsConfig = Agora.Tts
+
+// AvatarConfig is the concrete Avatar configuration payload (start_agents_request_properties.avatar).
+type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
+
+// =============================================================================
+// FillerWords sub-type aliases
+// =============================================================================
+
+// FillerWordsTrigger configures when filler words are played (filler_words.trigger).
+type FillerWordsTrigger = Agora.StartAgentsRequestPropertiesFillerWordsTrigger
+
+// FillerWordsTriggerFixedTimeConfig holds the fixed-time trigger threshold (trigger.fixed_time_config).
+type FillerWordsTriggerFixedTimeConfig = Agora.StartAgentsRequestPropertiesFillerWordsTriggerFixedTimeConfig
+
+// FillerWordsContent configures the source and selection of filler words (filler_words.content).
+type FillerWordsContent = Agora.StartAgentsRequestPropertiesFillerWordsContent
+
+// FillerWordsContentStaticConfig configures a static list of filler words (content.static_config).
+type FillerWordsContentStaticConfig = Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfig
+
+// FillerWordsContentSelectionRule is the filler word selection rule: "shuffle" | "round_robin".
+type FillerWordsContentSelectionRule = Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule
 
 type Agent struct {
 	name                    string
@@ -216,6 +353,36 @@ func (a *Agent) WithName(name string) *Agent {
 	return clone
 }
 
+func (a *Agent) WithSal(sal *SalConfig) *Agent {
+	clone := a.clone()
+	clone.sal = sal
+	return clone
+}
+
+func (a *Agent) WithAdvancedFeatures(af *AdvancedFeatures) *Agent {
+	clone := a.clone()
+	clone.advancedFeatures = af
+	return clone
+}
+
+func (a *Agent) WithParameters(params *SessionParams) *Agent {
+	clone := a.clone()
+	clone.parameters = params
+	return clone
+}
+
+func (a *Agent) WithFailureMessage(msg string) *Agent {
+	clone := a.clone()
+	clone.failureMessage = msg
+	return clone
+}
+
+func (a *Agent) WithMaxHistory(n int) *Agent {
+	clone := a.clone()
+	clone.maxHistory = &n
+	return clone
+}
+
 func (a *Agent) WithGeofence(gf *GeofenceConfig) *Agent {
 	clone := a.clone()
 	clone.geofence = gf
@@ -247,8 +414,19 @@ func (a *Agent) LlmConfig() map[string]interface{}    { return a.llm }
 func (a *Agent) TtsConfig() map[string]interface{}    { return a.tts }
 func (a *Agent) SttConfig() map[string]interface{}    { return a.stt }
 func (a *Agent) MllmConfig() map[string]interface{}   { return a.mllm }
-func (a *Agent) TtsSampleRate() *vendors.SampleRate   { return a.ttsSampleRate }
+func (a *Agent) TtsSampleRate() *vendors.SampleRate            { return a.ttsSampleRate }
 func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate { return a.avatarRequiredSampleRate }
+func (a *Agent) FailureMessage() string                        { return a.failureMessage }
+func (a *Agent) MaxHistory() *int                              { return a.maxHistory }
+func (a *Agent) Avatar() map[string]interface{}                { return a.avatar }
+func (a *Agent) TurnDetection() *TurnDetectionConfig           { return a.turnDetection }
+func (a *Agent) Sal() *SalConfig                               { return a.sal }
+func (a *Agent) AdvancedFeatures() *AdvancedFeatures           { return a.advancedFeatures }
+func (a *Agent) Parameters() *SessionParams                    { return a.parameters }
+func (a *Agent) Geofence() *GeofenceConfig                     { return a.geofence }
+func (a *Agent) Labels() map[string]string                     { return a.labels }
+func (a *Agent) Rtc() *RtcConfig                               { return a.rtc }
+func (a *Agent) FillerWords() *FillerWordsConfig               { return a.fillerWords }
 
 func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsRequestProperties, error) {
 	token := opts.Token
