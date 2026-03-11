@@ -107,7 +107,9 @@ agent := agentkit.NewAgent(
 
 ## MLLM with Turn Detection
 
-Server-side VAD works with MLLM mode:
+Server-side VAD works with MLLM mode. The preferred approach uses the SOS/EOS (Start of Speech / End of Speech) model via `Config.StartOfSpeech` and `Config.EndOfSpeech` — see the [Agent Reference](../reference/agent.md) for full type definitions.
+
+Legacy format:
 
 ```go
 agent := agentkit.NewAgent(

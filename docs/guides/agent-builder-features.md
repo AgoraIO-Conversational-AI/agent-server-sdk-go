@@ -1,0 +1,325 @@
+---
+sidebar_position: 5
+title: Agent Builder Features
+description: Configure SAL, advanced features, parameters, geofence, labels, RTC, filler words, and more.
+---
+
+# Agent Builder Features
+
+The Agent builder supports many configuration options beyond the core LLM, TTS, and STT vendors. This guide shows how to use each feature.
+
+## Overview
+
+| Feature | Option / Method | Description |
+|---|---|---|
+| `sal` | `WithSalConfig` / `WithSal` | Selective Attention Locking — speaker recognition and noise suppression |
+| `advancedFeatures` | `WithAdvancedFeatures` | Enable MLLM, RTM, SAL, tools |
+| `parameters` | `WithParameters` | Silence config, farewell config, data channel |
+| `failureMessage` | `WithFailureMessage` | Message spoken when LLM fails |
+| `maxHistory` | `WithMaxHistory` | Max conversation turns in LLM context |
+| `geofence` | `WithGeofence` | Restrict backend server regions |
+| `labels` | `WithLabels` | Custom key-value labels (returned in callbacks) |
+| `rtc` | `WithRtc` | RTC media encryption |
+| `fillerWords` | `WithFillerWords` | Filler words while waiting for LLM |
+
+Use `NewAgent(opts...)` for constructor options, or chain methods on an existing agent. All methods return a **new** `*Agent` (immutable).
+
+## SAL (Selective Attention Locking)
+
+SAL helps the agent focus on the primary speaker and suppress background noise. Enable it via `WithAdvancedFeatures` and configure with `WithSal`:
+
+```go
+import (
+    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+)
+
+agent := agentkit.NewAgent(
+    agentkit.WithName("sal-assistant"),
+    agentkit.WithInstructions("You are a helpful assistant."),
+    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
+        EnableSal: Agora.Bool(true),
+    }),
+    agentkit.WithSalConfig(&agentkit.SalConfig{
+        SalMode: Agora.StartAgentsRequestPropertiesSalSalModeLocking.Ptr(),
+        SampleUrls: map[string]string{
+            "primary-speaker": "https://example.com/voiceprint.pcm",
+        },
+    }),
+).WithLlm(vendors.NewOpenAI(/* ... */)).
+  WithTts(vendors.NewElevenLabsTTS(/* ... */)).
+  WithStt(vendors.NewDeepgramSTT(/* ... */))
+```
+
+`SalMode` can be `Agora.StartAgentsRequestPropertiesSalSalModeLocking` or `Agora.StartAgentsRequestPropertiesSalSalModeRecognition`.
+
+## Advanced Features
+
+Enable MLLM, RTM, SAL, or tools:
+
+```go
+// MLLM mode (see mllm-flow guide)
+agent := agentkit.NewAgent(
+    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
+        EnableMllm: Agora.Bool(true),
+    }),
+).WithMllm(/* ... */)
+
+// RTM signaling for custom data delivery
+agent := agentkit.NewAgent(
+    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
+        EnableRtm: Agora.Bool(true),
+    }),
+)
+
+// Enable tool invocation via MCP
+agent := agentkit.NewAgent(
+    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
+        EnableTools: Agora.Bool(true),
+    }),
+)
+```
+
+Note: Use `Agora.Bool(true)` for optional boolean fields — the API expects `*bool`.
+
+## Session Parameters
+
+Configure silence handling, farewell behavior, and data channel:
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithName("params-agent"),
+    agentkit.WithParameters(&agentkit.SessionParams{
+        SilenceConfig: &agentkit.SilenceConfig{
+            TimeoutMs: Agora.Int(10000),
+            Action:    Agora.StartAgentsRequestPropertiesParametersSilenceConfigActionSpeak.Ptr(),
+            Content:   Agora.String("I'm still here. Take your time."),
+        },
+        FarewellConfig: &agentkit.FarewellConfig{
+            GracefulEnabled:        Agora.Bool(true),
+            GracefulTimeoutSeconds: Agora.Int(10),
+        },
+        DataChannel: Agora.StartAgentsRequestPropertiesParametersDataChannelRtm.Ptr(),
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+## Failure Message and Max History
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithName("assistant"),
+    agentkit.WithFailureMessage("Sorry, I encountered an error. Please try again."),
+    agentkit.WithMaxHistory(20),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+
+// Or via methods
+agent := agentkit.NewAgent().
+    WithFailureMessage("Something went wrong.").
+    WithMaxHistory(15).
+    WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+## Geofence
+
+Restrict which geographic regions the backend can use:
+
+```go
+import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+
+agent := agentkit.NewAgent(
+    agentkit.WithGeofence(&agentkit.GeofenceConfig{
+        Area: Agora.StartAgentsRequestPropertiesGeofenceAreaNorthAmerica,
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+
+// Global with exclusion
+agent := agentkit.NewAgent(
+    agentkit.WithGeofence(&agentkit.GeofenceConfig{
+        Area:        Agora.StartAgentsRequestPropertiesGeofenceAreaGlobal,
+        ExcludeArea: Agora.StartAgentsRequestPropertiesGeofenceExcludeAreaEurope.Ptr(),
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+Valid `Area` values: `Agora.StartAgentsRequestPropertiesGeofenceAreaGlobal`, `...NorthAmerica`, `...Europe`, `...Asia`, `...India`, `...Japan`.
+
+## Labels
+
+Attach custom labels returned in notification callbacks:
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithLabels(map[string]string{
+        "environment": "production",
+        "team":        "support",
+        "version":     "1.2.0",
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+## RTC Encryption
+
+Configure RTC media encryption:
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithRtc(&agentkit.RtcConfig{
+        EncryptionKey:  Agora.String("your-32-byte-key"),
+        EncryptionMode: Agora.Int(5), // AES_128_GCM
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+## Filler Words
+
+Play filler words while waiting for the LLM response:
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithFillerWords(&agentkit.FillerWordsConfig{
+        Enable: Agora.Bool(true),
+        Trigger: &agentkit.FillerWordsTrigger{
+            Mode: Agora.String("fixed_time"),
+            FixedTimeConfig: &agentkit.FillerWordsTriggerFixedTimeConfig{
+                ResponseWaitMs: Agora.Int(2000),
+            },
+        },
+        Content: &agentkit.FillerWordsContent{
+            Mode: Agora.String("static"),
+            StaticConfig: &agentkit.FillerWordsContentStaticConfig{
+                Phrases:      []string{"Let me think...", "One moment...", "Hmm..."},
+                SelectionRule: Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle.Ptr(),
+            },
+        },
+    }),
+).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
+```
+
+## Getters
+
+Read back configuration via getter methods:
+
+```go
+agent := agentkit.NewAgent(
+    agentkit.WithMaxHistory(20),
+    agentkit.WithGeofence(&agentkit.GeofenceConfig{
+        Area: Agora.StartAgentsRequestPropertiesGeofenceAreaEurope,
+    }),
+    agentkit.WithLabels(map[string]string{"env": "staging"}),
+)
+
+agent.Name()           // string
+agent.MaxHistory()     // *int
+agent.Geofence()       // *GeofenceConfig
+agent.Labels()         // map[string]string
+agent.Sal()            // *SalConfig
+agent.AdvancedFeatures()
+agent.Parameters()
+agent.FailureMessage()
+agent.Rtc()
+agent.FillerWords()
+```
+
+## Chaining All Features
+
+```go
+package main
+
+import (
+    "context"
+    "log"
+
+    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+)
+
+func main() {
+    c := client.NewClient(
+        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    )
+
+    agent := agentkit.NewAgent(
+        agentkit.WithName("full-featured-assistant"),
+        agentkit.WithInstructions("You are a helpful voice assistant."),
+        agentkit.WithGreeting("Hello! How can I help?"),
+        agentkit.WithFailureMessage("Sorry, I had trouble processing that."),
+        agentkit.WithMaxHistory(20),
+        agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
+            EnableRtm: Agora.Bool(true),
+        }),
+        agentkit.WithParameters(&agentkit.SessionParams{
+            SilenceConfig: &agentkit.SilenceConfig{
+                TimeoutMs: Agora.Int(8000),
+                Action:    Agora.StartAgentsRequestPropertiesParametersSilenceConfigActionSpeak.Ptr(),
+                Content:   Agora.String("I'm listening."),
+            },
+            FarewellConfig: &agentkit.FarewellConfig{
+                GracefulEnabled:        Agora.Bool(true),
+                GracefulTimeoutSeconds: Agora.Int(5),
+            },
+        }),
+        agentkit.WithGeofence(&agentkit.GeofenceConfig{
+            Area: Agora.StartAgentsRequestPropertiesGeofenceAreaNorthAmerica,
+        }),
+        agentkit.WithLabels(map[string]string{
+            "app":     "voice-assistant",
+            "version": "2.0",
+        }),
+        agentkit.WithFillerWords(&agentkit.FillerWordsConfig{
+            Enable: Agora.Bool(true),
+            Trigger: &agentkit.FillerWordsTrigger{
+                Mode: Agora.String("fixed_time"),
+                FixedTimeConfig: &agentkit.FillerWordsTriggerFixedTimeConfig{
+                    ResponseWaitMs: Agora.Int(1500),
+                },
+            },
+            Content: &agentkit.FillerWordsContent{
+                Mode: Agora.String("static"),
+                StaticConfig: &agentkit.FillerWordsContentStaticConfig{
+                    Phrases:       []string{"Let me think...", "One moment please."},
+                    SelectionRule: Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle.Ptr(),
+                },
+            },
+        }),
+    ).WithLlm(vendors.NewOpenAI(vendors.OpenAIOptions{
+        APIKey: "<openai_key>",
+        Model:  "gpt-4o-mini",
+    })).WithTts(vendors.NewElevenLabsTTS(vendors.ElevenLabsTTSOptions{
+        Key:     "<elevenlabs_key>",
+        ModelID:  "eleven_turbo_v2_5",
+        VoiceID:  "<voice_id>",
+    })).WithStt(vendors.NewDeepgramSTT(vendors.DeepgramSTTOptions{
+        APIKey:   "<deepgram_key>",
+        Model:    "nova-2",
+        Language: "en-US",
+    }))
+
+    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
+        Client:         c.Agents,
+        Agent:          agent,
+        AppID:          "<app_id>",
+        AppCertificate: "<app_cert>",
+        Channel:        "demo-channel",
+        AgentUID:       "1001",
+        RemoteUIDs:     []string{"1002"},
+    })
+
+    ctx := context.Background()
+    if _, err := session.Start(ctx); err != nil {
+        log.Fatalf("Failed to start: %v", err)
+    }
+    defer session.Stop(ctx)
+}
+```
+
+## Next steps
+
+- [Agent Reference](../reference/agent.md) — full API signatures
+- [Cascading Flow](./cascading-flow.md) — ASR → LLM → TTS setup
+- [MLLM Flow](./mllm-flow.md) — multimodal flow with `EnableMllm`
+- [Regional Routing](./regional-routing.md) — client area and geofence

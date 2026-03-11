@@ -43,6 +43,10 @@ These are passed to `agentkit.NewAgent(opts ...AgentOption)`:
 | `WithSalConfig(sal *SalConfig)` | SAL config | Speech analytics configuration |
 | `WithAdvancedFeatures(af *AdvancedFeatures)` | Feature flags | `EnableMllm`, `EnableAivad`, etc. |
 | `WithParameters(params *SessionParams)` | Session params | Additional session parameters |
+| `WithGeofence(gf *GeofenceConfig)` | Geofence config | Regional access restriction |
+| `WithLabels(labels map[string]string)` | Labels map | Custom key-value labels (returned in callbacks) |
+| `WithRtc(rtc *RtcConfig)` | RTC config | RTC media encryption |
+| `WithFillerWords(fw *FillerWordsConfig)` | Filler words | Filler words while waiting for LLM |
 
 ## Vendor Chaining Methods
 
@@ -77,12 +81,21 @@ agent := agentkit.NewAgent(
 | `WithStt(vendor vendors.STT)` | `vendors.STT` interface | Set the STT vendor |
 | `WithMllm(vendor vendors.MLLM)` | `vendors.MLLM` interface | Set the MLLM vendor (for multimodal flow) |
 | `WithAvatar(vendor vendors.Avatar)` | `vendors.Avatar` interface | Set the avatar vendor (validates sample rate) |
-| `WithTurnDetection(td *TurnDetectionConfig)` | Pointer to config | Override turn detection on a cloned agent |
+| `WithTurnDetection(td *TurnDetectionConfig)` | Pointer to config | Override turn detection (use `Config.StartOfSpeech` / `Config.EndOfSpeech` for SOS/EOS) |
 | `WithInstructions(instructions string)` | String | Override instructions on a cloned agent |
 | `WithGreeting(greeting string)` | String | Override greeting on a cloned agent |
 | `WithName(name string)` | String | Override name on a cloned agent |
+| `WithSal(sal *SalConfig)` | Pointer to config | Set SAL configuration |
+| `WithAdvancedFeatures(af *AdvancedFeatures)` | Pointer to config | Set advanced features |
+| `WithParameters(params *SessionParams)` | Pointer to config | Set session parameters |
+| `WithFailureMessage(msg string)` | String | Set failure message |
+| `WithMaxHistory(n int)` | Int | Set max history length |
+| `WithGeofence(gf *GeofenceConfig)` | Pointer to config | Set geofence configuration |
+| `WithLabels(labels map[string]string)` | Map | Set custom labels |
+| `WithRtc(rtc *RtcConfig)` | Pointer to config | Set RTC configuration |
+| `WithFillerWords(fw *FillerWordsConfig)` | Pointer to config | Set filler words configuration |
 
-Note: `WithInstructions`, `WithGreeting`, and `WithName` exist as both `AgentOption` functions (for `NewAgent`) and as methods on `*Agent` (for cloning with overrides).
+Note: `WithInstructions`, `WithGreeting`, and `WithName` exist as both `AgentOption` functions (for `NewAgent`) and as methods on `*Agent` (for cloning with overrides). The same applies to `WithSal`, `WithAdvancedFeatures`, `WithParameters`, `WithFailureMessage`, `WithMaxHistory`, `WithGeofence`, `WithLabels`, `WithRtc`, and `WithFillerWords`.
 
 ## Agent Getters
 
@@ -90,12 +103,23 @@ Note: `WithInstructions`, `WithGreeting`, and `WithName` exist as both `AgentOpt
 agent.Name() string
 agent.Instructions() string
 agent.Greeting() string
+agent.FailureMessage() string
+agent.MaxHistory() *int
 agent.LlmConfig() map[string]interface{}
 agent.TtsConfig() map[string]interface{}
 agent.SttConfig() map[string]interface{}
 agent.MllmConfig() map[string]interface{}
 agent.TtsSampleRate() *vendors.SampleRate
 agent.AvatarRequiredSampleRate() *vendors.SampleRate
+agent.Avatar() map[string]interface{}
+agent.TurnDetection() *TurnDetectionConfig
+agent.Sal() *SalConfig
+agent.AdvancedFeatures() *AdvancedFeatures
+agent.Parameters() *SessionParams
+agent.Geofence() *GeofenceConfig
+agent.Labels() map[string]string
+agent.Rtc() *RtcConfig
+agent.FillerWords() *FillerWordsConfig
 ```
 
 ## ToProperties
@@ -143,4 +167,14 @@ type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
+type GeofenceConfig = Agora.StartAgentsRequestPropertiesGeofence
+type RtcConfig = Agora.StartAgentsRequestPropertiesRtc
+type FillerWordsConfig = Agora.StartAgentsRequestPropertiesFillerWords
+type LlmConfig = Agora.StartAgentsRequestPropertiesLlm
+type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
+type AsrConfig = Agora.StartAgentsRequestPropertiesAsr
+type TtsConfig = Agora.Tts
+type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
 ```
+
+Additional SOS/EOS turn detection aliases (`TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, etc.) are available — see the [Agent Reference](../reference/agent.md).

@@ -70,7 +70,7 @@ Sets the maximum number of conversation turns to retain.
 func WithTurnDetectionConfig(td *TurnDetectionConfig) AgentOption
 ```
 
-Sets the voice activity detection configuration.
+Sets the turn detection configuration. Use `Config.StartOfSpeech` and `Config.EndOfSpeech` for the preferred SOS/EOS model.
 
 ### WithSalConfig
 
@@ -95,6 +95,38 @@ func WithParameters(params *SessionParams) AgentOption
 ```
 
 Sets additional session parameters.
+
+### WithGeofence
+
+```go
+func WithGeofence(gf *GeofenceConfig) AgentOption
+```
+
+Sets geofence configuration (restricts backend server regions).
+
+### WithLabels
+
+```go
+func WithLabels(labels map[string]string) AgentOption
+```
+
+Sets custom labels (key-value pairs returned in notification callbacks).
+
+### WithRtc
+
+```go
+func WithRtc(rtc *RtcConfig) AgentOption
+```
+
+Sets RTC configuration.
+
+### WithFillerWords
+
+```go
+func WithFillerWords(fw *FillerWordsConfig) AgentOption
+```
+
+Sets filler words configuration (played while waiting for LLM response).
 
 ## Agent Methods
 
@@ -134,11 +166,13 @@ func (a *Agent) WithAvatar(vendor vendors.Avatar) *Agent
 
 **Panics** if TTS is already configured with a sample rate that doesn't match the avatar's requirement. See [Avatars Guide](../guides/avatars.md).
 
-### WithTurnDetection
+### WithTurnDetection (method)
 
 ```go
 func (a *Agent) WithTurnDetection(td *TurnDetectionConfig) *Agent
 ```
+
+Sets the turn detection configuration. Use `Config.StartOfSpeech` and `Config.EndOfSpeech` for the preferred SOS/EOS model.
 
 ### WithInstructions (method)
 
@@ -158,18 +192,83 @@ func (a *Agent) WithGreeting(greeting string) *Agent
 func (a *Agent) WithName(name string) *Agent
 ```
 
+### WithSal (method)
+
+```go
+func (a *Agent) WithSal(sal *SalConfig) *Agent
+```
+
+### WithAdvancedFeatures (method)
+
+```go
+func (a *Agent) WithAdvancedFeatures(af *AdvancedFeatures) *Agent
+```
+
+### WithParameters (method)
+
+```go
+func (a *Agent) WithParameters(params *SessionParams) *Agent
+```
+
+### WithFailureMessage (method)
+
+```go
+func (a *Agent) WithFailureMessage(msg string) *Agent
+```
+
+### WithMaxHistory (method)
+
+```go
+func (a *Agent) WithMaxHistory(n int) *Agent
+```
+
+### WithGeofence (method)
+
+```go
+func (a *Agent) WithGeofence(gf *GeofenceConfig) *Agent
+```
+
+### WithLabels (method)
+
+```go
+func (a *Agent) WithLabels(labels map[string]string) *Agent
+```
+
+### WithRtc (method)
+
+```go
+func (a *Agent) WithRtc(rtc *RtcConfig) *Agent
+```
+
+### WithFillerWords (method)
+
+```go
+func (a *Agent) WithFillerWords(fw *FillerWordsConfig) *Agent
+```
+
 ## Getters
 
 ```go
 func (a *Agent) Name() string
 func (a *Agent) Instructions() string
 func (a *Agent) Greeting() string
+func (a *Agent) FailureMessage() string
+func (a *Agent) MaxHistory() *int
 func (a *Agent) LlmConfig() map[string]interface{}
 func (a *Agent) TtsConfig() map[string]interface{}
 func (a *Agent) SttConfig() map[string]interface{}
 func (a *Agent) MllmConfig() map[string]interface{}
 func (a *Agent) TtsSampleRate() *vendors.SampleRate
 func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate
+func (a *Agent) Avatar() map[string]interface{}
+func (a *Agent) TurnDetection() *TurnDetectionConfig
+func (a *Agent) Sal() *SalConfig
+func (a *Agent) AdvancedFeatures() *AdvancedFeatures
+func (a *Agent) Parameters() *SessionParams
+func (a *Agent) Geofence() *GeofenceConfig
+func (a *Agent) Labels() map[string]string
+func (a *Agent) Rtc() *RtcConfig
+func (a *Agent) FillerWords() *FillerWordsConfig
 ```
 
 ## ToProperties
@@ -220,7 +319,17 @@ type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
+type GeofenceConfig = Agora.StartAgentsRequestPropertiesGeofence
+type RtcConfig = Agora.StartAgentsRequestPropertiesRtc
+type FillerWordsConfig = Agora.StartAgentsRequestPropertiesFillerWords
+type LlmConfig = Agora.StartAgentsRequestPropertiesLlm
+type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
+type AsrConfig = Agora.StartAgentsRequestPropertiesAsr
+type TtsConfig = Agora.Tts
+type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
 ```
+
+Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, and related sub-types. See the agentkit package for the full list.
 
 ## Token Generation
 
