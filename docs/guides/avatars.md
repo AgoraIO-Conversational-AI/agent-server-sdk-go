@@ -25,10 +25,10 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func main() {

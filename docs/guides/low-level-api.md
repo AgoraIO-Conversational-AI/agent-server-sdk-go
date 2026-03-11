@@ -17,9 +17,10 @@ import (
     "context"
     "log"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
@@ -117,7 +118,7 @@ req := &Agora.StartAgentsRequest{
             GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
         },
         TurnDetection: &Agora.StartAgentsRequestPropertiesTurnDetection{
-            Type:               Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad.Ptr(),
+            Type:               agentkit.TurnDetectionTypeServerVad.Ptr(),
             Threshold:          Agora.Float64(0.5),
             SilenceDurationMs:  Agora.Int(500),
         },

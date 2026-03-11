@@ -16,8 +16,8 @@ The simplest way to enable regional routing is `option.WithArea`, which automati
 package main
 
 import (
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
@@ -54,7 +54,7 @@ c := client.NewClient(
 The default API endpoint is available as a constant:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 // Agora.Environments.Default = "https://api.agora.io/api/conversational-ai-agent"
 c := client.NewClient(
@@ -73,9 +73,9 @@ import (
     "context"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
@@ -120,10 +120,10 @@ import (
     "log"
     "time"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func startWithFailover(pool *core.Pool, req *Agora.StartAgentsRequest) error {

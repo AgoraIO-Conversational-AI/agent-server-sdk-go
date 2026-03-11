@@ -13,7 +13,7 @@ The MLLM flow uses a single multimodal model to process audio input and generate
 MLLM mode requires setting `EnableMllm: Agora.Bool(true)` in the advanced features:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithName("realtime-agent"),
@@ -35,11 +35,11 @@ import (
     "fmt"
     "log"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func main() {
@@ -118,7 +118,7 @@ agent := agentkit.NewAgent(
         EnableMllm: Agora.Bool(true),
     }),
     agentkit.WithTurnDetectionConfig(&agentkit.TurnDetectionConfig{
-        Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
+        Type:              agentkit.TurnDetectionTypeServerVad.Ptr(), // deprecated; use Config.EndOfSpeech instead
         Threshold:         Agora.Float64(0.5),
         SilenceDurationMs: Agora.Int(500),
     }),

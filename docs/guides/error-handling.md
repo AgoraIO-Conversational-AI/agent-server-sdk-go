@@ -17,7 +17,7 @@ import (
     "log"
     "net/http"
 
-    core "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/core"
+    core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 )
 
 func main() {

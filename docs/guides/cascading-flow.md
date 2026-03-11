@@ -18,10 +18,10 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func main() {
@@ -90,10 +90,10 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func main() {
@@ -166,12 +166,12 @@ _, err := agent.ToProperties(agentkit.ToPropertiesOptions{...})
 Add server-side voice activity detection to control when the agent starts processing:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithName("vad-agent"),
     agentkit.WithTurnDetectionConfig(&agentkit.TurnDetectionConfig{
-        Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
+        Type:              agentkit.TurnDetectionTypeServerVad.Ptr(), // deprecated; use Config.EndOfSpeech instead
         Threshold:         Agora.Float64(0.5),
         SilenceDurationMs: Agora.Int(500),
     }),

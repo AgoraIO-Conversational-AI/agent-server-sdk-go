@@ -16,8 +16,8 @@ Creates a new API client. All sub-clients share the same configuration.
 
 ```go
 import (
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 c := client.NewClient(
@@ -33,7 +33,7 @@ c := client.NewClient(
 | `c.Telephony` | `*telephony.Client` | Telephony operations (call, hangup) |
 | `c.PhoneNumbers` | `*phonenumbers.Client` | Phone number management |
 
-All sub-client methods take `context.Context` as their first argument. See the [generated reference](https://github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/blob/HEAD/./reference.md) for full method signatures.
+All sub-client methods take `context.Context` as their first argument. See the [generated reference](https://github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/blob/HEAD/./reference.md) for full method signatures.
 
 ## Request Options
 
@@ -76,7 +76,7 @@ func WithBaseURL(baseURL string) *core.BaseURLOption
 Overrides the default API endpoint.
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 c := client.NewClient(
     option.WithBaseURL(Agora.Environments.Default),
@@ -174,7 +174,7 @@ option.AreaUnknown // Default
 ## Environments
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 Agora.Environments.Default  // "https://api.agora.io/api/conversational-ai-agent"
 ```

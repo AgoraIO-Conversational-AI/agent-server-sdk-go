@@ -6,7 +6,7 @@ description: Complete API reference for all vendor constructors and configuratio
 
 # Vendors Reference
 
-Package: `github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors`
+Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors`
 
 ## SampleRate
 

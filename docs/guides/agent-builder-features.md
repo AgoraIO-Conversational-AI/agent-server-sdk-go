@@ -8,6 +8,8 @@ description: Configure SAL, advanced features, parameters, geofence, labels, RTC
 
 The Agent builder supports many configuration options beyond the core LLM, TTS, and STT vendors. This guide shows how to use each feature.
 
+For string values with a finite set of options (e.g. `data_channel`, `sal_mode`, `area`), use the short constant aliases exported from the `agentkit` package (e.g. `agentkit.DataChannelRtm`, `agentkit.SalModeLocking`) instead of the verbose Fern-generated names or raw strings.
+
 ## Overview
 
 | Feature | Option / Method | Description |
@@ -30,9 +32,9 @@ SAL helps the agent focus on the primary speaker and suppress background noise. 
 
 ```go
 import (
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 agent := agentkit.NewAgent(
@@ -42,7 +44,7 @@ agent := agentkit.NewAgent(
         EnableSal: Agora.Bool(true),
     }),
     agentkit.WithSalConfig(&agentkit.SalConfig{
-        SalMode: Agora.StartAgentsRequestPropertiesSalSalModeLocking.Ptr(),
+        SalMode: agentkit.SalModeLocking.Ptr(),
         SampleUrls: map[string]string{
             "primary-speaker": "https://example.com/voiceprint.pcm",
         },
@@ -52,7 +54,7 @@ agent := agentkit.NewAgent(
   WithStt(vendors.NewDeepgramSTT(/* ... */))
 ```
 
-`SalMode` can be `Agora.StartAgentsRequestPropertiesSalSalModeLocking` or `Agora.StartAgentsRequestPropertiesSalSalModeRecognition`.
+`SalMode` can be `agentkit.SalModeLocking` or `agentkit.SalModeRecognition`.
 
 ## Advanced Features
 
@@ -93,14 +95,14 @@ agent := agentkit.NewAgent(
     agentkit.WithParameters(&agentkit.SessionParams{
         SilenceConfig: &agentkit.SilenceConfig{
             TimeoutMs: Agora.Int(10000),
-            Action:    Agora.StartAgentsRequestPropertiesParametersSilenceConfigActionSpeak.Ptr(),
+            Action:    agentkit.SilenceActionSpeak.Ptr(),
             Content:   Agora.String("I'm still here. Take your time."),
         },
         FarewellConfig: &agentkit.FarewellConfig{
             GracefulEnabled:        Agora.Bool(true),
             GracefulTimeoutSeconds: Agora.Int(10),
         },
-        DataChannel: Agora.StartAgentsRequestPropertiesParametersDataChannelRtm.Ptr(),
+        DataChannel: agentkit.DataChannelRtm.Ptr(),
     }),
 ).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
 ```
@@ -126,24 +128,24 @@ agent := agentkit.NewAgent().
 Restrict which geographic regions the backend can use:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithGeofence(&agentkit.GeofenceConfig{
-        Area: Agora.StartAgentsRequestPropertiesGeofenceAreaNorthAmerica,
+        Area: agentkit.GeofenceAreaNorthAmerica,
     }),
 ).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
 
 // Global with exclusion
 agent := agentkit.NewAgent(
     agentkit.WithGeofence(&agentkit.GeofenceConfig{
-        Area:        Agora.StartAgentsRequestPropertiesGeofenceAreaGlobal,
-        ExcludeArea: Agora.StartAgentsRequestPropertiesGeofenceExcludeAreaEurope.Ptr(),
+        Area:        agentkit.GeofenceAreaGlobal,
+        ExcludeArea: agentkit.GeofenceExcludeAreaEurope.Ptr(),
     }),
 ).WithLlm(/* ... */).WithTts(/* ... */).WithStt(/* ... */)
 ```
 
-Valid `Area` values: `Agora.StartAgentsRequestPropertiesGeofenceAreaGlobal`, `...NorthAmerica`, `...Europe`, `...Asia`, `...India`, `...Japan`.
+Available `GeofenceArea` constants: `agentkit.GeofenceAreaGlobal`, `GeofenceAreaNorthAmerica`, `GeofenceAreaEurope`, `GeofenceAreaAsia`, `GeofenceAreaIndia`, `GeofenceAreaJapan`.
 
 ## Labels
 
@@ -190,7 +192,7 @@ agent := agentkit.NewAgent(
             Mode: Agora.String("static"),
             StaticConfig: &agentkit.FillerWordsContentStaticConfig{
                 Phrases:      []string{"Let me think...", "One moment...", "Hmm..."},
-                SelectionRule: Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle.Ptr(),
+                SelectionRule: agentkit.FillerWordsSelectionRuleShuffle.Ptr(),
             },
         },
     }),
@@ -205,7 +207,7 @@ Read back configuration via getter methods:
 agent := agentkit.NewAgent(
     agentkit.WithMaxHistory(20),
     agentkit.WithGeofence(&agentkit.GeofenceConfig{
-        Area: Agora.StartAgentsRequestPropertiesGeofenceAreaEurope,
+        Area: agentkit.GeofenceAreaEurope,
     }),
     agentkit.WithLabels(map[string]string{"env": "staging"}),
 )
@@ -231,11 +233,11 @@ import (
     "context"
     "log"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors"
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 )
 
 func main() {
@@ -255,7 +257,7 @@ func main() {
         agentkit.WithParameters(&agentkit.SessionParams{
             SilenceConfig: &agentkit.SilenceConfig{
                 TimeoutMs: Agora.Int(8000),
-                Action:    Agora.StartAgentsRequestPropertiesParametersSilenceConfigActionSpeak.Ptr(),
+                Action:    agentkit.SilenceActionSpeak.Ptr(),
                 Content:   Agora.String("I'm listening."),
             },
             FarewellConfig: &agentkit.FarewellConfig{
@@ -264,7 +266,7 @@ func main() {
             },
         }),
         agentkit.WithGeofence(&agentkit.GeofenceConfig{
-            Area: Agora.StartAgentsRequestPropertiesGeofenceAreaNorthAmerica,
+            Area: agentkit.GeofenceAreaNorthAmerica,
         }),
         agentkit.WithLabels(map[string]string{
             "app":     "voice-assistant",
@@ -282,7 +284,7 @@ func main() {
                 Mode: Agora.String("static"),
                 StaticConfig: &agentkit.FillerWordsContentStaticConfig{
                     Phrases:       []string{"Let me think...", "One moment please."},
-                    SelectionRule: Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRuleShuffle.Ptr(),
+                    SelectionRule: agentkit.FillerWordsSelectionRuleShuffle.Ptr(),
                 },
             },
         }),

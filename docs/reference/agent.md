@@ -6,7 +6,7 @@ description: Complete API reference for agentkit.Agent — functional options, m
 
 # Agent Reference
 
-Package: `github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit`
+Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit`
 
 ## NewAgent
 

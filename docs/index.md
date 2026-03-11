@@ -25,7 +25,7 @@ Most applications should use the `agentkit` layer. Use the raw `client` layer wh
 ## Installation
 
 ```sh
-go get github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk
+go get github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
 ```
 
 Requires Go 1.21 or later.
@@ -34,11 +34,11 @@ Requires Go 1.21 or later.
 
 ```go
 import (
-    Agora "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk"  // Root types, pointer helpers, environments
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/client" // Fern-generated API client
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/option" // Request options (auth, base URL, retries)
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit" // Agent builder and session management
-    "github.com/AgoraIO-Conversational-AI/agora-agent-go-sdk/agentkit/vendors" // Vendor constructors (LLM, TTS, STT, MLLM, Avatar)
+    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"  // Root types, pointer helpers, environments
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client" // Fern-generated API client
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option" // Request options (auth, base URL, retries)
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit" // Agent builder and session management
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors" // Vendor constructors (LLM, TTS, STT, MLLM, Avatar)
 )
 ```
 
