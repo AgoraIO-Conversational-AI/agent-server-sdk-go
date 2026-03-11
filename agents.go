@@ -4660,10 +4660,10 @@ type StartAgentsRequestProperties struct {
 	// Automatic Speech Recognition (ASR) configuration.
 	Asr *StartAgentsRequestPropertiesAsr `json:"asr,omitempty" url:"asr,omitempty"`
 	// Text-to-speech (TTS) module configuration.
-	Tts *Tts `json:"tts" url:"tts"`
+	Tts *Tts `json:"tts,omitempty" url:"tts,omitempty"`
 	// Large language model (LLM) configuration.
-	Llm *StartAgentsRequestPropertiesLlm `json:"llm" url:"llm"`
-	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
+	Llm *StartAgentsRequestPropertiesLlm `json:"llm,omitempty" url:"llm,omitempty"`
+	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. MLLM is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
 	Mllm *StartAgentsRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
 	// Avatar configuration.
 	Avatar *StartAgentsRequestPropertiesAvatar `json:"avatar,omitempty" url:"avatar,omitempty"`
@@ -6752,7 +6752,7 @@ func (s StartAgentsRequestPropertiesLlmStyle) Ptr() *StartAgentsRequestPropertie
 	return &s
 }
 
-// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing.
+// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. MLLM is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
 var (
 	startAgentsRequestPropertiesMllmFieldURL              = big.NewInt(1 << 0)
 	startAgentsRequestPropertiesMllmFieldAPIKey           = big.NewInt(1 << 1)
