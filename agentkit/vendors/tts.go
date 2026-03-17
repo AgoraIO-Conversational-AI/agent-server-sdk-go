@@ -1,12 +1,17 @@
 package vendors
 
 type ElevenLabsTTSOptions struct {
-	Key          string
-	ModelID      string
-	VoiceID      string
-	BaseURL      string
-	SampleRate   *SampleRate
-	SkipPatterns []int
+	Key                      string
+	ModelID                  string
+	VoiceID                  string
+	BaseURL                  string
+	SampleRate               *SampleRate
+	OptimizeStreamingLatency *int
+	Stability                *float64
+	SimilarityBoost          *float64
+	Style                    *float64
+	UseSpeakerBoost          *bool
+	SkipPatterns             []int
 }
 
 type ElevenLabsTTS struct {
@@ -41,6 +46,21 @@ func (e *ElevenLabsTTS) ToConfig() map[string]interface{} {
 	}
 	if e.options.SampleRate != nil {
 		params["sample_rate"] = int(*e.options.SampleRate)
+	}
+	if e.options.OptimizeStreamingLatency != nil {
+		params["optimize_streaming_latency"] = *e.options.OptimizeStreamingLatency
+	}
+	if e.options.Stability != nil {
+		params["stability"] = *e.options.Stability
+	}
+	if e.options.SimilarityBoost != nil {
+		params["similarity_boost"] = *e.options.SimilarityBoost
+	}
+	if e.options.Style != nil {
+		params["style"] = *e.options.Style
+	}
+	if e.options.UseSpeakerBoost != nil {
+		params["use_speaker_boost"] = *e.options.UseSpeakerBoost
 	}
 
 	config := map[string]interface{}{
@@ -502,10 +522,10 @@ func (m *MiniMaxTTS) ToConfig() map[string]interface{} {
 }
 
 type SarvamTTSOptions struct {
-	APIKey       string
-	VoiceID      string
-	Model        string
-	SkipPatterns []int
+	Key                string
+	Speaker            string
+	TargetLanguageCode string
+	SkipPatterns       []int
 }
 
 type SarvamTTS struct {
@@ -513,8 +533,14 @@ type SarvamTTS struct {
 }
 
 func NewSarvamTTS(opts SarvamTTSOptions) *SarvamTTS {
-	if opts.APIKey == "" {
-		panic("SarvamTTS requires APIKey")
+	if opts.Key == "" {
+		panic("SarvamTTS requires Key")
+	}
+	if opts.Speaker == "" {
+		panic("SarvamTTS requires Speaker")
+	}
+	if opts.TargetLanguageCode == "" {
+		panic("SarvamTTS requires TargetLanguageCode")
 	}
 	return &SarvamTTS{options: opts}
 }
@@ -525,13 +551,9 @@ func (s *SarvamTTS) GetSampleRate() *SampleRate {
 
 func (s *SarvamTTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"api_key": s.options.APIKey,
-	}
-	if s.options.VoiceID != "" {
-		params["voice_id"] = s.options.VoiceID
-	}
-	if s.options.Model != "" {
-		params["model"] = s.options.Model
+		"key":                  s.options.Key,
+		"speaker":              s.options.Speaker,
+		"target_language_code": s.options.TargetLanguageCode,
 	}
 
 	config := map[string]interface{}{
@@ -540,6 +562,50 @@ func (s *SarvamTTS) ToConfig() map[string]interface{} {
 	}
 	if s.options.SkipPatterns != nil {
 		config["skip_patterns"] = s.options.SkipPatterns
+	}
+	return config
+}
+
+type MurfTTSOptions struct {
+	Key          string
+	VoiceID      string
+	Style        string
+	SkipPatterns []int
+}
+
+type MurfTTS struct {
+	options MurfTTSOptions
+}
+
+func NewMurfTTS(opts MurfTTSOptions) *MurfTTS {
+	if opts.Key == "" {
+		panic("MurfTTS requires Key")
+	}
+	if opts.VoiceID == "" {
+		panic("MurfTTS requires VoiceID")
+	}
+	return &MurfTTS{options: opts}
+}
+
+func (m *MurfTTS) GetSampleRate() *SampleRate {
+	return nil
+}
+
+func (m *MurfTTS) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{
+		"key":      m.options.Key,
+		"voice_id": m.options.VoiceID,
+	}
+	if m.options.Style != "" {
+		params["style"] = m.options.Style
+	}
+
+	config := map[string]interface{}{
+		"vendor": "murf",
+		"params": params,
+	}
+	if m.options.SkipPatterns != nil {
+		config["skip_patterns"] = m.options.SkipPatterns
 	}
 	return config
 }
