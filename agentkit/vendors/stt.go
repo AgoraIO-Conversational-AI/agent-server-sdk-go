@@ -1,9 +1,10 @@
 package vendors
 
 type SpeechmaticsSTTOptions struct {
-	APIKey   string
-	Language string
-	Model    string
+	APIKey           string
+	Language         string
+	Model            string
+	AdditionalParams map[string]interface{}
 }
 
 type SpeechmaticsSTT struct {
@@ -14,30 +15,40 @@ func NewSpeechmaticsSTT(opts SpeechmaticsSTTOptions) *SpeechmaticsSTT {
 	if opts.APIKey == "" {
 		panic("SpeechmaticsSTT requires APIKey")
 	}
+	if opts.Language == "" {
+		panic("SpeechmaticsSTT requires Language")
+	}
 	return &SpeechmaticsSTT{options: opts}
 }
 
 func (s *SpeechmaticsSTT) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"api_key": s.options.APIKey,
-	}
-	if s.options.Language != "" {
-		params["language"] = s.options.Language
+		"api_key":  s.options.APIKey,
+		"language": s.options.Language,
 	}
 	if s.options.Model != "" {
 		params["model"] = s.options.Model
 	}
+	for k, v := range s.options.AdditionalParams {
+		if _, exists := params[k]; !exists {
+			params[k] = v
+		}
+	}
 
 	return map[string]interface{}{
-		"vendor": "speechmatics",
-		"params": params,
+		"vendor":   "speechmatics",
+		"language": s.options.Language,
+		"params":   params,
 	}
 }
 
 type DeepgramSTTOptions struct {
-	APIKey   string
-	Model    string
-	Language string
+	APIKey           string
+	Model            string
+	Language         string
+	SmartFormat      *bool
+	Punctuation      *bool
+	AdditionalParams map[string]interface{}
 }
 
 type DeepgramSTT struct {
@@ -45,15 +56,16 @@ type DeepgramSTT struct {
 }
 
 func NewDeepgramSTT(opts DeepgramSTTOptions) *DeepgramSTT {
-	if opts.APIKey == "" {
-		panic("DeepgramSTT requires APIKey")
-	}
 	return &DeepgramSTT{options: opts}
 }
 
 func (d *DeepgramSTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"api_key": d.options.APIKey,
+	params := map[string]interface{}{}
+	for k, v := range d.options.AdditionalParams {
+		params[k] = v
+	}
+	if d.options.APIKey != "" {
+		params["api_key"] = d.options.APIKey
 	}
 	if d.options.Model != "" {
 		params["model"] = d.options.Model
@@ -61,17 +73,28 @@ func (d *DeepgramSTT) ToConfig() map[string]interface{} {
 	if d.options.Language != "" {
 		params["language"] = d.options.Language
 	}
+	if d.options.SmartFormat != nil {
+		params["smart_format"] = *d.options.SmartFormat
+	}
+	if d.options.Punctuation != nil {
+		params["punctuation"] = *d.options.Punctuation
+	}
 
-	return map[string]interface{}{
+	config := map[string]interface{}{
 		"vendor": "deepgram",
 		"params": params,
 	}
+	if d.options.Language != "" {
+		config["language"] = d.options.Language
+	}
+	return config
 }
 
 type MicrosoftSTTOptions struct {
-	Key      string
-	Region   string
-	Language string
+	Key              string
+	Region           string
+	Language         string
+	AdditionalParams map[string]interface{}
 }
 
 type MicrosoftSTT struct {
@@ -89,24 +112,31 @@ func NewMicrosoftSTT(opts MicrosoftSTTOptions) *MicrosoftSTT {
 }
 
 func (m *MicrosoftSTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"key":    m.options.Key,
-		"region": m.options.Region,
+	params := map[string]interface{}{}
+	for k, v := range m.options.AdditionalParams {
+		params[k] = v
 	}
+	params["key"] = m.options.Key
+	params["region"] = m.options.Region
 	if m.options.Language != "" {
 		params["language"] = m.options.Language
 	}
 
-	return map[string]interface{}{
+	config := map[string]interface{}{
 		"vendor": "microsoft",
 		"params": params,
 	}
+	if m.options.Language != "" {
+		config["language"] = m.options.Language
+	}
+	return config
 }
 
 type OpenAISTTOptions struct {
-	APIKey   string
-	Model    string
-	Language string
+	APIKey           string
+	Model            string
+	Language         string
+	AdditionalParams map[string]interface{}
 }
 
 type OpenAISTT struct {
@@ -121,9 +151,11 @@ func NewOpenAISTT(opts OpenAISTTOptions) *OpenAISTT {
 }
 
 func (o *OpenAISTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"api_key": o.options.APIKey,
+	params := map[string]interface{}{}
+	for k, v := range o.options.AdditionalParams {
+		params[k] = v
 	}
+	params["api_key"] = o.options.APIKey
 	if o.options.Model != "" {
 		params["model"] = o.options.Model
 	}
@@ -131,16 +163,21 @@ func (o *OpenAISTT) ToConfig() map[string]interface{} {
 		params["language"] = o.options.Language
 	}
 
-	return map[string]interface{}{
+	config := map[string]interface{}{
 		"vendor": "openai",
 		"params": params,
 	}
+	if o.options.Language != "" {
+		config["language"] = o.options.Language
+	}
+	return config
 }
 
 type GoogleSTTOptions struct {
-	Key      string
-	Language string
-	Model    string
+	APIKey           string
+	Language         string
+	Model            string
+	AdditionalParams map[string]interface{}
 }
 
 type GoogleSTT struct {
@@ -148,16 +185,18 @@ type GoogleSTT struct {
 }
 
 func NewGoogleSTT(opts GoogleSTTOptions) *GoogleSTT {
-	if opts.Key == "" {
-		panic("GoogleSTT requires Key")
+	if opts.APIKey == "" {
+		panic("GoogleSTT requires APIKey")
 	}
 	return &GoogleSTT{options: opts}
 }
 
 func (g *GoogleSTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"key": g.options.Key,
+	params := map[string]interface{}{}
+	for k, v := range g.options.AdditionalParams {
+		params[k] = v
 	}
+	params["api_key"] = g.options.APIKey
 	if g.options.Language != "" {
 		params["language"] = g.options.Language
 	}
@@ -165,17 +204,22 @@ func (g *GoogleSTT) ToConfig() map[string]interface{} {
 		params["model"] = g.options.Model
 	}
 
-	return map[string]interface{}{
+	config := map[string]interface{}{
 		"vendor": "google",
 		"params": params,
 	}
+	if g.options.Language != "" {
+		config["language"] = g.options.Language
+	}
+	return config
 }
 
 type AmazonSTTOptions struct {
-	AccessKey string
-	SecretKey string
-	Region    string
-	Language  string
+	AccessKey        string
+	SecretKey        string
+	Region           string
+	Language         string
+	AdditionalParams map[string]interface{}
 }
 
 type AmazonSTT struct {
@@ -196,23 +240,31 @@ func NewAmazonSTT(opts AmazonSTTOptions) *AmazonSTT {
 }
 
 func (a *AmazonSTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"access_key": a.options.AccessKey,
-		"secret_key": a.options.SecretKey,
-		"region":     a.options.Region,
+	params := map[string]interface{}{}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
 	}
+	params["access_key"] = a.options.AccessKey
+	params["secret_key"] = a.options.SecretKey
+	params["region"] = a.options.Region
 	if a.options.Language != "" {
 		params["language"] = a.options.Language
 	}
 
-	return map[string]interface{}{
+	config := map[string]interface{}{
 		"vendor": "amazon",
 		"params": params,
 	}
+	if a.options.Language != "" {
+		config["language"] = a.options.Language
+	}
+	return config
 }
 
 type AssemblyAISTTOptions struct {
-	APIKey string
+	APIKey           string
+	Language         string
+	AdditionalParams map[string]interface{}
 }
 
 type AssemblyAISTT struct {
@@ -227,16 +279,25 @@ func NewAssemblyAISTT(opts AssemblyAISTTOptions) *AssemblyAISTT {
 }
 
 func (a *AssemblyAISTT) ToConfig() map[string]interface{} {
-	return map[string]interface{}{
-		"vendor": "assemblyai",
-		"params": map[string]interface{}{
-			"api_key": a.options.APIKey,
-		},
+	params := map[string]interface{}{}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
 	}
+	params["api_key"] = a.options.APIKey
+
+	config := map[string]interface{}{
+		"vendor": "assemblyai",
+		"params": params,
+	}
+	if a.options.Language != "" {
+		config["language"] = a.options.Language
+	}
+	return config
 }
 
 type AresSTTOptions struct {
-	APIKey string
+	Language         string
+	AdditionalParams map[string]interface{}
 }
 
 type AresSTT struct {
@@ -244,49 +305,35 @@ type AresSTT struct {
 }
 
 func NewAresSTT(opts AresSTTOptions) *AresSTT {
-	if opts.APIKey == "" {
-		panic("AresSTT requires APIKey")
-	}
 	return &AresSTT{options: opts}
 }
 
 func (a *AresSTT) ToConfig() map[string]interface{} {
-	return map[string]interface{}{
+	params := map[string]interface{}{}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
+	}
+	if a.options.Language != "" {
+		params["language"] = a.options.Language
+	}
+
+	config := map[string]interface{}{
 		"vendor": "ares",
-		"params": map[string]interface{}{
-			"api_key": a.options.APIKey,
-		},
 	}
-}
-
-type SonioxSTTOptions struct {
-	APIKey string
-}
-
-type SonioxSTT struct {
-	options SonioxSTTOptions
-}
-
-func NewSonioxSTT(opts SonioxSTTOptions) *SonioxSTT {
-	if opts.APIKey == "" {
-		panic("SonioxSTT requires APIKey")
+	if len(params) > 0 {
+		config["params"] = params
 	}
-	return &SonioxSTT{options: opts}
-}
-
-func (s *SonioxSTT) ToConfig() map[string]interface{} {
-	return map[string]interface{}{
-		"vendor": "soniox",
-		"params": map[string]interface{}{
-			"api_key": s.options.APIKey,
-		},
+	if a.options.Language != "" {
+		config["language"] = a.options.Language
 	}
+	return config
 }
 
 type SarvamSTTOptions struct {
-	APIKey   string
-	Language string
-	Model    string
+	APIKey           string
+	Language         string
+	Model            string
+	AdditionalParams map[string]interface{}
 }
 
 type SarvamSTT struct {
@@ -297,22 +344,26 @@ func NewSarvamSTT(opts SarvamSTTOptions) *SarvamSTT {
 	if opts.APIKey == "" {
 		panic("SarvamSTT requires APIKey")
 	}
+	if opts.Language == "" {
+		panic("SarvamSTT requires Language")
+	}
 	return &SarvamSTT{options: opts}
 }
 
 func (s *SarvamSTT) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"api_key": s.options.APIKey,
+	params := map[string]interface{}{}
+	for k, v := range s.options.AdditionalParams {
+		params[k] = v
 	}
-	if s.options.Language != "" {
-		params["language"] = s.options.Language
-	}
+	params["api_key"] = s.options.APIKey
+	params["language"] = s.options.Language
 	if s.options.Model != "" {
 		params["model"] = s.options.Model
 	}
 
 	return map[string]interface{}{
-		"vendor": "sarvam",
-		"params": params,
+		"vendor":   "sarvam",
+		"language": s.options.Language,
+		"params":   params,
 	}
 }
