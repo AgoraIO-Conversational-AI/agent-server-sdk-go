@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Fixed
 
 - `ElevenLabsTTS`: added missing voice tuning fields — `OptimizeStreamingLatency`, `Stability`, `SimilarityBoost`, `Style`, `UseSpeakerBoost`
+- All LLM vendors: added `MaxHistory *int` for conversation history caching
+- `AzureOpenAI` LLM: added `Params map[string]interface{}` escape hatch (was missing, unlike other vendors)
+- `Anthropic` LLM: added `URL string` for custom endpoints and `Params map[string]interface{}` escape hatch
+- `Gemini` LLM: added `URL string` for custom endpoints and `Params map[string]interface{}` escape hatch
 - `MiniMaxTTS`: added required `GroupID`, `URL`, and correctly nested `voice_setting.voice_id`
 - `SarvamTTS`: corrected schema to `Key` + `Speaker` + `TargetLanguageCode` (was incorrectly using `APIKey`, `VoiceID`, `Model`)
 - All STT vendors: added top-level `language` field to `ToConfig()` output, required by the Agora platform for routing
