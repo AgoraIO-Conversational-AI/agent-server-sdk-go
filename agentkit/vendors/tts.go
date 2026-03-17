@@ -457,8 +457,10 @@ func (g *GroqTTS) ToConfig() map[string]interface{} {
 
 type MiniMaxTTSOptions struct {
 	Key          string
-	VoiceID      string
+	GroupID      string
 	Model        string
+	VoiceID      string
+	URL          string
 	SkipPatterns []int
 }
 
@@ -470,6 +472,9 @@ func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS {
 	if opts.Key == "" {
 		panic("MiniMaxTTS requires Key")
 	}
+	if opts.GroupID == "" {
+		panic("MiniMaxTTS requires GroupID")
+	}
 	return &MiniMaxTTS{options: opts}
 }
 
@@ -479,13 +484,11 @@ func (m *MiniMaxTTS) GetSampleRate() *SampleRate {
 
 func (m *MiniMaxTTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"key": m.options.Key,
-	}
-	if m.options.VoiceID != "" {
-		params["voice_id"] = m.options.VoiceID
-	}
-	if m.options.Model != "" {
-		params["model"] = m.options.Model
+		"key":           m.options.Key,
+		"group_id":      m.options.GroupID,
+		"model":         m.options.Model,
+		"voice_setting": map[string]interface{}{"voice_id": m.options.VoiceID},
+		"url":           m.options.URL,
 	}
 
 	config := map[string]interface{}{
