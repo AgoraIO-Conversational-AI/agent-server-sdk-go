@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - `MurfTTS` vendor
 - `AdditionalParams map[string]interface{}` on all STT vendors for passing unlisted API parameters
 
+
 ### Fixed
 
 - `ElevenLabsTTS`: added missing voice tuning fields — `OptimizeStreamingLatency`, `Stability`, `SimilarityBoost`, `Style`, `UseSpeakerBoost`

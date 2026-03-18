@@ -306,38 +306,41 @@ Panics if `Key` or `ReferenceID` is empty.
 | `ReferenceID`  | `string` | Yes      | Reference audio ID |
 | `SkipPatterns` | `[]int`  | No       | Patterns to skip   |
 
-### NewGroqTTS
-
-```go
-func NewGroqTTS(opts GroqTTSOptions) *GroqTTS
-```
-
-Panics if `Key` is empty.
-
-#### GroqTTSOptions
-
-| Field          | Type     | Required | Description      |
-| -------------- | -------- | -------- | ---------------- |
-| `Key`          | `string` | Yes      | Groq API key     |
-| `Model`        | `string` | No       | Model identifier |
-| `SkipPatterns` | `[]int`  | No       | Patterns to skip |
-
 ### NewMiniMaxTTS
 
 ```go
 func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS
 ```
 
-Panics if `Key` is empty.
+Panics if `Key`, `GroupID`, `Model`, `VoiceID`, or `URL` is empty.
 
 #### MiniMaxTTSOptions
 
-| Field          | Type     | Required | Description      |
-| -------------- | -------- | -------- | ---------------- |
-| `Key`          | `string` | Yes      | MiniMax API key  |
-| `VoiceID`      | `string` | No       | Voice identifier |
-| `Model`        | `string` | No       | Model identifier |
-| `SkipPatterns` | `[]int`  | No       | Patterns to skip |
+| Field          | Type     | Required | Description                               |
+| -------------- | -------- | -------- | ----------------------------------------- |
+| `Key`          | `string` | Yes      | MiniMax API key                           |
+| `GroupID`      | `string` | Yes      | MiniMax group ID                          |
+| `Model`        | `string` | Yes      | Model name (e.g., `speech-02-turbo`)      |
+| `VoiceID`      | `string` | Yes      | Voice style identifier                    |
+| `URL`          | `string` | Yes      | WebSocket endpoint                        |
+| `SkipPatterns` | `[]int`  | No       | Patterns to skip                          |
+
+### NewMurfTTS
+
+```go
+func NewMurfTTS(opts MurfTTSOptions) *MurfTTS
+```
+
+Panics if `Key` or `VoiceID` is empty.
+
+#### MurfTTSOptions
+
+| Field          | Type     | Required | Description                              |
+| -------------- | -------- | -------- | ---------------------------------------- |
+| `Key`          | `string` | Yes      | Murf API key                             |
+| `VoiceID`      | `string` | Yes      | Voice ID (e.g., `Ariana`, `Natalie`)     |
+| `Style`        | `string` | No       | Voice style (e.g., `Conversational`)     |
+| `SkipPatterns` | `[]int`  | No       | Patterns to skip                         |
 
 ### NewSarvamTTS
 
@@ -345,16 +348,16 @@ Panics if `Key` is empty.
 func NewSarvamTTS(opts SarvamTTSOptions) *SarvamTTS
 ```
 
-Panics if `APIKey` is empty.
+Panics if `Key`, `Speaker`, or `TargetLanguageCode` is empty.
 
 #### SarvamTTSOptions
 
-| Field          | Type     | Required | Description      |
-| -------------- | -------- | -------- | ---------------- |
-| `APIKey`       | `string` | Yes      | Sarvam API key   |
-| `VoiceID`      | `string` | No       | Voice identifier |
-| `Model`        | `string` | No       | Model identifier |
-| `SkipPatterns` | `[]int`  | No       | Patterns to skip |
+| Field                | Type     | Required | Description          |
+| -------------------- | -------- | -------- | -------------------- |
+| `Key`                | `string` | Yes      | Sarvam API key       |
+| `Speaker`            | `string` | Yes      | Speaker name         |
+| `TargetLanguageCode` | `string` | Yes      | Target language code |
+| `SkipPatterns`       | `[]int`  | No       | Patterns to skip     |
 
 ---
 
