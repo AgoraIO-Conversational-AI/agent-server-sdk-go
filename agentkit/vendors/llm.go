@@ -31,6 +31,7 @@ type OpenAIOptions struct {
 	Temperature       *float64
 	TopP              *float64
 	MaxTokens         *int
+	MaxHistory        *int
 	SystemMessages    []map[string]interface{}
 	GreetingMessage   string
 	FailureMessage    string
@@ -116,6 +117,9 @@ func (o *OpenAI) ToConfig() map[string]interface{} {
 	if o.options.McpServers != nil {
 		config["mcp_servers"] = ensureMcpTransport(o.options.McpServers)
 	}
+	if o.options.MaxHistory != nil {
+		config["max_history"] = *o.options.MaxHistory
+	}
 
 	return config
 }
@@ -128,10 +132,12 @@ type AzureOpenAIOptions struct {
 	Temperature       *float64
 	TopP              *float64
 	MaxTokens         *int
+	MaxHistory        *int
 	SystemMessages    []map[string]interface{}
 	GreetingMessage   string
 	FailureMessage    string
 	InputModalities   []string
+	Params            map[string]interface{}
 	OutputModalities  []string
 	GreetingConfigs   map[string]interface{}
 	TemplateVariables map[string]string
@@ -180,7 +186,11 @@ func (a *AzureOpenAI) ToConfig() map[string]interface{} {
 		"input_modalities": inputMod,
 	}
 
+	// model is the base; explicit Params entries extend it; named fields win.
 	params := map[string]interface{}{}
+	for k, v := range a.options.Params {
+		params[k] = v
+	}
 	if a.options.Temperature != nil {
 		params["temperature"] = *a.options.Temperature
 	}
@@ -215,6 +225,9 @@ func (a *AzureOpenAI) ToConfig() map[string]interface{} {
 	if a.options.McpServers != nil {
 		config["mcp_servers"] = ensureMcpTransport(a.options.McpServers)
 	}
+	if a.options.MaxHistory != nil {
+		config["max_history"] = *a.options.MaxHistory
+	}
 
 	return config
 }
@@ -222,13 +235,16 @@ func (a *AzureOpenAI) ToConfig() map[string]interface{} {
 type AnthropicOptions struct {
 	APIKey            string
 	Model             string
+	URL               string
 	MaxTokens         *int
 	Temperature       *float64
 	TopP              *float64
+	MaxHistory        *int
 	SystemMessages    []map[string]interface{}
 	GreetingMessage   string
 	FailureMessage    string
 	InputModalities   []string
+	Params            map[string]interface{}
 	OutputModalities  []string
 	GreetingConfigs   map[string]interface{}
 	TemplateVariables map[string]string
@@ -251,12 +267,21 @@ func NewAnthropic(opts AnthropicOptions) *Anthropic {
 }
 
 func (a *Anthropic) ToConfig() map[string]interface{} {
+	url := a.options.URL
+	if url == "" {
+		url = "https://api.anthropic.com/v1/messages"
+	}
+
 	inputMod := a.options.InputModalities
 	if inputMod == nil {
 		inputMod = []string{"text"}
 	}
 
+	// model is the base; explicit Params entries extend it; named fields win.
 	params := map[string]interface{}{"model": a.options.Model}
+	for k, v := range a.options.Params {
+		params[k] = v
+	}
 	if a.options.MaxTokens != nil {
 		params["max_tokens"] = *a.options.MaxTokens
 	}
@@ -268,7 +293,7 @@ func (a *Anthropic) ToConfig() map[string]interface{} {
 	}
 
 	config := map[string]interface{}{
-		"url":              "https://api.anthropic.com/v1/messages",
+		"url":              url,
 		"api_key":          a.options.APIKey,
 		"params":           params,
 		"style":            "anthropic",
@@ -299,6 +324,9 @@ func (a *Anthropic) ToConfig() map[string]interface{} {
 	if a.options.McpServers != nil {
 		config["mcp_servers"] = ensureMcpTransport(a.options.McpServers)
 	}
+	if a.options.MaxHistory != nil {
+		config["max_history"] = *a.options.MaxHistory
+	}
 
 	return config
 }
@@ -306,14 +334,17 @@ func (a *Anthropic) ToConfig() map[string]interface{} {
 type GeminiOptions struct {
 	APIKey            string
 	Model             string
+	URL               string
 	Temperature       *float64
 	TopP              *float64
 	TopK              *int
 	MaxOutputTokens   *int
+	MaxHistory        *int
 	SystemMessages    []map[string]interface{}
 	GreetingMessage   string
 	FailureMessage    string
 	InputModalities   []string
+	Params            map[string]interface{}
 	OutputModalities  []string
 	GreetingConfigs   map[string]interface{}
 	TemplateVariables map[string]string
@@ -336,12 +367,21 @@ func NewGemini(opts GeminiOptions) *Gemini {
 }
 
 func (g *Gemini) ToConfig() map[string]interface{} {
+	url := g.options.URL
+	if url == "" {
+		url = "https://generativelanguage.googleapis.com/v1beta/models"
+	}
+
 	inputMod := g.options.InputModalities
 	if inputMod == nil {
 		inputMod = []string{"text"}
 	}
 
+	// model is the base; explicit Params entries extend it; named fields win.
 	params := map[string]interface{}{"model": g.options.Model}
+	for k, v := range g.options.Params {
+		params[k] = v
+	}
 	if g.options.Temperature != nil {
 		params["temperature"] = *g.options.Temperature
 	}
@@ -356,7 +396,7 @@ func (g *Gemini) ToConfig() map[string]interface{} {
 	}
 
 	config := map[string]interface{}{
-		"url":              "https://generativelanguage.googleapis.com/v1beta/models",
+		"url":              url,
 		"api_key":          g.options.APIKey,
 		"params":           params,
 		"style":            "gemini",
@@ -386,6 +426,9 @@ func (g *Gemini) ToConfig() map[string]interface{} {
 	}
 	if g.options.McpServers != nil {
 		config["mcp_servers"] = ensureMcpTransport(g.options.McpServers)
+	}
+	if g.options.MaxHistory != nil {
+		config["max_history"] = *g.options.MaxHistory
 	}
 
 	return config
