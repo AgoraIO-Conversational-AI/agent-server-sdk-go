@@ -436,45 +436,6 @@ func (f *FishAudioTTS) ToConfig() map[string]interface{} {
 	return config
 }
 
-type GroqTTSOptions struct {
-	Key          string
-	Model        string
-	SkipPatterns []int
-}
-
-type GroqTTS struct {
-	options GroqTTSOptions
-}
-
-func NewGroqTTS(opts GroqTTSOptions) *GroqTTS {
-	if opts.Key == "" {
-		panic("GroqTTS requires Key")
-	}
-	return &GroqTTS{options: opts}
-}
-
-func (g *GroqTTS) GetSampleRate() *SampleRate {
-	return nil
-}
-
-func (g *GroqTTS) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{
-		"key": g.options.Key,
-	}
-	if g.options.Model != "" {
-		params["model"] = g.options.Model
-	}
-
-	config := map[string]interface{}{
-		"vendor": "groq",
-		"params": params,
-	}
-	if g.options.SkipPatterns != nil {
-		config["skip_patterns"] = g.options.SkipPatterns
-	}
-	return config
-}
-
 type MiniMaxTTSOptions struct {
 	Key          string
 	GroupID      string
