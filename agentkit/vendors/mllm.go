@@ -7,6 +7,7 @@ type OpenAIRealtimeOptions struct {
 	Temperature     *float64
 	MaxOutputTokens *int
 	SystemMessage   string
+	Messages        []map[string]interface{}
 	PredefinedTools []string
 	FailureMessage  string
 	MaxHistory      *int
@@ -49,6 +50,9 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	if o.options.SystemMessage != "" {
 		config["system_message"] = o.options.SystemMessage
 	}
+	if o.options.Messages != nil {
+		config["messages"] = o.options.Messages
+	}
 	if o.options.PredefinedTools != nil {
 		config["predefined_tools"] = o.options.PredefinedTools
 	}
@@ -69,6 +73,7 @@ type VertexAIOptions struct {
 	Voice           string
 	Language        string
 	SystemMessage   string
+	Messages        []map[string]interface{}
 	PredefinedTools []string
 	FailureMessage  string
 	MaxHistory      *int
@@ -102,6 +107,9 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 	}
 	if v.options.Language != "" {
 		params["language"] = v.options.Language
+	}
+	if v.options.Messages != nil {
+		params["messages"] = v.options.Messages
 	}
 
 	config := map[string]interface{}{
