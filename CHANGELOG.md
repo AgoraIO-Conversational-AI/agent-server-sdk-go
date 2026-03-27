@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [v1.2.0] — 2026-03-27
+
+### Fixed
+
+- **`OpenAIRealtime` / `VertexAI` (MLLM)** — Agent-level `greeting`, `failure_message`, and `max_history` overrides are now correctly applied when the agent is in MLLM mode. Previously these values were silently dropped.
+- **`VertexAI` (MLLM)** — Corrected vendor string from `"vertex_ai"` to `"vertexai"` to match the Agora server API.
+
+### Changed
+
+- **`OpenAITTS`** — Renamed struct field `Key` → `APIKey` to match the Agora server API expectation. ⚠️ **Breaking change.**
+- **`CartesiaTTS`** — Renamed struct field `Key` → `APIKey`. Voice is now serialized as `{"mode": "id", "id": "<VoiceID>"}` instead of a flat `voice_id` string. ⚠️ **Breaking change.**
+- **`HeyGenAvatar`** — Removed legacy fields `AvatarName`, `VoiceID`, `Language`, `Version`. Added `AgoraToken`, `AvatarID`, `Enable`, `DisableIdleTimeout`, `ActivityIdleTimeout`. The config now includes a top-level `enable` field (defaults `true`). ⚠️ **Breaking change.**
+
+### Added
+
+- **`OpenAITTS`** — New optional fields: `ResponseFormat` (string, e.g. `"pcm"`) and `Speed` (*float64).
+- **`CartesiaTTS`** — `VoiceID` user-facing field is preserved; voice is serialized to the required nested object format automatically.
+- **`RimeTTS`** — New optional fields: `Lang` (string), `SamplingRate` (*int, serialized as `samplingRate`), `SpeedAlpha` (*float64, serialized as `speedAlpha`).
+- **`OpenAIRealtime`** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int).
+- **`VertexAI` (MLLM)** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int).
+- **`HeyGenAvatar`** — New fields: `AgoraToken` (string), `AvatarID` (string), `Enable` (*bool, default `true`), `DisableIdleTimeout` (*bool), `ActivityIdleTimeout` (*int).
+
 ## [v1.1.0] — 2026-03-17
 
 ### Added

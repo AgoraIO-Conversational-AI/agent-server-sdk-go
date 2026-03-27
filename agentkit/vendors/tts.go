@@ -123,10 +123,12 @@ func (m *MicrosoftTTS) ToConfig() map[string]interface{} {
 }
 
 type OpenAITTSOptions struct {
-	Key          string
-	Voice        string
-	Model        string
-	SkipPatterns []int
+	APIKey         string
+	Voice          string
+	Model          string
+	ResponseFormat string
+	Speed          *float64
+	SkipPatterns   []int
 }
 
 type OpenAITTS struct {
@@ -134,8 +136,8 @@ type OpenAITTS struct {
 }
 
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS {
-	if opts.Key == "" {
-		panic("OpenAITTS requires Key")
+	if opts.APIKey == "" {
+		panic("OpenAITTS requires APIKey")
 	}
 	if opts.Voice == "" {
 		panic("OpenAITTS requires Voice")
@@ -150,11 +152,17 @@ func (o *OpenAITTS) GetSampleRate() *SampleRate {
 
 func (o *OpenAITTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"key":   o.options.Key,
-		"voice": o.options.Voice,
+		"api_key": o.options.APIKey,
+		"voice":   o.options.Voice,
 	}
 	if o.options.Model != "" {
 		params["model"] = o.options.Model
+	}
+	if o.options.ResponseFormat != "" {
+		params["response_format"] = o.options.ResponseFormat
+	}
+	if o.options.Speed != nil {
+		params["speed"] = *o.options.Speed
 	}
 
 	config := map[string]interface{}{
@@ -168,7 +176,7 @@ func (o *OpenAITTS) ToConfig() map[string]interface{} {
 }
 
 type CartesiaTTSOptions struct {
-	Key          string
+	APIKey       string
 	VoiceID      string
 	ModelID      string
 	SampleRate   *SampleRate
@@ -180,8 +188,8 @@ type CartesiaTTS struct {
 }
 
 func NewCartesiaTTS(opts CartesiaTTSOptions) *CartesiaTTS {
-	if opts.Key == "" {
-		panic("CartesiaTTS requires Key")
+	if opts.APIKey == "" {
+		panic("CartesiaTTS requires APIKey")
 	}
 	if opts.VoiceID == "" {
 		panic("CartesiaTTS requires VoiceID")
@@ -195,8 +203,8 @@ func (c *CartesiaTTS) GetSampleRate() *SampleRate {
 
 func (c *CartesiaTTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"key":      c.options.Key,
-		"voice_id": c.options.VoiceID,
+		"api_key": c.options.APIKey,
+		"voice":   map[string]interface{}{"mode": "id", "id": c.options.VoiceID},
 	}
 	if c.options.ModelID != "" {
 		params["model_id"] = c.options.ModelID
@@ -356,6 +364,9 @@ type RimeTTSOptions struct {
 	Key          string
 	Speaker      string
 	ModelID      string
+	Lang         string
+	SamplingRate *int
+	SpeedAlpha   *float64
 	SkipPatterns []int
 }
 
@@ -384,6 +395,15 @@ func (r *RimeTTS) ToConfig() map[string]interface{} {
 	}
 	if r.options.ModelID != "" {
 		params["model_id"] = r.options.ModelID
+	}
+	if r.options.Lang != "" {
+		params["lang"] = r.options.Lang
+	}
+	if r.options.SamplingRate != nil {
+		params["samplingRate"] = *r.options.SamplingRate
+	}
+	if r.options.SpeedAlpha != nil {
+		params["speedAlpha"] = *r.options.SpeedAlpha
 	}
 
 	config := map[string]interface{}{
