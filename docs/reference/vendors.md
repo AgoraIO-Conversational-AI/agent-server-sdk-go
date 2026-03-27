@@ -394,11 +394,14 @@ Panics if `APIKey` is empty.
 
 #### DeepgramSTTOptions
 
-| Field      | Type     | Required | Description              |
-| ---------- | -------- | -------- | ------------------------ |
-| `APIKey`   | `string` | Yes      | Deepgram API key         |
-| `Model`    | `string` | No       | Model (e.g., `"nova-2"`) |
-| `Language` | `string` | No       | Language code            |
+| Field              | Type                     | Required | Description              |
+| ------------------ | ------------------------ | -------- | ------------------------ |
+| `APIKey`           | `string`                 | Yes      | Deepgram API key         |
+| `Model`            | `string`                 | No       | Model (e.g., `"nova-2"`) |
+| `Language`         | `string`                 | No       | Language code            |
+| `SmartFormat`      | `*bool`                  | No       | Enable smart formatting  |
+| `Punctuation`      | `*bool`                  | No       | Enable punctuation       |
+| `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
 ### NewMicrosoftSTT
 
@@ -485,13 +488,14 @@ Panics if `APIKey` is empty.
 func NewAresSTT(opts AresSTTOptions) *AresSTT
 ```
 
-Panics if `APIKey` is empty.
+Ares is an Agora built-in STT service — no external API key required.
 
 #### AresSTTOptions
 
-| Field    | Type     | Required | Description  |
-| -------- | -------- | -------- | ------------ |
-| `APIKey` | `string` | Yes      | Ares API key |
+| Field              | Type                     | Required | Description              |
+| ------------------ | ------------------------ | -------- | ------------------------ |
+| `Language`         | `string`                 | No       | Language code            |
+| `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
 ### NewSonioxSTT
 
@@ -544,10 +548,11 @@ Panics if `APIKey` is empty.
 | `Voice`           | `string`   | No       | —                           | Voice name (e.g., `"alloy"`)                       |
 | `Temperature`     | `*float64` | No       | —                           | Sampling temperature                               |
 | `MaxOutputTokens` | `*int`     | No       | —                           | Max output tokens                                  |
-| `SystemMessage`   | `string`   | No       | —                           | System instruction                                 |
-| `PredefinedTools` | `[]string` | No       | —                           | Predefined tools (e.g., `["_publish_message"]`)    |
-| `FailureMessage`  | `string`   | No       | —                           | Message played when the model call fails           |
-| `MaxHistory`      | `*int`     | No       | —                           | Maximum conversation history length                |
+| `SystemMessage`   | `string`                   | No       | —                           | System instruction                                 |
+| `Messages`        | `[]map[string]interface{}` | No       | —                           | Conversation messages for short-term memory        |
+| `PredefinedTools` | `[]string`                 | No       | —                           | Predefined tools (e.g., `["_publish_message"]`)    |
+| `FailureMessage`  | `string`                   | No       | —                           | Message played when the model call fails           |
+| `MaxHistory`      | `*int`                     | No       | —                           | Maximum conversation history length                |
 
 ### NewVertexAI
 
@@ -566,10 +571,11 @@ Panics if `ProjectID` is empty.
 | `Model`           | `string`   | No       | `"gemini-2.0-flash-exp"` | Model identifier                                |
 | `Voice`           | `string`   | No       | —                        | Voice name                                      |
 | `Language`        | `string`   | No       | —                        | Language code                                   |
-| `SystemMessage`   | `string`   | No       | —                        | System instruction                              |
-| `PredefinedTools` | `[]string` | No       | —                        | Predefined tools (e.g., `["_publish_message"]`) |
-| `FailureMessage`  | `string`   | No       | —                        | Message played when the model call fails        |
-| `MaxHistory`      | `*int`     | No       | —                        | Maximum conversation history length             |
+| `SystemMessage`   | `string`                   | No       | —                        | System instruction                              |
+| `Messages`        | `[]map[string]interface{}` | No       | —                        | Conversation messages (placed inside `params`)  |
+| `PredefinedTools` | `[]string`                 | No       | —                        | Predefined tools (e.g., `["_publish_message"]`) |
+| `FailureMessage`  | `string`                   | No       | —                        | Message played when the model call fails        |
+| `MaxHistory`      | `*int`                     | No       | —                        | Maximum conversation history length             |
 
 ---
 

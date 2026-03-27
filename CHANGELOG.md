@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 - **`OpenAIRealtime` / `VertexAI` (MLLM)** — Agent-level `greeting`, `failure_message`, and `max_history` overrides are now correctly applied when the agent is in MLLM mode. Previously these values were silently dropped.
 - **`VertexAI` (MLLM)** — Corrected vendor string from `"vertex_ai"` to `"vertexai"` to match the Agora server API.
+- **`VertexAI` (MLLM)** — `Messages` is now correctly placed inside `params` (required by the Gemini Live API). Previously it was emitted at the top level and silently ignored.
 
 ### Changed
 
@@ -22,8 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - **`OpenAITTS`** — New optional fields: `ResponseFormat` (string, e.g. `"pcm"`) and `Speed` (*float64).
 - **`CartesiaTTS`** — `VoiceID` user-facing field is preserved; voice is serialized to the required nested object format automatically.
 - **`RimeTTS`** — New optional fields: `Lang` (string), `SamplingRate` (*int, serialized as `samplingRate`), `SpeedAlpha` (*float64, serialized as `speedAlpha`).
-- **`OpenAIRealtime`** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int).
-- **`VertexAI` (MLLM)** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int).
+- **`OpenAIRealtime`** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int), `Messages` ([]map[string]interface{}).
+- **`VertexAI` (MLLM)** — New optional fields: `PredefinedTools` ([]string), `FailureMessage` (string), `MaxHistory` (*int), `Messages` ([]map[string]interface{}).
 - **`HeyGenAvatar`** — New fields: `AgoraToken` (string), `AvatarID` (string), `Enable` (*bool, default `true`), `DisableIdleTimeout` (*bool), `ActivityIdleTimeout` (*int).
 
 ## [v1.1.0] — 2026-03-17
