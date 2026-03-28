@@ -193,16 +193,18 @@ Panics if `Key`, `Region`, or `VoiceName` is empty.
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS
 ```
 
-Panics if `Key` or `Voice` is empty. Always returns `SampleRate24kHz` from `GetSampleRate()`.
+Panics if `APIKey` or `Voice` is empty. Always returns `SampleRate24kHz` from `GetSampleRate()`.
 
 #### OpenAITTSOptions
 
-| Field          | Type     | Required | Description      |
-| -------------- | -------- | -------- | ---------------- |
-| `Key`          | `string` | Yes      | OpenAI API key   |
-| `Voice`        | `string` | Yes      | Voice name       |
-| `Model`        | `string` | No       | Model identifier |
-| `SkipPatterns` | `[]int`  | No       | Patterns to skip |
+| Field            | Type       | Required | Description                        |
+| ---------------- | ---------- | -------- | ---------------------------------- |
+| `APIKey`         | `string`   | Yes      | OpenAI API key                     |
+| `Voice`          | `string`   | Yes      | Voice name                         |
+| `Model`          | `string`   | No       | Model identifier                   |
+| `ResponseFormat` | `string`   | No       | Audio format (e.g., `"pcm"`)       |
+| `Speed`          | `*float64` | No       | Speech speed multiplier            |
+| `SkipPatterns`   | `[]int`    | No       | Patterns to skip                   |
 
 ### NewCartesiaTTS
 
@@ -210,17 +212,17 @@ Panics if `Key` or `Voice` is empty. Always returns `SampleRate24kHz` from `GetS
 func NewCartesiaTTS(opts CartesiaTTSOptions) *CartesiaTTS
 ```
 
-Panics if `Key` or `VoiceID` is empty.
+Panics if `APIKey` or `VoiceID` is empty.
 
 #### CartesiaTTSOptions
 
-| Field          | Type          | Required | Description        |
-| -------------- | ------------- | -------- | ------------------ |
-| `Key`          | `string`      | Yes      | Cartesia API key   |
-| `VoiceID`      | `string`      | Yes      | Voice identifier   |
-| `ModelID`      | `string`      | No       | Model identifier   |
-| `SampleRate`   | `*SampleRate` | No       | Output sample rate |
-| `SkipPatterns` | `[]int`       | No       | Patterns to skip   |
+| Field          | Type          | Required | Description                                          |
+| -------------- | ------------- | -------- | ---------------------------------------------------- |
+| `APIKey`       | `string`      | Yes      | Cartesia API key                                     |
+| `VoiceID`      | `string`      | Yes      | Voice identifier (serialized as `{"mode":"id","id":"..."}`) |
+| `ModelID`      | `string`      | No       | Model identifier                                     |
+| `SampleRate`   | `*SampleRate` | No       | Output sample rate                                   |
+| `SkipPatterns` | `[]int`       | No       | Patterns to skip                                     |
 
 ### NewGoogleTTS
 
@@ -283,12 +285,15 @@ Panics if `Key` or `Speaker` is empty.
 
 #### RimeTTSOptions
 
-| Field          | Type     | Required | Description        |
-| -------------- | -------- | -------- | ------------------ |
-| `Key`          | `string` | Yes      | Rime API key       |
-| `Speaker`      | `string` | Yes      | Speaker identifier |
-| `ModelID`      | `string` | No       | Model identifier   |
-| `SkipPatterns` | `[]int`  | No       | Patterns to skip   |
+| Field          | Type       | Required | Description                                   |
+| -------------- | ---------- | -------- | --------------------------------------------- |
+| `Key`          | `string`   | Yes      | Rime API key                                  |
+| `Speaker`      | `string`   | Yes      | Speaker identifier                            |
+| `ModelID`      | `string`   | No       | Model identifier                              |
+| `Lang`         | `string`   | No       | Language code                                 |
+| `SamplingRate` | `*int`     | No       | Sampling rate in Hz (serialized as `samplingRate`) |
+| `SpeedAlpha`   | `*float64` | No       | Speed multiplier (serialized as `speedAlpha`) |
+| `SkipPatterns` | `[]int`    | No       | Patterns to skip                              |
 
 ### NewFishAudioTTS
 
@@ -389,11 +394,14 @@ Panics if `APIKey` is empty.
 
 #### DeepgramSTTOptions
 
-| Field      | Type     | Required | Description              |
-| ---------- | -------- | -------- | ------------------------ |
-| `APIKey`   | `string` | Yes      | Deepgram API key         |
-| `Model`    | `string` | No       | Model (e.g., `"nova-2"`) |
-| `Language` | `string` | No       | Language code            |
+| Field              | Type                     | Required | Description              |
+| ------------------ | ------------------------ | -------- | ------------------------ |
+| `APIKey`           | `string`                 | Yes      | Deepgram API key         |
+| `Model`            | `string`                 | No       | Model (e.g., `"nova-2"`) |
+| `Language`         | `string`                 | No       | Language code            |
+| `SmartFormat`      | `*bool`                  | No       | Enable smart formatting  |
+| `Punctuation`      | `*bool`                  | No       | Enable punctuation       |
+| `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
 ### NewMicrosoftSTT
 
@@ -480,13 +488,14 @@ Panics if `APIKey` is empty.
 func NewAresSTT(opts AresSTTOptions) *AresSTT
 ```
 
-Panics if `APIKey` is empty.
+Ares is an Agora built-in STT service — no external API key required.
 
 #### AresSTTOptions
 
-| Field    | Type     | Required | Description  |
-| -------- | -------- | -------- | ------------ |
-| `APIKey` | `string` | Yes      | Ares API key |
+| Field              | Type                     | Required | Description              |
+| ------------------ | ------------------------ | -------- | ------------------------ |
+| `Language`         | `string`                 | No       | Language code            |
+| `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
 ### NewSonioxSTT
 
@@ -532,14 +541,18 @@ Panics if `APIKey` is empty.
 
 #### OpenAIRealtimeOptions
 
-| Field             | Type       | Required | Default                     | Description                  |
-| ----------------- | ---------- | -------- | --------------------------- | ---------------------------- |
-| `APIKey`          | `string`   | Yes      | —                           | OpenAI API key               |
-| `Model`           | `string`   | No       | `"gpt-4o-realtime-preview"` | Model identifier             |
-| `Voice`           | `string`   | No       | —                           | Voice name (e.g., `"alloy"`) |
-| `Temperature`     | `*float64` | No       | —                           | Sampling temperature         |
-| `MaxOutputTokens` | `*int`     | No       | —                           | Max output tokens            |
-| `SystemMessage`   | `string`   | No       | —                           | System instruction           |
+| Field             | Type       | Required | Default                     | Description                                        |
+| ----------------- | ---------- | -------- | --------------------------- | -------------------------------------------------- |
+| `APIKey`          | `string`   | Yes      | —                           | OpenAI API key                                     |
+| `Model`           | `string`   | No       | `"gpt-4o-realtime-preview"` | Model identifier                                   |
+| `Voice`           | `string`   | No       | —                           | Voice name (e.g., `"alloy"`)                       |
+| `Temperature`     | `*float64` | No       | —                           | Sampling temperature                               |
+| `MaxOutputTokens` | `*int`     | No       | —                           | Max output tokens                                  |
+| `SystemMessage`   | `string`                   | No       | —                           | System instruction                                 |
+| `Messages`        | `[]map[string]interface{}` | No       | —                           | Conversation messages for short-term memory        |
+| `PredefinedTools` | `[]string`                 | No       | —                           | Predefined tools (e.g., `["_publish_message"]`)    |
+| `FailureMessage`  | `string`                   | No       | —                           | Message played when the model call fails           |
+| `MaxHistory`      | `*int`                     | No       | —                           | Maximum conversation history length                |
 
 ### NewVertexAI
 
@@ -551,14 +564,18 @@ Panics if `ProjectID` is empty.
 
 #### VertexAIOptions
 
-| Field           | Type     | Required | Default                  | Description        |
-| --------------- | -------- | -------- | ------------------------ | ------------------ |
-| `ProjectID`     | `string` | Yes      | —                        | GCP project ID     |
-| `Location`      | `string` | No       | `"us-central1"`          | GCP region         |
-| `Model`         | `string` | No       | `"gemini-2.0-flash-exp"` | Model identifier   |
-| `Voice`         | `string` | No       | —                        | Voice name         |
-| `Language`      | `string` | No       | —                        | Language code      |
-| `SystemMessage` | `string` | No       | —                        | System instruction |
+| Field             | Type       | Required | Default                  | Description                                     |
+| ----------------- | ---------- | -------- | ------------------------ | ----------------------------------------------- |
+| `ProjectID`       | `string`   | Yes      | —                        | GCP project ID                                  |
+| `Location`        | `string`   | No       | `"us-central1"`          | GCP region                                      |
+| `Model`           | `string`   | No       | `"gemini-2.0-flash-exp"` | Model identifier                                |
+| `Voice`           | `string`   | No       | —                        | Voice name                                      |
+| `Language`        | `string`   | No       | —                        | Language code                                   |
+| `SystemMessage`   | `string`                   | No       | —                        | System instruction                              |
+| `Messages`        | `[]map[string]interface{}` | No       | —                        | Conversation messages (placed inside `params`)  |
+| `PredefinedTools` | `[]string`                 | No       | —                        | Predefined tools (e.g., `["_publish_message"]`) |
+| `FailureMessage`  | `string`                   | No       | —                        | Message played when the model call fails        |
+| `MaxHistory`      | `*int`                     | No       | —                        | Maximum conversation history length             |
 
 ---
 
@@ -576,15 +593,16 @@ Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
 
 #### HeyGenAvatarOptions
 
-| Field        | Type     | Required | Description                      |
-| ------------ | -------- | -------- | -------------------------------- |
-| `APIKey`     | `string` | Yes      | HeyGen API key                   |
-| `Quality`    | `string` | Yes      | `"low"`, `"medium"`, or `"high"` |
-| `AgoraUID`   | `string` | Yes      | UID for avatar's video stream    |
-| `AvatarName` | `string` | No       | Specific avatar model            |
-| `VoiceID`    | `string` | No       | Override voice                   |
-| `Language`   | `string` | No       | Language code                    |
-| `Version`    | `string` | No       | API version                      |
+| Field                 | Type     | Required | Description                                      |
+| --------------------- | -------- | -------- | ------------------------------------------------ |
+| `APIKey`              | `string` | Yes      | HeyGen API key                                   |
+| `Quality`             | `string` | Yes      | `"low"`, `"medium"`, or `"high"`                 |
+| `AgoraUID`            | `string` | Yes      | UID for avatar's video stream                    |
+| `AgoraToken`          | `string` | No       | RTC token for avatar authentication              |
+| `AvatarID`            | `string` | No       | HeyGen avatar ID                                 |
+| `Enable`              | `*bool`  | No       | Enable or disable the avatar (default: `true`)   |
+| `DisableIdleTimeout`  | `*bool`  | No       | Disable the idle timeout                         |
+| `ActivityIdleTimeout` | `*int`   | No       | Idle timeout in seconds (default: 120)           |
 
 ### NewAkoolAvatar
 

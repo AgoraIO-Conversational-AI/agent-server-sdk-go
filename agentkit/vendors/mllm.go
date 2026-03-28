@@ -7,6 +7,10 @@ type OpenAIRealtimeOptions struct {
 	Temperature     *float64
 	MaxOutputTokens *int
 	SystemMessage   string
+	Messages        []map[string]interface{}
+	PredefinedTools []string
+	FailureMessage  string
+	MaxHistory      *int
 }
 
 type OpenAIRealtime struct {
@@ -46,17 +50,33 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	if o.options.SystemMessage != "" {
 		config["system_message"] = o.options.SystemMessage
 	}
+	if o.options.Messages != nil {
+		config["messages"] = o.options.Messages
+	}
+	if o.options.PredefinedTools != nil {
+		config["predefined_tools"] = o.options.PredefinedTools
+	}
+	if o.options.FailureMessage != "" {
+		config["failure_message"] = o.options.FailureMessage
+	}
+	if o.options.MaxHistory != nil {
+		config["max_history"] = *o.options.MaxHistory
+	}
 
 	return config
 }
 
 type VertexAIOptions struct {
-	ProjectID     string
-	Location      string
-	Model         string
-	Voice         string
-	Language      string
-	SystemMessage string
+	ProjectID       string
+	Location        string
+	Model           string
+	Voice           string
+	Language        string
+	SystemMessage   string
+	Messages        []map[string]interface{}
+	PredefinedTools []string
+	FailureMessage  string
+	MaxHistory      *int
 }
 
 type VertexAI struct {
@@ -88,14 +108,26 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 	if v.options.Language != "" {
 		params["language"] = v.options.Language
 	}
+	if v.options.Messages != nil {
+		params["messages"] = v.options.Messages
+	}
 
 	config := map[string]interface{}{
-		"vendor": "vertex_ai",
+		"vendor": "vertexai",
 		"params": params,
 	}
 
 	if v.options.SystemMessage != "" {
 		config["system_message"] = v.options.SystemMessage
+	}
+	if v.options.PredefinedTools != nil {
+		config["predefined_tools"] = v.options.PredefinedTools
+	}
+	if v.options.FailureMessage != "" {
+		config["failure_message"] = v.options.FailureMessage
+	}
+	if v.options.MaxHistory != nil {
+		config["max_history"] = *v.options.MaxHistory
 	}
 
 	return config

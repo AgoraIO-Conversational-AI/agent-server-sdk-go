@@ -471,8 +471,27 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		props.EnableStringUID = opts.EnableStringUID
 	}
 	if a.mllm != nil {
+		mllmConfig := make(map[string]interface{})
+		for k, v := range a.mllm {
+			mllmConfig[k] = v
+		}
+		if a.greeting != "" {
+			if _, exists := mllmConfig["greeting_message"]; !exists {
+				mllmConfig["greeting_message"] = a.greeting
+			}
+		}
+		if a.failureMessage != "" {
+			if _, exists := mllmConfig["failure_message"]; !exists {
+				mllmConfig["failure_message"] = a.failureMessage
+			}
+		}
+		if a.maxHistory != nil {
+			if _, exists := mllmConfig["max_history"]; !exists {
+				mllmConfig["max_history"] = *a.maxHistory
+			}
+		}
 		var mllm Agora.StartAgentsRequestPropertiesMllm
-		if err := mapToStruct(a.mllm, &mllm); err != nil {
+		if err := mapToStruct(mllmConfig, &mllm); err != nil {
 			return nil, fmt.Errorf("failed to convert MLLM config: %w", err)
 		}
 		props.Mllm = &mllm
