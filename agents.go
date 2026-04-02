@@ -82,6 +82,42 @@ func (g *GetHistoryAgentsRequest) SetAgentID(agentID string) {
 }
 
 var (
+	getTurnsAgentsRequestFieldAppid   = big.NewInt(1 << 0)
+	getTurnsAgentsRequestFieldAgentID = big.NewInt(1 << 1)
+)
+
+type GetTurnsAgentsRequest struct {
+	// The App ID of the project.
+	Appid string `json:"-" url:"-"`
+	// The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
+	AgentID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetTurnsAgentsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetAppid sets the Appid field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsRequest) SetAppid(appid string) {
+	g.Appid = appid
+	g.require(getTurnsAgentsRequestFieldAppid)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsRequest) SetAgentID(agentID string) {
+	g.AgentID = agentID
+	g.require(getTurnsAgentsRequestFieldAgentID)
+}
+
+var (
 	interruptAgentsRequestFieldAppid   = big.NewInt(1 << 0)
 	interruptAgentsRequestFieldAgentID = big.NewInt(1 << 1)
 )
@@ -284,7 +320,9 @@ func (s *SpeakAgentsRequest) SetInterruptable(interruptable *bool) {
 var (
 	startAgentsRequestFieldAppid      = big.NewInt(1 << 0)
 	startAgentsRequestFieldName       = big.NewInt(1 << 1)
-	startAgentsRequestFieldProperties = big.NewInt(1 << 2)
+	startAgentsRequestFieldPreset     = big.NewInt(1 << 2)
+	startAgentsRequestFieldPipelineID = big.NewInt(1 << 3)
+	startAgentsRequestFieldProperties = big.NewInt(1 << 4)
 )
 
 type StartAgentsRequest struct {
@@ -292,6 +330,15 @@ type StartAgentsRequest struct {
 	Appid string `json:"-" url:"-"`
 	// The unique identifier of the agent. The same identifier cannot be used repeatedly.
 	Name string `json:"name" url:"-"`
+	// A comma-separated string of one or more presets. Each preset provides a predefined configuration for ASR, LLM, and TTS. You can specify a preset for any or all of ASR, LLM, and TTS. When a preset is specified, you do not need to provide the endpoint URL, API key, or model for the preset providers. Use the `asr`, `llm`, and `tts` fields to configure additional settings.
+	//
+	// Available presets:
+	// - ASR: `deepgram_nova_2`, `deepgram_nova_3`
+	// - LLM: `openai_gpt_4o_mini`, `openai_gpt_4_1_mini`, `openai_gpt_5_nano`, `openai_gpt_5_mini`
+	// - TTS: `minimax_speech_2_6_turbo`, `minimax_speech_2_8_turbo`, `openai_tts_1`
+	Preset *string `json:"preset,omitempty" url:"-"`
+	// The unique ID of a published agent in AI Studio. When provided, the saved agent configuration is used as the base configuration. Any fields specified in `properties` override the corresponding agent settings. When you specify a `pipeline_id`, the `asr`, `tts`, and `llm` fields in `properties` are optional.
+	PipelineID *string `json:"pipeline_id,omitempty" url:"-"`
 	// Configuration details of the agent.
 	Properties *StartAgentsRequestProperties `json:"properties,omitempty" url:"-"`
 
@@ -318,6 +365,20 @@ func (s *StartAgentsRequest) SetAppid(appid string) {
 func (s *StartAgentsRequest) SetName(name string) {
 	s.Name = name
 	s.require(startAgentsRequestFieldName)
+}
+
+// SetPreset sets the Preset field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequest) SetPreset(preset *string) {
+	s.Preset = preset
+	s.require(startAgentsRequestFieldPreset)
+}
+
+// SetPipelineID sets the PipelineID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StartAgentsRequest) SetPipelineID(pipelineID *string) {
+	s.PipelineID = pipelineID
+	s.require(startAgentsRequestFieldPipelineID)
 }
 
 // SetProperties sets the Properties field and marks it as non-optional;
@@ -3866,6 +3927,1073 @@ func (g GetHistoryAgentsResponseContentsItemRole) Ptr() *GetHistoryAgentsRespons
 }
 
 var (
+	getTurnsAgentsResponseFieldTurns = big.NewInt(1 << 0)
+)
+
+type GetTurnsAgentsResponse struct {
+	// A list of conversation turns for the agent session.
+	Turns []*GetTurnsAgentsResponseTurnsItem `json:"turns,omitempty" url:"turns,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponse) GetTurns() []*GetTurnsAgentsResponseTurnsItem {
+	if g == nil {
+		return nil
+	}
+	return g.Turns
+}
+
+func (g *GetTurnsAgentsResponse) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponse) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetTurns sets the Turns field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponse) SetTurns(turns []*GetTurnsAgentsResponseTurnsItem) {
+	g.Turns = turns
+	g.require(getTurnsAgentsResponseFieldTurns)
+}
+
+func (g *GetTurnsAgentsResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponse) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponse) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+var (
+	getTurnsAgentsResponseTurnsItemFieldAgentID = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemFieldChannel = big.NewInt(1 << 1)
+	getTurnsAgentsResponseTurnsItemFieldTurnID  = big.NewInt(1 << 2)
+	getTurnsAgentsResponseTurnsItemFieldStart   = big.NewInt(1 << 3)
+	getTurnsAgentsResponseTurnsItemFieldEnd     = big.NewInt(1 << 4)
+	getTurnsAgentsResponseTurnsItemFieldMetrics = big.NewInt(1 << 5)
+)
+
+type GetTurnsAgentsResponseTurnsItem struct {
+	// The unique identifier of the agent.
+	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
+	// The name of the RTC channel the agent joined.
+	Channel *string `json:"channel,omitempty" url:"channel,omitempty"`
+	// The sequential index of the turn within the session. Starts at `1`.
+	TurnID *float64 `json:"turn_id,omitempty" url:"turn_id,omitempty"`
+	// Details about the start of the turn.
+	Start *GetTurnsAgentsResponseTurnsItemStart `json:"start,omitempty" url:"start,omitempty"`
+	// Details about the end of the turn.
+	End *GetTurnsAgentsResponseTurnsItemEnd `json:"end,omitempty" url:"end,omitempty"`
+	// Latency metrics for the turn.
+	Metrics *GetTurnsAgentsResponseTurnsItemMetrics `json:"metrics,omitempty" url:"metrics,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetAgentID() *string {
+	if g == nil {
+		return nil
+	}
+	return g.AgentID
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetChannel() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Channel
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetTurnID() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.TurnID
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetStart() *GetTurnsAgentsResponseTurnsItemStart {
+	if g == nil {
+		return nil
+	}
+	return g.Start
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetEnd() *GetTurnsAgentsResponseTurnsItemEnd {
+	if g == nil {
+		return nil
+	}
+	return g.End
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetMetrics() *GetTurnsAgentsResponseTurnsItemMetrics {
+	if g == nil {
+		return nil
+	}
+	return g.Metrics
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetAgentID sets the AgentID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetAgentID(agentID *string) {
+	g.AgentID = agentID
+	g.require(getTurnsAgentsResponseTurnsItemFieldAgentID)
+}
+
+// SetChannel sets the Channel field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetChannel(channel *string) {
+	g.Channel = channel
+	g.require(getTurnsAgentsResponseTurnsItemFieldChannel)
+}
+
+// SetTurnID sets the TurnID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetTurnID(turnID *float64) {
+	g.TurnID = turnID
+	g.require(getTurnsAgentsResponseTurnsItemFieldTurnID)
+}
+
+// SetStart sets the Start field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetStart(start *GetTurnsAgentsResponseTurnsItemStart) {
+	g.Start = start
+	g.require(getTurnsAgentsResponseTurnsItemFieldStart)
+}
+
+// SetEnd sets the End field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetEnd(end *GetTurnsAgentsResponseTurnsItemEnd) {
+	g.End = end
+	g.require(getTurnsAgentsResponseTurnsItemFieldEnd)
+}
+
+// SetMetrics sets the Metrics field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItem) SetMetrics(metrics *GetTurnsAgentsResponseTurnsItemMetrics) {
+	g.Metrics = metrics
+	g.require(getTurnsAgentsResponseTurnsItemFieldMetrics)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItem) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Details about the end of the turn.
+var (
+	getTurnsAgentsResponseTurnsItemEndFieldEndAt    = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemEndFieldType     = big.NewInt(1 << 1)
+	getTurnsAgentsResponseTurnsItemEndFieldMetadata = big.NewInt(1 << 2)
+)
+
+type GetTurnsAgentsResponseTurnsItemEnd struct {
+	// The Unix timestamp in milliseconds (UTC time) when the turn ended.
+	EndAt *float64 `json:"end_at,omitempty" url:"end_at,omitempty"`
+	// The type of event that ended the turn.
+	// - `ok`: The turn ended normally.
+	// - `interrupted`: The turn was interrupted.
+	// - `ignored`: The turn was ignored.
+	// - `error`: The turn ended due to an error.
+	Type *GetTurnsAgentsResponseTurnsItemEndType `json:"type,omitempty" url:"type,omitempty"`
+	// Additional context about the turn end event. Included fields depend on the value of the `type` field.
+	Metadata *GetTurnsAgentsResponseTurnsItemEndMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) GetEndAt() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.EndAt
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) GetType() *GetTurnsAgentsResponseTurnsItemEndType {
+	if g == nil {
+		return nil
+	}
+	return g.Type
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) GetMetadata() *GetTurnsAgentsResponseTurnsItemEndMetadata {
+	if g == nil {
+		return nil
+	}
+	return g.Metadata
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetEndAt sets the EndAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEnd) SetEndAt(endAt *float64) {
+	g.EndAt = endAt
+	g.require(getTurnsAgentsResponseTurnsItemEndFieldEndAt)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEnd) SetType(type_ *GetTurnsAgentsResponseTurnsItemEndType) {
+	g.Type = type_
+	g.require(getTurnsAgentsResponseTurnsItemEndFieldType)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEnd) SetMetadata(metadata *GetTurnsAgentsResponseTurnsItemEndMetadata) {
+	g.Metadata = metadata
+	g.require(getTurnsAgentsResponseTurnsItemEndFieldMetadata)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemEnd
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemEnd(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemEnd
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEnd) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Additional context about the turn end event. Included fields depend on the value of the `type` field.
+var (
+	getTurnsAgentsResponseTurnsItemEndMetadataFieldPlaybackDurationMs = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemEndMetadataFieldCausedBy           = big.NewInt(1 << 1)
+	getTurnsAgentsResponseTurnsItemEndMetadataFieldTransport          = big.NewInt(1 << 2)
+	getTurnsAgentsResponseTurnsItemEndMetadataFieldReason             = big.NewInt(1 << 3)
+	getTurnsAgentsResponseTurnsItemEndMetadataFieldDetails            = big.NewInt(1 << 4)
+)
+
+type GetTurnsAgentsResponseTurnsItemEndMetadata struct {
+	// The audio playback duration in milliseconds. Included only when `type` is `ok`.
+	PlaybackDurationMs *int `json:"playback_duration_ms,omitempty" url:"playback_duration_ms,omitempty"`
+	// The cause of the turn ending.
+	//
+	// When `type` is `interrupted`, possible values are:
+	// - `start_of_speech`: A new voice input interrupted the turn.
+	// - `api_speak`: The turn was interrupted by a call to the speak API.
+	// - `api_interrupt`: The turn was interrupted by a call to the interrupt API.
+	// - `api_leave`: The turn was interrupted because the agent left the channel.
+	//
+	// When `type` is `ignored`, possible values are:
+	// - `semantic`: The turn was ignored because semantic end-of-speech detection determined no response was required.
+	// - `keywords`: The turn was ignored because the start keyword was not detected.
+	// - `disable`: The turn was ignored because interruption is disabled for this turn.
+	CausedBy *string `json:"caused_by,omitempty" url:"caused_by,omitempty"`
+	// The transport protocol used to deliver the request. Included only when `caused_by` is `api_speak` or `api_interrupt`.
+	// - `http`: Delivered over HTTP.
+	// - `rtm`: Delivered through the RTM Presence channel.
+	Transport *string `json:"transport,omitempty" url:"transport,omitempty"`
+	// The error type. Included only when `type` is `error`.
+	// - `LLM_REQUEST_ERR`: LLM request error.
+	// - `INTERNAL_ERR`: Internal error.
+	Reason *string `json:"reason,omitempty" url:"reason,omitempty"`
+	// Additional error details. Included only when `type` is `error`.
+	Details *string `json:"details,omitempty" url:"details,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetPlaybackDurationMs() *int {
+	if g == nil {
+		return nil
+	}
+	return g.PlaybackDurationMs
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetCausedBy() *string {
+	if g == nil {
+		return nil
+	}
+	return g.CausedBy
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetTransport() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Transport
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetReason() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Reason
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetDetails() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Details
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetPlaybackDurationMs sets the PlaybackDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) SetPlaybackDurationMs(playbackDurationMs *int) {
+	g.PlaybackDurationMs = playbackDurationMs
+	g.require(getTurnsAgentsResponseTurnsItemEndMetadataFieldPlaybackDurationMs)
+}
+
+// SetCausedBy sets the CausedBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) SetCausedBy(causedBy *string) {
+	g.CausedBy = causedBy
+	g.require(getTurnsAgentsResponseTurnsItemEndMetadataFieldCausedBy)
+}
+
+// SetTransport sets the Transport field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) SetTransport(transport *string) {
+	g.Transport = transport
+	g.require(getTurnsAgentsResponseTurnsItemEndMetadataFieldTransport)
+}
+
+// SetReason sets the Reason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) SetReason(reason *string) {
+	g.Reason = reason
+	g.require(getTurnsAgentsResponseTurnsItemEndMetadataFieldReason)
+}
+
+// SetDetails sets the Details field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) SetDetails(details *string) {
+	g.Details = details
+	g.require(getTurnsAgentsResponseTurnsItemEndMetadataFieldDetails)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemEndMetadata
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemEndMetadata(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemEndMetadata
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemEndMetadata) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// The type of event that ended the turn.
+// - `ok`: The turn ended normally.
+// - `interrupted`: The turn was interrupted.
+// - `ignored`: The turn was ignored.
+// - `error`: The turn ended due to an error.
+type GetTurnsAgentsResponseTurnsItemEndType string
+
+const (
+	GetTurnsAgentsResponseTurnsItemEndTypeOk          GetTurnsAgentsResponseTurnsItemEndType = "ok"
+	GetTurnsAgentsResponseTurnsItemEndTypeInterrupted GetTurnsAgentsResponseTurnsItemEndType = "interrupted"
+	GetTurnsAgentsResponseTurnsItemEndTypeIgnored     GetTurnsAgentsResponseTurnsItemEndType = "ignored"
+	GetTurnsAgentsResponseTurnsItemEndTypeError       GetTurnsAgentsResponseTurnsItemEndType = "error"
+)
+
+func NewGetTurnsAgentsResponseTurnsItemEndTypeFromString(s string) (GetTurnsAgentsResponseTurnsItemEndType, error) {
+	switch s {
+	case "ok":
+		return GetTurnsAgentsResponseTurnsItemEndTypeOk, nil
+	case "interrupted":
+		return GetTurnsAgentsResponseTurnsItemEndTypeInterrupted, nil
+	case "ignored":
+		return GetTurnsAgentsResponseTurnsItemEndTypeIgnored, nil
+	case "error":
+		return GetTurnsAgentsResponseTurnsItemEndTypeError, nil
+	}
+	var t GetTurnsAgentsResponseTurnsItemEndType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (g GetTurnsAgentsResponseTurnsItemEndType) Ptr() *GetTurnsAgentsResponseTurnsItemEndType {
+	return &g
+}
+
+// Latency metrics for the turn.
+var (
+	getTurnsAgentsResponseTurnsItemMetricsFieldE2ELatencyMs       = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemMetricsFieldSegmentedLatencyMs = big.NewInt(1 << 1)
+)
+
+type GetTurnsAgentsResponseTurnsItemMetrics struct {
+	// The end-to-end latency in milliseconds for the turn.
+	E2ELatencyMs *int `json:"e2e_latency_ms,omitempty" url:"e2e_latency_ms,omitempty"`
+	// A breakdown of latency by segment.
+	SegmentedLatencyMs []*GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem `json:"segmented_latency_ms,omitempty" url:"segmented_latency_ms,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) GetE2ELatencyMs() *int {
+	if g == nil {
+		return nil
+	}
+	return g.E2ELatencyMs
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) GetSegmentedLatencyMs() []*GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem {
+	if g == nil {
+		return nil
+	}
+	return g.SegmentedLatencyMs
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetE2ELatencyMs sets the E2ELatencyMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) SetE2ELatencyMs(e2ELatencyMs *int) {
+	g.E2ELatencyMs = e2ELatencyMs
+	g.require(getTurnsAgentsResponseTurnsItemMetricsFieldE2ELatencyMs)
+}
+
+// SetSegmentedLatencyMs sets the SegmentedLatencyMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) SetSegmentedLatencyMs(segmentedLatencyMs []*GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) {
+	g.SegmentedLatencyMs = segmentedLatencyMs
+	g.require(getTurnsAgentsResponseTurnsItemMetricsFieldSegmentedLatencyMs)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemMetrics
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemMetrics(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemMetrics
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetrics) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+var (
+	getTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItemFieldName    = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItemFieldLatency = big.NewInt(1 << 1)
+)
+
+type GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem struct {
+	// The name of the latency segment.
+	//
+	// When the LLM input modality is `text`, the returned segments are:
+	// - `algorithm_processing`: Algorithm processing delay.
+	// - `asr_ttlw`: ASR Time To Last Word (TTLW) in milliseconds.
+	// - `llm_ttft`: LLM Time To First Token (TTFT) in milliseconds.
+	// - `llm_ftfs`: LLM First Token To First Sentence (FTFS) in milliseconds.
+	// - `tts_ttfb`: TTS Time To First Byte (TTFB) in milliseconds.
+	// - `transport`: Network transmission delay in milliseconds. Not returned when the user is connected using the RTC Web SDK.
+	//
+	// When the LLM input modality is `audio`, the returned segments are:
+	// - `algorithm_processing`: Algorithm processing delay.
+	// - `asr_ttlw`: ASR Time To Last Word (TTLW) in milliseconds.
+	// - `llm_ttfa`: LLM Time To First Audio Byte (TTFA) in milliseconds.
+	// - `transport`: Network transmission delay in milliseconds. Not returned when the user is connected using the RTC Web SDK.
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// The latency in milliseconds for the segment.
+	Latency *float64 `json:"latency,omitempty" url:"latency,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) GetName() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Name
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) GetLatency() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.Latency
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) SetName(name *string) {
+	g.Name = name
+	g.require(getTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItemFieldName)
+}
+
+// SetLatency sets the Latency field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) SetLatency(latency *float64) {
+	g.Latency = latency
+	g.require(getTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItemFieldLatency)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemMetricsSegmentedLatencyMsItem) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Details about the start of the turn.
+var (
+	getTurnsAgentsResponseTurnsItemStartFieldStartAt  = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemStartFieldType     = big.NewInt(1 << 1)
+	getTurnsAgentsResponseTurnsItemStartFieldMetadata = big.NewInt(1 << 2)
+)
+
+type GetTurnsAgentsResponseTurnsItemStart struct {
+	// The Unix timestamp in milliseconds (UTC time) when the turn started.
+	StartAt *float64 `json:"start_at,omitempty" url:"start_at,omitempty"`
+	// The type of event that initiated the turn.
+	// - `voice_input`: The turn was initiated by user voice input.
+	// - `greeting`: The turn was initiated by an agent greeting.
+	// - `silence_timeout`: The turn was initiated due to a silence timeout.
+	// - `api_speak`: The turn was initiated by a call to the speak API.
+	Type *GetTurnsAgentsResponseTurnsItemStartType `json:"type,omitempty" url:"type,omitempty"`
+	// Additional context about the turn start event. Included fields depend on the value of the `type` field.
+	Metadata *GetTurnsAgentsResponseTurnsItemStartMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) GetStartAt() *float64 {
+	if g == nil {
+		return nil
+	}
+	return g.StartAt
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) GetType() *GetTurnsAgentsResponseTurnsItemStartType {
+	if g == nil {
+		return nil
+	}
+	return g.Type
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) GetMetadata() *GetTurnsAgentsResponseTurnsItemStartMetadata {
+	if g == nil {
+		return nil
+	}
+	return g.Metadata
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetStartAt sets the StartAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStart) SetStartAt(startAt *float64) {
+	g.StartAt = startAt
+	g.require(getTurnsAgentsResponseTurnsItemStartFieldStartAt)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStart) SetType(type_ *GetTurnsAgentsResponseTurnsItemStartType) {
+	g.Type = type_
+	g.require(getTurnsAgentsResponseTurnsItemStartFieldType)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStart) SetMetadata(metadata *GetTurnsAgentsResponseTurnsItemStartMetadata) {
+	g.Metadata = metadata
+	g.require(getTurnsAgentsResponseTurnsItemStartFieldMetadata)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemStart
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemStart(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemStart
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStart) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// Additional context about the turn start event. Included fields depend on the value of the `type` field.
+var (
+	getTurnsAgentsResponseTurnsItemStartMetadataFieldSpeechDurationMs    = big.NewInt(1 << 0)
+	getTurnsAgentsResponseTurnsItemStartMetadataFieldInterruptDurationMs = big.NewInt(1 << 1)
+	getTurnsAgentsResponseTurnsItemStartMetadataFieldGreetingNth         = big.NewInt(1 << 2)
+	getTurnsAgentsResponseTurnsItemStartMetadataFieldAction              = big.NewInt(1 << 3)
+	getTurnsAgentsResponseTurnsItemStartMetadataFieldTransport           = big.NewInt(1 << 4)
+)
+
+type GetTurnsAgentsResponseTurnsItemStartMetadata struct {
+	// The duration of the user's voice input in milliseconds. Included only when `type` is `voice_input`.
+	SpeechDurationMs *int `json:"speech_duration_ms,omitempty" url:"speech_duration_ms,omitempty"`
+	// The minimum voice duration in milliseconds required to trigger an interruption. Included only when `type` is `voice_input`.
+	InterruptDurationMs *int `json:"interrupt_duration_ms,omitempty" url:"interrupt_duration_ms,omitempty"`
+	// The index of the current greeting occurrence. Included only when `type` is `greeting`.
+	GreetingNth *int `json:"greeting_nth,omitempty" url:"greeting_nth,omitempty"`
+	// The action taken in response to the silence timeout. Included only when `type` is `silence_timeout`.
+	// - `speak`: Plays the silence prompt message to the user.
+	// - `think`: Appends the silence message to the conversation context and passes it to the LLM.
+	Action *string `json:"action,omitempty" url:"action,omitempty"`
+	// The transport protocol used to deliver the speak request. Included only when `type` is `api_speak`.
+	// - `http`: Delivered over HTTP.
+	// - `rtm`: Delivered through the RTM Presence channel.
+	Transport *string `json:"transport,omitempty" url:"transport,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetSpeechDurationMs() *int {
+	if g == nil {
+		return nil
+	}
+	return g.SpeechDurationMs
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetInterruptDurationMs() *int {
+	if g == nil {
+		return nil
+	}
+	return g.InterruptDurationMs
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetGreetingNth() *int {
+	if g == nil {
+		return nil
+	}
+	return g.GreetingNth
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetAction() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Action
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetTransport() *string {
+	if g == nil {
+		return nil
+	}
+	return g.Transport
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) GetExtraProperties() map[string]interface{} {
+	return g.extraProperties
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetSpeechDurationMs sets the SpeechDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) SetSpeechDurationMs(speechDurationMs *int) {
+	g.SpeechDurationMs = speechDurationMs
+	g.require(getTurnsAgentsResponseTurnsItemStartMetadataFieldSpeechDurationMs)
+}
+
+// SetInterruptDurationMs sets the InterruptDurationMs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) SetInterruptDurationMs(interruptDurationMs *int) {
+	g.InterruptDurationMs = interruptDurationMs
+	g.require(getTurnsAgentsResponseTurnsItemStartMetadataFieldInterruptDurationMs)
+}
+
+// SetGreetingNth sets the GreetingNth field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) SetGreetingNth(greetingNth *int) {
+	g.GreetingNth = greetingNth
+	g.require(getTurnsAgentsResponseTurnsItemStartMetadataFieldGreetingNth)
+}
+
+// SetAction sets the Action field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) SetAction(action *string) {
+	g.Action = action
+	g.require(getTurnsAgentsResponseTurnsItemStartMetadataFieldAction)
+}
+
+// SetTransport sets the Transport field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) SetTransport(transport *string) {
+	g.Transport = transport
+	g.require(getTurnsAgentsResponseTurnsItemStartMetadataFieldTransport)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetTurnsAgentsResponseTurnsItemStartMetadata
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetTurnsAgentsResponseTurnsItemStartMetadata(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) MarshalJSON() ([]byte, error) {
+	type embed GetTurnsAgentsResponseTurnsItemStartMetadata
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetTurnsAgentsResponseTurnsItemStartMetadata) String() string {
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+// The type of event that initiated the turn.
+// - `voice_input`: The turn was initiated by user voice input.
+// - `greeting`: The turn was initiated by an agent greeting.
+// - `silence_timeout`: The turn was initiated due to a silence timeout.
+// - `api_speak`: The turn was initiated by a call to the speak API.
+type GetTurnsAgentsResponseTurnsItemStartType string
+
+const (
+	GetTurnsAgentsResponseTurnsItemStartTypeVoiceInput     GetTurnsAgentsResponseTurnsItemStartType = "voice_input"
+	GetTurnsAgentsResponseTurnsItemStartTypeGreeting       GetTurnsAgentsResponseTurnsItemStartType = "greeting"
+	GetTurnsAgentsResponseTurnsItemStartTypeSilenceTimeout GetTurnsAgentsResponseTurnsItemStartType = "silence_timeout"
+	GetTurnsAgentsResponseTurnsItemStartTypeAPISpeak       GetTurnsAgentsResponseTurnsItemStartType = "api_speak"
+)
+
+func NewGetTurnsAgentsResponseTurnsItemStartTypeFromString(s string) (GetTurnsAgentsResponseTurnsItemStartType, error) {
+	switch s {
+	case "voice_input":
+		return GetTurnsAgentsResponseTurnsItemStartTypeVoiceInput, nil
+	case "greeting":
+		return GetTurnsAgentsResponseTurnsItemStartTypeGreeting, nil
+	case "silence_timeout":
+		return GetTurnsAgentsResponseTurnsItemStartTypeSilenceTimeout, nil
+	case "api_speak":
+		return GetTurnsAgentsResponseTurnsItemStartTypeAPISpeak, nil
+	}
+	var t GetTurnsAgentsResponseTurnsItemStartType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (g GetTurnsAgentsResponseTurnsItemStartType) Ptr() *GetTurnsAgentsResponseTurnsItemStartType {
+	return &g
+}
+
+var (
 	interruptAgentsResponseFieldAgentID = big.NewInt(1 << 0)
 	interruptAgentsResponseFieldChannel = big.NewInt(1 << 1)
 	interruptAgentsResponseFieldStartTs = big.NewInt(1 << 2)
@@ -4663,7 +5791,7 @@ type StartAgentsRequestProperties struct {
 	Tts *Tts `json:"tts,omitempty" url:"tts,omitempty"`
 	// Large language model (LLM) configuration.
 	Llm *StartAgentsRequestPropertiesLlm `json:"llm,omitempty" url:"llm,omitempty"`
-	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. MLLM is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
+	// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. `mllm` is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
 	Mllm *StartAgentsRequestPropertiesMllm `json:"mllm,omitempty" url:"mllm,omitempty"`
 	// Avatar configuration.
 	Avatar *StartAgentsRequestPropertiesAvatar `json:"avatar,omitempty" url:"avatar,omitempty"`
@@ -5005,17 +6133,14 @@ func (s *StartAgentsRequestProperties) String() string {
 
 // Advanced features configuration.
 var (
-	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableAivad = big.NewInt(1 << 0)
-	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableMllm  = big.NewInt(1 << 1)
-	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableRtm   = big.NewInt(1 << 2)
-	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableSal   = big.NewInt(1 << 3)
-	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableTools = big.NewInt(1 << 4)
+	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableMllm  = big.NewInt(1 << 0)
+	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableRtm   = big.NewInt(1 << 1)
+	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableSal   = big.NewInt(1 << 2)
+	startAgentsRequestPropertiesAdvancedFeaturesFieldEnableTools = big.NewInt(1 << 3)
 )
 
 type StartAgentsRequestPropertiesAdvancedFeatures struct {
-	// Whether to enable the intelligent interruption handling function (AIVAD). This feature is currently available only for English. Deprecated. Use `turn_detection.config.end_of_speech.mode.semantic` instead.
-	EnableAivad *bool `json:"enable_aivad,omitempty" url:"enable_aivad,omitempty"`
-	// Enable Multimodal Large Language Model. Enabling MLLM automatically disables ASR, LLM, and TTS. When you set this parameter to true, `enable_aivad` is also disabled.
+	// Enable Multimodal Large Language Model for voice-to-voice processing. Enabling MLLM automatically disables ASR, LLM, and TTS since the MLLM handles end-to-end voice processing directly. See `turn_detection.type` for turn detection options available with MLLM.
 	EnableMllm *bool `json:"enable_mllm,omitempty" url:"enable_mllm,omitempty"`
 	// Whether to enable the Signaling (RTM) service. When enabled, the agent can combine the capabilities provided by Signaling to implement advanced functions, such as delivering custom information. Before enabling the Signaling service, make sure the token includes both RTC and RTM privileges.
 	EnableRtm *bool `json:"enable_rtm,omitempty" url:"enable_rtm,omitempty"`
@@ -5029,13 +6154,6 @@ type StartAgentsRequestPropertiesAdvancedFeatures struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (s *StartAgentsRequestPropertiesAdvancedFeatures) GetEnableAivad() *bool {
-	if s == nil {
-		return nil
-	}
-	return s.EnableAivad
 }
 
 func (s *StartAgentsRequestPropertiesAdvancedFeatures) GetEnableMllm() *bool {
@@ -5075,13 +6193,6 @@ func (s *StartAgentsRequestPropertiesAdvancedFeatures) require(field *big.Int) {
 		s.explicitFields = big.NewInt(0)
 	}
 	s.explicitFields.Or(s.explicitFields, field)
-}
-
-// SetEnableAivad sets the EnableAivad field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StartAgentsRequestPropertiesAdvancedFeatures) SetEnableAivad(enableAivad *bool) {
-	s.EnableAivad = enableAivad
-	s.require(startAgentsRequestPropertiesAdvancedFeaturesFieldEnableAivad)
 }
 
 // SetEnableMllm sets the EnableMllm field and marks it as non-optional;
@@ -5339,7 +6450,8 @@ type StartAgentsRequestPropertiesAvatar struct {
 	Enable *bool `json:"enable,omitempty" url:"enable,omitempty"`
 	// Avatar vendor. Supports the following values:
 	// - `akool`: Akool (Beta)
-	// - `heygen`: HeyGen (Beta)
+	// - `liveavatar`: LiveAvatar (Beta)
+	// - `anam`: Anam (Beta)
 	Vendor *StartAgentsRequestPropertiesAvatarVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The configuration parameters for the avatar vendor. See [AI Avatar Overview](https://docs.agora.io/en/conversational-ai/models/avatar/overview) for details.
 	Params map[string]interface{} `json:"params,omitempty" url:"params,omitempty"`
@@ -5445,11 +6557,16 @@ func (s *StartAgentsRequestPropertiesAvatar) String() string {
 
 // Avatar vendor. Supports the following values:
 // - `akool`: Akool (Beta)
-// - `heygen`: HeyGen (Beta)
+// - `liveavatar`: LiveAvatar (Beta)
+// - `anam`: Anam (Beta)
 type StartAgentsRequestPropertiesAvatarVendor string
 
 const (
-	StartAgentsRequestPropertiesAvatarVendorAkool  StartAgentsRequestPropertiesAvatarVendor = "akool"
+	StartAgentsRequestPropertiesAvatarVendorAkool StartAgentsRequestPropertiesAvatarVendor = "akool"
+	// LiveAvatar (Beta) — formerly HeyGen
+	StartAgentsRequestPropertiesAvatarVendorLiveavatar StartAgentsRequestPropertiesAvatarVendor = "liveavatar"
+	StartAgentsRequestPropertiesAvatarVendorAnam       StartAgentsRequestPropertiesAvatarVendor = "anam"
+	// Deprecated: HeyGen has renamed to LiveAvatar. Use `liveavatar` instead.
 	StartAgentsRequestPropertiesAvatarVendorHeygen StartAgentsRequestPropertiesAvatarVendor = "heygen"
 )
 
@@ -5457,6 +6574,10 @@ func NewStartAgentsRequestPropertiesAvatarVendorFromString(s string) (StartAgent
 	switch s {
 	case "akool":
 		return StartAgentsRequestPropertiesAvatarVendorAkool, nil
+	case "liveavatar":
+		return StartAgentsRequestPropertiesAvatarVendorLiveavatar, nil
+	case "anam":
+		return StartAgentsRequestPropertiesAvatarVendorAnam, nil
 	case "heygen":
 		return StartAgentsRequestPropertiesAvatarVendorHeygen, nil
 	}
@@ -6752,7 +7873,7 @@ func (s StartAgentsRequestPropertiesLlmStyle) Ptr() *StartAgentsRequestPropertie
 	return &s
 }
 
-// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. MLLM is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
+// Multimodal Large Language Model (MLLM) configuration for real-time audio and text processing. `mllm` is an exclusive alternative to the standard `asr` + `llm` + `tts` pipeline.
 var (
 	startAgentsRequestPropertiesMllmFieldURL              = big.NewInt(1 << 0)
 	startAgentsRequestPropertiesMllmFieldAPIKey           = big.NewInt(1 << 1)
@@ -6785,7 +7906,8 @@ type StartAgentsRequestPropertiesMllm struct {
 	GreetingMessage *string `json:"greeting_message,omitempty" url:"greeting_message,omitempty"`
 	// MLLM provider. Currently supports:
 	// - `openai`: OpenAI Realtime API
-	// - `vertexai`: Use this for Google Gemini Live
+	// - `gemini`: Google Gemini Live
+	// - `vertexai`: Google Gemini Live (Vertex AI)
 	Vendor *StartAgentsRequestPropertiesMllmVendor `json:"vendor,omitempty" url:"vendor,omitempty"`
 	// The request style for MLLM completion:
 	// - `openai`: For OpenAI Realtime API format
@@ -6969,11 +8091,13 @@ func (s *StartAgentsRequestPropertiesMllm) String() string {
 
 // MLLM provider. Currently supports:
 // - `openai`: OpenAI Realtime API
-// - `vertexai`: Use this for Google Gemini Live
+// - `gemini`: Google Gemini Live
+// - `vertexai`: Google Gemini Live (Vertex AI)
 type StartAgentsRequestPropertiesMllmVendor string
 
 const (
 	StartAgentsRequestPropertiesMllmVendorOpenai   StartAgentsRequestPropertiesMllmVendor = "openai"
+	StartAgentsRequestPropertiesMllmVendorGemini   StartAgentsRequestPropertiesMllmVendor = "gemini"
 	StartAgentsRequestPropertiesMllmVendorVertexai StartAgentsRequestPropertiesMllmVendor = "vertexai"
 )
 
@@ -6981,6 +8105,8 @@ func NewStartAgentsRequestPropertiesMllmVendorFromString(s string) (StartAgentsR
 	switch s {
 	case "openai":
 		return StartAgentsRequestPropertiesMllmVendorOpenai, nil
+	case "gemini":
+		return StartAgentsRequestPropertiesMllmVendorGemini, nil
 	case "vertexai":
 		return StartAgentsRequestPropertiesMllmVendorVertexai, nil
 	}
@@ -8204,7 +9330,8 @@ var (
 
 type StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechSemanticConfig struct {
 	SilenceDurationMs *int `json:"silence_duration_ms,omitempty" url:"silence_duration_ms,omitempty"`
-	MaxWaitMs         *int `json:"max_wait_ms,omitempty" url:"max_wait_ms,omitempty"`
+	// Maximum wait time in milliseconds. Use `-1` for no timeout. The maximum time to wait for semantic determination. After timeout, the conversation end is determined based on the current state.
+	MaxWaitMs *int `json:"max_wait_ms,omitempty" url:"max_wait_ms,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -8512,7 +9639,7 @@ var (
 type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfig struct {
 	// Voice processing strategy when the agent is interacting:
 	// - `append`: Human voice does not interrupt the agent. The agent processes the human voice input after the current interaction ends.
-	// - `ignored`: The agent ignores human voice input and discards it without storing in context.
+	// - `ignore`: The agent ignores human voice input and discards it without storing in context.
 	Strategy *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy `json:"strategy,omitempty" url:"strategy,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -8588,20 +9715,20 @@ func (s *StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledCon
 
 // Voice processing strategy when the agent is interacting:
 // - `append`: Human voice does not interrupt the agent. The agent processes the human voice input after the current interaction ends.
-// - `ignored`: The agent ignores human voice input and discards it without storing in context.
+// - `ignore`: The agent ignores human voice input and discards it without storing in context.
 type StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy string
 
 const (
-	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyAppend  StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "append"
-	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnored StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "ignored"
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyAppend StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "append"
+	StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnore StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy = "ignore"
 )
 
 func NewStartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyFromString(s string) (StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy, error) {
 	switch s {
 	case "append":
 		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyAppend, nil
-	case "ignored":
-		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnored, nil
+	case "ignore":
+		return StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategyIgnore, nil
 	}
 	var t StartAgentsRequestPropertiesTurnDetectionConfigStartOfSpeechDisabledConfigStrategy
 	return "", fmt.Errorf("%s is not a valid %T", s, t)

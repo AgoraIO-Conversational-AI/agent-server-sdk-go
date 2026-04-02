@@ -201,6 +201,29 @@ func TestAgentsGetHistoryWithWireMock(
 	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId/history", nil, 1)
 }
 
+func TestAgentsGetTurnsWithWireMock(
+	t *testing.T,
+) {
+	ResetWireMockRequests(t)
+	WireMockBaseURL := "http://localhost:8080"
+	client := client.NewClient(
+		option.WithBaseURL(
+			WireMockBaseURL,
+		),
+	)
+	request := &Agora.GetTurnsAgentsRequest{
+		Appid:   "appid",
+		AgentID: "agentId",
+	}
+	_, invocationErr := client.Agents.GetTurns(
+		context.TODO(),
+		request,
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "GET", "/v2/projects/appid/agents/agentId/turns", nil, 1)
+}
+
 func TestAgentsStopWithWireMock(
 	t *testing.T,
 ) {
