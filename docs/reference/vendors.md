@@ -545,14 +545,34 @@ Panics if `APIKey` is empty.
 | ----------------- | ---------- | -------- | --------------------------- | -------------------------------------------------- |
 | `APIKey`          | `string`   | Yes      | —                           | OpenAI API key                                     |
 | `Model`           | `string`   | No       | `"gpt-4o-realtime-preview"` | Model identifier                                   |
-| `Voice`           | `string`   | No       | —                           | Voice name (e.g., `"alloy"`)                       |
-| `Temperature`     | `*float64` | No       | —                           | Sampling temperature                               |
-| `MaxOutputTokens` | `*int`     | No       | —                           | Max output tokens                                  |
-| `SystemMessage`   | `string`                   | No       | —                           | System instruction                                 |
+| `URL`             | `string`   | No       | —                           | Custom realtime WebSocket URL                      |
+| `GreetingMessage` | `string`                   | No       | —                           | Initial greeting                                   |
+| `InputModalities` | `[]string`                 | No       | —                           | Input modalities                                   |
+| `OutputModalities` | `[]string`                | No       | —                           | Output modalities                                  |
 | `Messages`        | `[]map[string]interface{}` | No       | —                           | Conversation messages for short-term memory        |
-| `PredefinedTools` | `[]string`                 | No       | —                           | Predefined tools (e.g., `["_publish_message"]`)    |
-| `FailureMessage`  | `string`                   | No       | —                           | Message played when the model call fails           |
-| `MaxHistory`      | `*int`                     | No       | —                           | Maximum conversation history length                |
+| `Params`          | `map[string]interface{}`   | No       | —                           | Additional realtime params such as `voice`         |
+
+### NewGeminiLive
+
+```go
+func NewGeminiLive(opts GeminiLiveOptions) *GeminiLive
+```
+
+Panics if `APIKey` or `Model` is empty.
+
+#### GeminiLiveOptions
+
+| Field              | Type                       | Required | Default | Description |
+| ------------------ | -------------------------- | -------- | ------- | ----------- |
+| `APIKey`           | `string`                   | Yes      | —       | Google AI API key |
+| `Model`            | `string`                   | Yes      | —       | Gemini Live model identifier |
+| `Instructions`     | `string`                   | No       | —       | System instruction |
+| `Voice`            | `string`                   | No       | —       | Voice name |
+| `GreetingMessage`  | `string`                   | No       | —       | Initial greeting |
+| `InputModalities`  | `[]string`                 | No       | —       | Input modalities |
+| `OutputModalities` | `[]string`                 | No       | —       | Output modalities |
+| `Messages`         | `[]map[string]interface{}` | No       | —       | Conversation messages |
+| `AdditionalParams` | `map[string]interface{}`   | No       | —       | Additional Gemini params |
 
 ### NewVertexAI
 
@@ -560,7 +580,7 @@ Panics if `APIKey` is empty.
 func NewVertexAI(opts VertexAIOptions) *VertexAI
 ```
 
-Panics if `ProjectID` is empty.
+ Panics if `ProjectID` or `ADCredentialsString` is empty.
 
 #### VertexAIOptions
 
@@ -569,13 +589,14 @@ Panics if `ProjectID` is empty.
 | `ProjectID`       | `string`   | Yes      | —                        | GCP project ID                                  |
 | `Location`        | `string`   | No       | `"us-central1"`          | GCP region                                      |
 | `Model`           | `string`   | No       | `"gemini-2.0-flash-exp"` | Model identifier                                |
+| `ADCredentialsString` | `string` | Yes     | —                        | ADC JSON credentials string                     |
 | `Voice`           | `string`   | No       | —                        | Voice name                                      |
-| `Language`        | `string`   | No       | —                        | Language code                                   |
-| `SystemMessage`   | `string`                   | No       | —                        | System instruction                              |
-| `Messages`        | `[]map[string]interface{}` | No       | —                        | Conversation messages (placed inside `params`)  |
-| `PredefinedTools` | `[]string`                 | No       | —                        | Predefined tools (e.g., `["_publish_message"]`) |
-| `FailureMessage`  | `string`                   | No       | —                        | Message played when the model call fails        |
-| `MaxHistory`      | `*int`                     | No       | —                        | Maximum conversation history length             |
+| `Instructions`    | `string`                   | No       | —                        | System instruction                              |
+| `Messages`        | `[]map[string]interface{}` | No       | —                        | Conversation messages                           |
+| `GreetingMessage` | `string`                   | No       | —                        | Initial greeting                                |
+| `InputModalities` | `[]string`                 | No       | —                        | Input modalities                                |
+| `OutputModalities` | `[]string`                | No       | —                        | Output modalities                               |
+| `AdditionalParams` | `map[string]interface{}`  | No       | —                        | Additional Vertex/Gemini params                 |
 
 ---
 
@@ -616,9 +637,30 @@ Required TTS sample rate: **16kHz** (`SampleRate16kHz`)
 
 #### AkoolAvatarOptions
 
-| Field    | Type     | Required | Description   |
-| -------- | -------- | -------- | ------------- |
-| `APIKey` | `string` | Yes      | Akool API key |
+| Field              | Type                     | Required | Description |
+| ------------------ | ------------------------ | -------- | ----------- |
+| `APIKey`           | `string`                 | Yes      | Akool API key |
+| `AvatarID`         | `string`                 | No       | Avatar ID |
+| `Enable`           | `*bool`                  | No       | Enable or disable the avatar |
+| `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
+
+### NewLiveAvatarAvatar
+
+```go
+func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
+```
+
+Panics if `APIKey` or `AgoraUID` is empty, or if `Quality` is not one of `"low"`, `"medium"`, `"high"`.
+
+Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
+
+### NewAnamAvatar
+
+```go
+func NewAnamAvatar(opts AnamAvatarOptions) *AnamAvatar
+```
+
+Panics if `APIKey` is empty.
 
 ---
 

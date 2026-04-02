@@ -31,6 +31,12 @@ type AgentSessionOptions struct {
     RemoteUIDs      []string
     IdleTimeout     *int
     EnableStringUID *bool
+    ExpiresIn       int
+    UseAppCredentialsForREST bool
+    Preset          []string
+    PipelineID      string
+    Debug           bool
+    Warn            func(string)
 }
 ```
 
@@ -47,6 +53,12 @@ type AgentSessionOptions struct {
 | `RemoteUIDs` | `[]string` | Yes | Remote participant UIDs |
 | `IdleTimeout` | `*int` | No | Idle timeout in seconds |
 | `EnableStringUID` | `*bool` | No | Enable string UID mode |
+| `ExpiresIn` | `int` | No | Auto-generated token lifetime in seconds |
+| `UseAppCredentialsForREST` | `bool` | No | Generate ConvoAI REST auth headers per request |
+| `Preset` | `[]string` | No | Preset IDs to send on session start |
+| `PipelineID` | `string` | No | Published pipeline ID to send on session start |
+| `Debug` | `bool` | No | Enable debug logging of the start request |
+| `Warn` | `func(string)` | No | Custom warning sink; defaults to logger |
 
 ## SessionStatus
 
@@ -98,7 +110,7 @@ Starts the agent session. Returns the agent ID assigned by the API.
 - **Valid from:** `idle`, `stopped`, `error`
 - **Transitions to:** `starting` -> `running` (success) or `error` (failure)
 - **Emits:** `"started"` on success, `"error"` on failure
-- **Validates:** Avatar/TTS sample rate match before making the API call
+- **Validates:** Avatar config and avatar/TTS sample rate match before making the API call
 
 ### Stop
 
@@ -166,6 +178,16 @@ Gets the current agent status from the API.
 
 - **Requires:** Valid agent ID
 
+### GetTurns
+
+```go
+func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsResponse, error)
+```
+
+Retrieves turn-by-turn analytics for the session.
+
+- **Requires:** Valid agent ID
+
 ## Getters
 
 ```go
@@ -203,6 +225,14 @@ func (s *AgentSession) On(event string, handler EventHandler)
 
 Registers an event handler. Multiple handlers can be registered for the same event.
 
+### Off
+
+```go
+func (s *AgentSession) Off(event string, handler EventHandler)
+```
+
+Unregisters a previously registered event handler.
+
 ### EventHandler
 
 ```go
@@ -217,7 +247,7 @@ type EventHandler func(data interface{})
 | `"stopped"` | `map[string]string{"agent_id": "..."}` | `Stop()` succeeds |
 | `"error"` | `error` | `Start()` or `Stop()` fails |
 
-Handlers run synchronously. Panics in handlers are recovered and silently discarded. Register handlers before calling `Start()`.
+Handlers run synchronously. Panics in handlers are recovered and reported through the session warning sink. Register handlers before calling `Start()`.
 
 ## Thread Safety
 

@@ -56,7 +56,9 @@ func main() {
         vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
             APIKey: "<openai_key>",
             Model:  "gpt-4o-realtime-preview",
-            Voice:  "alloy",
+            Params: map[string]interface{}{
+                "voice": "alloy",
+            },
         }),
     )
 
@@ -95,12 +97,14 @@ agent := agentkit.NewAgent(
     }),
 ).WithMllm(
     vendors.NewVertexAI(vendors.VertexAIOptions{
-        ProjectID:     "<gcp_project_id>",
-        Location:      "us-central1",
-        Model:         "gemini-2.0-flash-exp",
-        Voice:         "Puck",
-        Language:      "en-US",
-        SystemMessage: "You are a helpful assistant.",
+        ProjectID:           "<gcp_project_id>",
+        Location:            "us-central1",
+        Model:               "gemini-2.0-flash-exp",
+        ADCredentialsString: "<adc_json>",
+        Instructions:        "You are a helpful assistant.",
+        AdditionalParams: map[string]interface{}{
+            "voice": "Puck",
+        },
     }),
 )
 ```
