@@ -3,6 +3,7 @@ package agentkit
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
@@ -165,26 +166,26 @@ type FillerWordsContentStaticConfig = Agora.StartAgentsRequestPropertiesFillerWo
 type FillerWordsContentSelectionRule = Agora.StartAgentsRequestPropertiesFillerWordsContentStaticConfigSelectionRule
 
 type Agent struct {
-	name                    string
-	instructions            string
-	greeting                string
-	failureMessage          string
-	maxHistory              *int
-	llm                     map[string]interface{}
-	tts                     map[string]interface{}
-	stt                     map[string]interface{}
-	mllm                    map[string]interface{}
-	ttsSampleRate           *vendors.SampleRate
-	avatar                  map[string]interface{}
+	name                     string
+	instructions             string
+	greeting                 string
+	failureMessage           string
+	maxHistory               *int
+	llm                      map[string]interface{}
+	tts                      map[string]interface{}
+	stt                      map[string]interface{}
+	mllm                     map[string]interface{}
+	ttsSampleRate            *vendors.SampleRate
+	avatar                   map[string]interface{}
 	avatarRequiredSampleRate *vendors.SampleRate
-	turnDetection           *TurnDetectionConfig
-	sal                     *SalConfig
-	advancedFeatures        *AdvancedFeatures
-	parameters              *SessionParams
-	geofence                *GeofenceConfig
-	labels                  map[string]string
-	rtc                     *RtcConfig
-	fillerWords             *FillerWordsConfig
+	turnDetection            *TurnDetectionConfig
+	sal                      *SalConfig
+	advancedFeatures         *AdvancedFeatures
+	parameters               *SessionParams
+	geofence                 *GeofenceConfig
+	labels                   map[string]string
+	rtc                      *RtcConfig
+	fillerWords              *FillerWordsConfig
 }
 
 type AgentOption func(*Agent)
@@ -407,13 +408,13 @@ func (a *Agent) WithFillerWords(fw *FillerWordsConfig) *Agent {
 	return clone
 }
 
-func (a *Agent) Name() string                        { return a.name }
-func (a *Agent) Instructions() string                 { return a.instructions }
-func (a *Agent) Greeting() string                     { return a.greeting }
-func (a *Agent) LlmConfig() map[string]interface{}    { return a.llm }
-func (a *Agent) TtsConfig() map[string]interface{}    { return a.tts }
-func (a *Agent) SttConfig() map[string]interface{}    { return a.stt }
-func (a *Agent) MllmConfig() map[string]interface{}   { return a.mllm }
+func (a *Agent) Name() string                                  { return a.name }
+func (a *Agent) Instructions() string                          { return a.instructions }
+func (a *Agent) Greeting() string                              { return a.greeting }
+func (a *Agent) LlmConfig() map[string]interface{}             { return a.llm }
+func (a *Agent) TtsConfig() map[string]interface{}             { return a.tts }
+func (a *Agent) SttConfig() map[string]interface{}             { return a.stt }
+func (a *Agent) MllmConfig() map[string]interface{}            { return a.mllm }
 func (a *Agent) TtsSampleRate() *vendors.SampleRate            { return a.ttsSampleRate }
 func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate { return a.avatarRequiredSampleRate }
 func (a *Agent) FailureMessage() string                        { return a.failureMessage }
@@ -427,6 +428,52 @@ func (a *Agent) Geofence() *GeofenceConfig                     { return a.geofen
 func (a *Agent) Labels() map[string]string                     { return a.labels }
 func (a *Agent) Rtc() *RtcConfig                               { return a.rtc }
 func (a *Agent) FillerWords() *FillerWordsConfig               { return a.fillerWords }
+
+type CreateSessionOptions struct {
+	Name            string
+	Channel         string
+	Token           string
+	AgentUID        string
+	RemoteUIDs      []string
+	IdleTimeout     *int
+	EnableStringUID *bool
+	ExpiresIn       int
+	Preset          []string
+	PipelineID      string
+	Debug           bool
+	Warn            func(string)
+}
+
+func (a *Agent) CreateSession(client *AgoraClient, opts CreateSessionOptions) *AgentSession {
+	name := opts.Name
+	if name == "" {
+		if a.name != "" {
+			name = a.name
+		} else {
+			name = fmt.Sprintf("agent-%d", time.Now().UnixMilli())
+		}
+	}
+
+	return NewAgentSession(AgentSessionOptions{
+		Client:                   client.Agents,
+		Agent:                    a,
+		AppID:                    client.AppID,
+		AppCertificate:           client.AppCertificate,
+		Name:                     name,
+		Channel:                  opts.Channel,
+		Token:                    opts.Token,
+		AgentUID:                 opts.AgentUID,
+		RemoteUIDs:               opts.RemoteUIDs,
+		IdleTimeout:              opts.IdleTimeout,
+		EnableStringUID:          opts.EnableStringUID,
+		ExpiresIn:                opts.ExpiresIn,
+		UseAppCredentialsForREST: client.AuthMode == AuthModeAppCredentials,
+		Preset:                   opts.Preset,
+		PipelineID:               opts.PipelineID,
+		Debug:                    opts.Debug,
+		Warn:                     opts.Warn,
+	})
+}
 
 func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsRequestProperties, error) {
 	token := opts.Token
@@ -480,16 +527,6 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 				mllmConfig["greeting_message"] = a.greeting
 			}
 		}
-		if a.failureMessage != "" {
-			if _, exists := mllmConfig["failure_message"]; !exists {
-				mllmConfig["failure_message"] = a.failureMessage
-			}
-		}
-		if a.maxHistory != nil {
-			if _, exists := mllmConfig["max_history"]; !exists {
-				mllmConfig["max_history"] = *a.maxHistory
-			}
-		}
 		var mllm Agora.StartAgentsRequestPropertiesMllm
 		if err := mapToStruct(mllmConfig, &mllm); err != nil {
 			return nil, fmt.Errorf("failed to convert MLLM config: %w", err)
@@ -513,7 +550,8 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		props.AdvancedFeatures = a.advancedFeatures
 	}
 	if a.parameters != nil {
-		props.Parameters = a.parameters
+		params := *a.parameters
+		props.Parameters = &params
 	}
 	if a.geofence != nil {
 		props.Geofence = a.geofence
@@ -533,49 +571,65 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		return props, nil
 	}
 
-	if a.tts == nil {
-		return nil, fmt.Errorf("TTS configuration is required; use WithTts() to set it")
-	}
-	if a.llm == nil {
-		return nil, fmt.Errorf("LLM configuration is required; use WithLlm() to set it")
-	}
-
-	llmConfig := make(map[string]interface{})
-	for k, v := range a.llm {
-		llmConfig[k] = v
-	}
-	if a.instructions != "" {
-		llmConfig["system_messages"] = []map[string]interface{}{
-			{"role": "system", "content": a.instructions},
+	if a.advancedFeatures != nil && a.advancedFeatures.EnableRtm != nil && *a.advancedFeatures.EnableRtm {
+		if props.Parameters == nil {
+			props.Parameters = &Agora.StartAgentsRequestPropertiesParameters{}
 		}
-	}
-	if a.greeting != "" {
-		if _, exists := llmConfig["greeting_message"]; !exists {
-			llmConfig["greeting_message"] = a.greeting
-		}
-	}
-	if a.failureMessage != "" {
-		if _, exists := llmConfig["failure_message"]; !exists {
-			llmConfig["failure_message"] = a.failureMessage
-		}
-	}
-	if a.maxHistory != nil {
-		if _, exists := llmConfig["max_history"]; !exists {
-			llmConfig["max_history"] = *a.maxHistory
+		if props.Parameters.DataChannel == nil {
+			rtm := Agora.StartAgentsRequestPropertiesParametersDataChannel("rtm")
+			props.Parameters.DataChannel = &rtm
 		}
 	}
 
-	var llm Agora.StartAgentsRequestPropertiesLlm
-	if err := mapToStruct(llmConfig, &llm); err != nil {
-		return nil, fmt.Errorf("failed to convert LLM config: %w", err)
+	if !opts.SkipVendorValidation {
+		if a.tts == nil {
+			return nil, fmt.Errorf("TTS configuration is required; use WithTts() to set it")
+		}
+		if a.llm == nil {
+			return nil, fmt.Errorf("LLM configuration is required; use WithLlm() to set it")
+		}
 	}
-	props.Llm = &llm
 
-	var tts Agora.Tts
-	if err := mapToStruct(a.tts, &tts); err != nil {
-		return nil, fmt.Errorf("failed to convert TTS config: %w", err)
+	if a.llm != nil {
+		llmConfig := make(map[string]interface{})
+		for k, v := range a.llm {
+			llmConfig[k] = v
+		}
+		if a.instructions != "" {
+			llmConfig["system_messages"] = []map[string]interface{}{
+				{"role": "system", "content": a.instructions},
+			}
+		}
+		if a.greeting != "" {
+			if _, exists := llmConfig["greeting_message"]; !exists {
+				llmConfig["greeting_message"] = a.greeting
+			}
+		}
+		if a.failureMessage != "" {
+			if _, exists := llmConfig["failure_message"]; !exists {
+				llmConfig["failure_message"] = a.failureMessage
+			}
+		}
+		if a.maxHistory != nil {
+			if _, exists := llmConfig["max_history"]; !exists {
+				llmConfig["max_history"] = *a.maxHistory
+			}
+		}
+
+		var llm Agora.StartAgentsRequestPropertiesLlm
+		if err := mapToStruct(llmConfig, &llm); err != nil {
+			return nil, fmt.Errorf("failed to convert LLM config: %w", err)
+		}
+		props.Llm = &llm
 	}
-	props.Tts = &tts
+
+	if a.tts != nil {
+		var tts Agora.Tts
+		if err := mapToStruct(a.tts, &tts); err != nil {
+			return nil, fmt.Errorf("failed to convert TTS config: %w", err)
+		}
+		props.Tts = &tts
+	}
 
 	if a.stt != nil {
 		var stt Agora.StartAgentsRequestPropertiesAsr
@@ -589,17 +643,18 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 }
 
 type ToPropertiesOptions struct {
-	Channel         string
-	AgentUID        string
-	RemoteUIDs      []string
-	Token           string
-	AppID           string
-	AppCertificate  string
+	Channel        string
+	AgentUID       string
+	RemoteUIDs     []string
+	Token          string
+	AppID          string
+	AppCertificate string
 	// ExpiresIn is the token lifetime in seconds (default: 86400 = 24 hours, Agora maximum).
 	// Valid range: 1–86400. Use ExpiresInHours() / ExpiresInMinutes() for clarity.
-	ExpiresIn       int
-	IdleTimeout     *int
-	EnableStringUID *bool
+	ExpiresIn            int
+	IdleTimeout          *int
+	EnableStringUID      *bool
+	SkipVendorValidation bool
 }
 
 func (a *Agent) clone() *Agent {

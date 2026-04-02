@@ -2,10 +2,12 @@ package agentkit
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"sync"
 	"time"
 
@@ -42,6 +44,10 @@ type AgentSession struct {
 	enableStringUID *bool
 	expiresIn       int  // Token lifetime in seconds (0 = use DefaultExpirySeconds)
 	useAppCredsREST bool // When true, generate ConvoAI token per request for REST API auth
+	preset          []string
+	pipelineID      string
+	debug           bool
+	warn            func(string)
 
 	agentID  string
 	status   SessionStatus
@@ -68,30 +74,38 @@ type AgentSessionOptions struct {
 	// UseAppCredentialsForREST when true, generates a ConvoAI token per request for REST API
 	// authentication. Use when the client was created without Basic Auth or token (app-credentials mode).
 	UseAppCredentialsForREST bool
+	Preset                   []string
+	PipelineID               string
+	Debug                    bool
+	Warn                     func(string)
 }
 
 func NewAgentSession(opts AgentSessionOptions) *AgentSession {
 	name := opts.Name
 	if name == "" {
-		name = fmt.Sprintf("agent-%d", time.Now().Unix())
+		name = fmt.Sprintf("agent-%d", time.Now().UnixMilli())
 	}
 
 	return &AgentSession{
-		client:             opts.Client,
-		agent:              opts.Agent,
-		appID:              opts.AppID,
-		appCertificate:     opts.AppCertificate,
-		name:               name,
-		channel:            opts.Channel,
-		token:              opts.Token,
-		agentUID:           opts.AgentUID,
-		remoteUIDs:         opts.RemoteUIDs,
-		idleTimeout:        opts.IdleTimeout,
-		enableStringUID:    opts.EnableStringUID,
-		expiresIn:          opts.ExpiresIn,
-		useAppCredsREST:    opts.UseAppCredentialsForREST,
-		status:             StatusIdle,
-		handlers:           make(map[string][]EventHandler),
+		client:          opts.Client,
+		agent:           opts.Agent,
+		appID:           opts.AppID,
+		appCertificate:  opts.AppCertificate,
+		name:            name,
+		channel:         opts.Channel,
+		token:           opts.Token,
+		agentUID:        opts.AgentUID,
+		remoteUIDs:      opts.RemoteUIDs,
+		idleTimeout:     opts.IdleTimeout,
+		enableStringUID: opts.EnableStringUID,
+		expiresIn:       opts.ExpiresIn,
+		useAppCredsREST: opts.UseAppCredentialsForREST,
+		preset:          append([]string(nil), opts.Preset...),
+		pipelineID:      opts.PipelineID,
+		debug:           opts.Debug,
+		warn:            opts.Warn,
+		status:          StatusIdle,
+		handlers:        make(map[string][]EventHandler),
 	}
 }
 
@@ -141,6 +155,46 @@ func (s *AgentSession) Raw() *agents.Client {
 	return s.client
 }
 
+func (s *AgentSession) warnf(message string) {
+	if s.warn != nil {
+		s.warn(message)
+		return
+	}
+	log.Printf("agentkit: %s", message)
+}
+
+func (s *AgentSession) validateAvatarConfig() error {
+	if s.agent == nil || s.agent.avatar == nil {
+		return nil
+	}
+
+	vendor, _ := s.agent.avatar["vendor"].(string)
+	if vendor == "" {
+		return nil
+	}
+	params, _ := s.agent.avatar["params"].(map[string]interface{})
+	if err := ValidateAvatarConfig(vendor, params); err != nil {
+		return err
+	}
+
+	if s.agent.ttsSampleRate != nil {
+		if err := ValidateTtsSampleRate(vendor, int(*s.agent.ttsSampleRate)); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	switch vendor {
+	case "heygen":
+		s.warnf("Warning: HeyGen avatar detected but TTS sample_rate is not explicitly set. HeyGen requires 24,000 Hz. Please ensure your TTS provider is configured for 24kHz.")
+	case "liveavatar":
+		s.warnf("Warning: LiveAvatar avatar detected but TTS sample_rate is not explicitly set. LiveAvatar requires 24,000 Hz. Please ensure your TTS provider is configured for 24kHz.")
+	case "akool":
+		s.warnf("Warning: Akool avatar detected but TTS sample_rate is not explicitly set. Akool requires 16,000 Hz. Please ensure your TTS provider is configured for 16kHz.")
+	}
+	return nil
+}
+
 func (s *AgentSession) Start(ctx context.Context) (string, error) {
 	s.mu.Lock()
 	if s.status != StatusIdle && s.status != StatusStopped && s.status != StatusError {
@@ -157,20 +211,25 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 			)
 		}
 	}
+	if err := s.validateAvatarConfig(); err != nil {
+		s.mu.Unlock()
+		return "", err
+	}
 
 	s.status = StatusStarting
 	s.mu.Unlock()
 
 	propOpts := ToPropertiesOptions{
-		Channel:         s.channel,
-		AgentUID:        s.agentUID,
-		RemoteUIDs:      s.remoteUIDs,
-		Token:           s.token,
-		AppID:           s.appID,
-		AppCertificate:  s.appCertificate,
-		ExpiresIn:       s.expiresIn,
-		IdleTimeout:     s.idleTimeout,
-		EnableStringUID: s.enableStringUID,
+		Channel:              s.channel,
+		AgentUID:             s.agentUID,
+		RemoteUIDs:           s.remoteUIDs,
+		Token:                s.token,
+		AppID:                s.appID,
+		AppCertificate:       s.appCertificate,
+		ExpiresIn:            s.expiresIn,
+		IdleTimeout:          s.idleTimeout,
+		EnableStringUID:      s.enableStringUID,
+		SkipVendorValidation: len(s.preset) > 0 || s.pipelineID != "",
 	}
 
 	properties, err := s.agent.ToProperties(propOpts)
@@ -182,10 +241,28 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	resolvedPreset, resolvedProperties, err := ResolveSessionPresets(s.preset, properties)
+	if err != nil {
+		s.mu.Lock()
+		s.status = StatusError
+		s.mu.Unlock()
+		s.emit("error", err)
+		return "", err
+	}
+
 	req := &Agora.StartAgentsRequest{
 		Appid:      s.appID,
 		Name:       s.name,
-		Properties: properties,
+		Preset:     stringPtrOrNil(resolvedPreset),
+		PipelineID: stringPtrOrNil(s.pipelineID),
+		Properties: resolvedProperties,
+	}
+	if s.debug {
+		if payload, err := json.Marshal(req); err == nil {
+			log.Printf("[Agora Debug] Starting agent session: %s", payload)
+		} else {
+			s.warnf(fmt.Sprintf("debug logging failed to marshal start request: %v", err))
+		}
 	}
 
 	reqOpts := s.convoAIRequestOpts(ctx)
@@ -347,10 +424,49 @@ func (s *AgentSession) GetInfo(ctx context.Context) (*Agora.GetAgentsResponse, e
 	}, reqOpts...)
 }
 
+func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsResponse, error) {
+	s.mu.RLock()
+	if s.agentID == "" {
+		s.mu.RUnlock()
+		return nil, fmt.Errorf("no agent ID available")
+	}
+	s.mu.RUnlock()
+
+	reqOpts := s.convoAIRequestOpts(ctx)
+	return s.client.GetTurns(ctx, &Agora.GetTurnsAgentsRequest{
+		Appid:   s.appID,
+		AgentID: s.agentID,
+	}, reqOpts...)
+}
+
 func (s *AgentSession) On(event string, handler EventHandler) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.handlers[event] = append(s.handlers[event], handler)
+}
+
+func (s *AgentSession) Off(event string, handler EventHandler) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	handlers := s.handlers[event]
+	if len(handlers) == 0 {
+		return
+	}
+
+	target := reflect.ValueOf(handler).Pointer()
+	filtered := handlers[:0]
+	for _, registered := range handlers {
+		if reflect.ValueOf(registered).Pointer() == target {
+			continue
+		}
+		filtered = append(filtered, registered)
+	}
+	if len(filtered) == 0 {
+		delete(s.handlers, event)
+		return
+	}
+	s.handlers[event] = filtered
 }
 
 func (s *AgentSession) emit(event string, data interface{}) {
@@ -364,10 +480,17 @@ func (s *AgentSession) emit(event string, data interface{}) {
 				if r := recover(); r != nil {
 					// Log and continue so a panicking handler does not prevent
 					// remaining handlers or session lifecycle from completing.
-					log.Printf("agentkit: recovered panic in %q event handler: %v", event, r)
+					s.warnf(fmt.Sprintf("recovered panic in %q event handler: %v", event, r))
 				}
 			}()
 			h(data)
 		}()
 	}
+}
+
+func stringPtrOrNil(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }
