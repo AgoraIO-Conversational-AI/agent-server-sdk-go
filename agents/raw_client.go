@@ -163,6 +163,50 @@ func (r *RawClient) GetHistory(
 	}, nil
 }
 
+func (r *RawClient) GetTurns(
+	ctx context.Context,
+	request *Agora.GetTurnsAgentsRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*Agora.GetTurnsAgentsResponse], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.agora.io/api/conversational-ai-agent",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/v2/projects/%v/agents/%v/turns",
+		request.Appid,
+		request.AgentID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *Agora.GetTurnsAgentsResponse
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodGet,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*Agora.GetTurnsAgentsResponse]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
 func (r *RawClient) Stop(
 	ctx context.Context,
 	request *Agora.StopAgentsRequest,

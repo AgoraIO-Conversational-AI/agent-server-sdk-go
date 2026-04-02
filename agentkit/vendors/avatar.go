@@ -1,8 +1,9 @@
 package vendors
 
 const (
-	HeyGenRequiredSampleRate = SampleRate24kHz
-	AkoolRequiredSampleRate  = SampleRate16kHz
+	HeyGenRequiredSampleRate     = SampleRate24kHz
+	LiveAvatarRequiredSampleRate = SampleRate24kHz
+	AkoolRequiredSampleRate      = SampleRate16kHz
 )
 
 type HeyGenAvatarOptions struct {
@@ -14,6 +15,7 @@ type HeyGenAvatarOptions struct {
 	Enable              *bool
 	DisableIdleTimeout  *bool
 	ActivityIdleTimeout *int
+	AdditionalParams    map[string]interface{}
 }
 
 type HeyGenAvatar struct {
@@ -46,6 +48,9 @@ func (h *HeyGenAvatar) ToConfig() map[string]interface{} {
 		"quality":   h.options.Quality,
 		"agora_uid": h.options.AgoraUID,
 	}
+	for k, v := range h.options.AdditionalParams {
+		params[k] = v
+	}
 	if h.options.AgoraToken != "" {
 		params["agora_token"] = h.options.AgoraToken
 	}
@@ -71,7 +76,10 @@ func (h *HeyGenAvatar) ToConfig() map[string]interface{} {
 }
 
 type AkoolAvatarOptions struct {
-	APIKey string
+	APIKey           string
+	AvatarID         string
+	Enable           *bool
+	AdditionalParams map[string]interface{}
 }
 
 type AkoolAvatar struct {
@@ -90,10 +98,124 @@ func (a *AkoolAvatar) RequiredSampleRate() SampleRate {
 }
 
 func (a *AkoolAvatar) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{
+		"api_key": a.options.APIKey,
+	}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
+	}
+	if a.options.AvatarID != "" {
+		params["avatar_id"] = a.options.AvatarID
+	}
+	enable := true
+	if a.options.Enable != nil {
+		enable = *a.options.Enable
+	}
 	return map[string]interface{}{
+		"enable": enable,
 		"vendor": "akool",
-		"params": map[string]interface{}{
-			"api_key": a.options.APIKey,
-		},
+		"params": params,
+	}
+}
+
+type LiveAvatarAvatarOptions = HeyGenAvatarOptions
+
+type LiveAvatarAvatar struct {
+	options LiveAvatarAvatarOptions
+}
+
+func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar {
+	if opts.APIKey == "" {
+		panic("LiveAvatarAvatar requires APIKey")
+	}
+	if opts.Quality == "" {
+		panic("LiveAvatarAvatar requires Quality (low, medium, or high)")
+	}
+	if opts.Quality != "low" && opts.Quality != "medium" && opts.Quality != "high" {
+		panic("LiveAvatarAvatar Quality must be one of: low, medium, high")
+	}
+	if opts.AgoraUID == "" {
+		panic("LiveAvatarAvatar requires AgoraUID")
+	}
+	return &LiveAvatarAvatar{options: opts}
+}
+
+func (l *LiveAvatarAvatar) RequiredSampleRate() SampleRate {
+	return LiveAvatarRequiredSampleRate
+}
+
+func (l *LiveAvatarAvatar) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{
+		"api_key":   l.options.APIKey,
+		"quality":   l.options.Quality,
+		"agora_uid": l.options.AgoraUID,
+	}
+	for k, v := range l.options.AdditionalParams {
+		params[k] = v
+	}
+	if l.options.AgoraToken != "" {
+		params["agora_token"] = l.options.AgoraToken
+	}
+	if l.options.AvatarID != "" {
+		params["avatar_id"] = l.options.AvatarID
+	}
+	if l.options.DisableIdleTimeout != nil {
+		params["disable_idle_timeout"] = *l.options.DisableIdleTimeout
+	}
+	if l.options.ActivityIdleTimeout != nil {
+		params["activity_idle_timeout"] = *l.options.ActivityIdleTimeout
+	}
+
+	enable := true
+	if l.options.Enable != nil {
+		enable = *l.options.Enable
+	}
+	return map[string]interface{}{
+		"enable": enable,
+		"vendor": "liveavatar",
+		"params": params,
+	}
+}
+
+type AnamAvatarOptions struct {
+	APIKey           string
+	PersonaID        string
+	Enable           *bool
+	AdditionalParams map[string]interface{}
+}
+
+type AnamAvatar struct {
+	options AnamAvatarOptions
+}
+
+func NewAnamAvatar(opts AnamAvatarOptions) *AnamAvatar {
+	if opts.APIKey == "" {
+		panic("AnamAvatar requires APIKey")
+	}
+	return &AnamAvatar{options: opts}
+}
+
+func (a *AnamAvatar) RequiredSampleRate() SampleRate {
+	return 0
+}
+
+func (a *AnamAvatar) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{
+		"api_key": a.options.APIKey,
+	}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
+	}
+	if a.options.PersonaID != "" {
+		params["persona_id"] = a.options.PersonaID
+	}
+	enable := true
+	if a.options.Enable != nil {
+		enable = *a.options.Enable
+	}
+	return map[string]interface{}{
+		"enable": enable,
+		"vendor": "anam",
+		"params": params,
 	}
 }
