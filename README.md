@@ -1,4 +1,4 @@
-# Agora Agent Server SDK for Go
+# Agoraio Go Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-server-sdk-go)
 
@@ -214,10 +214,9 @@ package main
 
 import (
     "context"
-    Agora "github.com/{{ owner }}/{{ repo }}"
-    "github.com/{{ owner }}/{{ repo }}/agentkit"
     client "github.com/{{ owner }}/{{ repo }}/client"
     option "github.com/{{ owner }}/{{ repo }}/option"
+    Agora "github.com/{{ owner }}/{{ repo }}"
 )
 
 func main() {
@@ -252,7 +251,7 @@ func main() {
                     GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
                 },
                 TurnDetection: &Agora.StartAgentsRequestPropertiesTurnDetection{
-                    Type:              agentkit.TurnDetectionTypeServerVad.Ptr(),
+                    Type:              Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad,
                     Threshold:         Agora.Float64(0.5),
                     SilenceDurationMs: Agora.Int(500),
                 },
@@ -269,6 +268,7 @@ func main() {
     )
 }
 ```
+
 
 ## MLLM Flow (Multimodal)
 

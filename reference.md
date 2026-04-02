@@ -115,6 +115,29 @@ client.Agents.Start(
 <dl>
 <dd>
 
+**preset:** `*string` 
+
+A comma-separated string of one or more presets. Each preset provides a predefined configuration for ASR, LLM, and TTS. You can specify a preset for any or all of ASR, LLM, and TTS. When a preset is specified, you do not need to provide the endpoint URL, API key, or model for the preset providers. Use the `asr`, `llm`, and `tts` fields to configure additional settings.
+
+Available presets:
+- ASR: `deepgram_nova_2`, `deepgram_nova_3`
+- LLM: `openai_gpt_4o_mini`, `openai_gpt_4_1_mini`, `openai_gpt_5_nano`, `openai_gpt_5_mini`
+- TTS: `minimax_speech_2_6_turbo`, `minimax_speech_2_8_turbo`, `openai_tts_1`
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**pipelineID:** `*string` — The unique ID of a published agent in AI Studio. When provided, the saved agent configuration is used as the base configuration. Any fields specified in `properties` override the corresponding agent settings. When you specify a `pipeline_id`, the `asr`, `tts`, and `llm` fields in `properties` are optional.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **properties:** `*Agora.StartAgentsRequestProperties` — Configuration details of the agent.
     
 </dd>
@@ -349,6 +372,80 @@ request := &Agora.GetHistoryAgentsRequest{
         AgentID: "agentId",
     }
 client.Agents.GetHistory(
+        context.TODO(),
+        request,
+    )
+}
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**appid:** `string` — The App ID of the project.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**agentID:** `string` — The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.Agents.GetTurns(Appid, AgentID) -> *Agora.GetTurnsAgentsResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Query conversation turn information for a conversational AI agent session.
+
+After a conversation with the agent ends, use this endpoint to query the conversation turn information, including the start information, end information, and performance metrics of each conversation turn.
+
+You can query sessions within the last 7 days.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &Agora.GetTurnsAgentsRequest{
+        Appid: "appid",
+        AgentID: "agentId",
+    }
+client.Agents.GetTurns(
         context.TODO(),
         request,
     )

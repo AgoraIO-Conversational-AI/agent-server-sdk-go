@@ -150,6 +150,27 @@ func (c *Client) GetHistory(
 	return response.Body, nil
 }
 
+// Query conversation turn information for a conversational AI agent session.
+//
+// After a conversation with the agent ends, use this endpoint to query the conversation turn information, including the start information, end information, and performance metrics of each conversation turn.
+//
+// You can query sessions within the last 7 days.
+func (c *Client) GetTurns(
+	ctx context.Context,
+	request *Agora.GetTurnsAgentsRequest,
+	opts ...option.RequestOption,
+) (*Agora.GetTurnsAgentsResponse, error) {
+	response, err := c.WithRawResponse.GetTurns(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // Stop the specified conversational agent instance.
 func (c *Client) Stop(
 	ctx context.Context,
