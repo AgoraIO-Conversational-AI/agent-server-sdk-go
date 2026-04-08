@@ -10,6 +10,7 @@ The `agentkit/vendors` package provides constructor functions for all supported 
 
 ## Vendor Interfaces
 
+<!-- snippet: fragment -->
 ```go
 type LLM interface {
     ToConfig() map[string]interface{}
@@ -38,15 +39,15 @@ type Avatar interface {
 
 | Constructor | Options Struct | Required Fields | Default Model |
 |---|---|---|---|
-| `NewOpenAI` | `OpenAIOptions` | `APIKey` | `gpt-4o-mini` |
+| `NewOpenAI` | `OpenAIOptions` | `APIKey` for BYOK; none for supported preset-backed OpenAI models | `gpt-4o-mini` |
 | `NewAzureOpenAI` | `AzureOpenAIOptions` | `APIKey`, `Endpoint`, `DeploymentName` | — |
 | `NewAnthropic` | `AnthropicOptions` | `APIKey` | `claude-3-5-sonnet-20241022` |
 | `NewGemini` | `GeminiOptions` | `APIKey` | `gemini-2.0-flash-exp` |
 
+<!-- snippet: fragment -->
 ```go
 llm := vendors.NewOpenAI(vendors.OpenAIOptions{
-    APIKey: "<key>",
-    Model:  "gpt-4o-mini",
+    Model: "gpt-5-mini",
 })
 
 agent := agentkit.NewAgent(...).WithLlm(llm)
@@ -58,7 +59,7 @@ agent := agentkit.NewAgent(...).WithLlm(llm)
 |---|---|---|
 | `NewElevenLabsTTS` | `ElevenLabsTTSOptions` | `Key`, `ModelID`, `VoiceID` |
 | `NewMicrosoftTTS` | `MicrosoftTTSOptions` | `Key`, `Region`, `VoiceName` |
-| `NewOpenAITTS` | `OpenAITTSOptions` | `Key`, `Voice` |
+| `NewOpenAITTS` | `OpenAITTSOptions` | `Voice` for preset-backed `tts-1`; `APIKey`, `Voice` for BYOK |
 | `NewCartesiaTTS` | `CartesiaTTSOptions` | `Key`, `VoiceID` |
 | `NewGoogleTTS` | `GoogleTTSOptions` | `Key`, `VoiceName` |
 | `NewAmazonTTS` | `AmazonTTSOptions` | `AccessKey`, `SecretKey`, `Region`, `VoiceID` |
@@ -66,9 +67,10 @@ agent := agentkit.NewAgent(...).WithLlm(llm)
 | `NewRimeTTS` | `RimeTTSOptions` | `Key`, `Speaker` |
 | `NewFishAudioTTS` | `FishAudioTTSOptions` | `Key`, `ReferenceID` |
 | `NewGroqTTS` | `GroqTTSOptions` | `Key` |
-| `NewMiniMaxTTS` | `MiniMaxTTSOptions` | `Key` |
+| `NewMiniMaxTTS` | `MiniMaxTTSOptions` | `Model` for supported preset-backed MiniMax models; `Key`, `GroupID`, `Model` for BYOK |
 | `NewSarvamTTS` | `SarvamTTSOptions` | `APIKey` |
 
+<!-- snippet: fragment -->
 ```go
 tts := vendors.NewElevenLabsTTS(vendors.ElevenLabsTTSOptions{
     Key:        "<key>",
@@ -82,6 +84,7 @@ agent = agent.WithTts(tts)
 
 ### SampleRate Constants
 
+<!-- snippet: fragment -->
 ```go
 vendors.SampleRate8kHz   // 8000
 vendors.SampleRate16kHz  // 16000
@@ -98,7 +101,7 @@ Note: `OpenAITTS` always returns `SampleRate24kHz`. Other TTS vendors return the
 | Constructor | Options Struct | Required Fields |
 |---|---|---|
 | `NewSpeechmaticsSTT` | `SpeechmaticsSTTOptions` | `APIKey` |
-| `NewDeepgramSTT` | `DeepgramSTTOptions` | `APIKey` |
+| `NewDeepgramSTT` | `DeepgramSTTOptions` | `APIKey` for BYOK; none for supported preset-backed Deepgram models |
 | `NewMicrosoftSTT` | `MicrosoftSTTOptions` | `Key`, `Region` |
 | `NewOpenAISTT` | `OpenAISTTOptions` | `APIKey` |
 | `NewGoogleSTT` | `GoogleSTTOptions` | `Key` |
@@ -108,6 +111,7 @@ Note: `OpenAITTS` always returns `SampleRate24kHz`. Other TTS vendors return the
 | `NewSonioxSTT` | `SonioxSTTOptions` | `APIKey` |
 | `NewSarvamSTT` | `SarvamSTTOptions` | `APIKey` |
 
+<!-- snippet: fragment -->
 ```go
 stt := vendors.NewDeepgramSTT(vendors.DeepgramSTTOptions{
     APIKey:   "<key>",
@@ -125,6 +129,7 @@ agent = agent.WithStt(stt)
 | `NewOpenAIRealtime` | `OpenAIRealtimeOptions` | `APIKey` | `gpt-4o-realtime-preview` |
 | `NewVertexAI` | `VertexAIOptions` | `ProjectID` | `gemini-2.0-flash-exp` |
 
+<!-- snippet: fragment -->
 ```go
 mllm := vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
     APIKey: "<key>",
@@ -142,6 +147,7 @@ agent = agent.WithMllm(mllm)
 | `NewHeyGenAvatar` | `HeyGenAvatarOptions` | `APIKey`, `Quality`, `AgoraUID` | 24kHz |
 | `NewAkoolAvatar` | `AkoolAvatarOptions` | `APIKey` | 16kHz |
 
+<!-- snippet: fragment -->
 ```go
 avatar := vendors.NewHeyGenAvatar(vendors.HeyGenAvatarOptions{
     APIKey:   "<key>",
@@ -159,9 +165,10 @@ See [Avatars Guide](../guides/avatars.md) for sample rate requirements and the p
 
 All vendor constructors validate required fields and `panic` if they are missing. For example:
 
+<!-- snippet: fragment -->
 ```go
-// This panics: "OpenAI requires APIKey"
-vendors.NewOpenAI(vendors.OpenAIOptions{})
+// This panics because gpt-4o is not a supported preset-backed model.
+vendors.NewOpenAI(vendors.OpenAIOptions{Model: "gpt-4o"})
 ```
 
-This is Go-idiomatic for configuration errors that indicate programmer mistakes rather than runtime conditions. Handle these by ensuring all required fields are populated before calling the constructor.
+This is Go-idiomatic for configuration errors that indicate programmer mistakes rather than runtime conditions. Handle these by ensuring BYOK fields are populated when you are not using a supported preset-backed model.

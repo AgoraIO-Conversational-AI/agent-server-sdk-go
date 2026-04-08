@@ -159,6 +159,52 @@ func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 	}, config)
 }
 
+func TestPresetBackedOpenAIVendorsAllowMissingKeys(t *testing.T) {
+	agent := NewAgent(WithInstructions("Preset-backed flow")).
+		WithStt(vendors.NewDeepgramSTT(vendors.DeepgramSTTOptions{
+			Model: "nova-3",
+		})).
+		WithLlm(vendors.NewOpenAI(vendors.OpenAIOptions{
+			Model: "gpt-5-mini",
+		})).
+		WithTts(vendors.NewOpenAITTS(vendors.OpenAITTSOptions{
+			Voice: "alloy",
+		}))
+
+	props, err := agent.ToProperties(ToPropertiesOptions{
+		Channel:              "room-1",
+		AgentUID:             "1",
+		RemoteUIDs:           []string{"100"},
+		AppID:                "0123456789abcdef0123456789abcdef",
+		AppCertificate:       "fedcba9876543210fedcba9876543210",
+		SkipVendorValidation: true,
+	})
+	require.NoError(t, err)
+
+	preset, resolved, err := ResolveSessionPresets(nil, props)
+	require.NoError(t, err)
+	assert.Equal(t, "deepgram_nova_3,openai_gpt_5_mini,openai_tts_1", preset)
+	require.NotNil(t, resolved)
+
+	payload, err := json.Marshal(resolved)
+	require.NoError(t, err)
+	assert.NotContains(t, string(payload), "api_key")
+}
+
+func TestPresetBackedMiniMaxTTSAllowsMissingKey(t *testing.T) {
+	tts := vendors.NewMiniMaxTTS(vendors.MiniMaxTTSOptions{
+		Model: "speech-2.6-turbo",
+	}).ToConfig()
+
+	assert.Equal(t, "minimax", tts["vendor"])
+	params := tts["params"].(map[string]interface{})
+	assert.Equal(t, "speech-2.6-turbo", params["model"])
+	assert.NotContains(t, params, "key")
+	assert.NotContains(t, params, "group_id")
+	assert.NotContains(t, params, "voice_setting")
+	assert.NotContains(t, params, "url")
+}
+
 func TestToPropertiesDoesNotBubbleUnsupportedMLLMFields(t *testing.T) {
 	enableMllm := true
 	maxHistory := 9

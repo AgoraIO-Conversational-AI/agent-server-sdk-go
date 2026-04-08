@@ -12,6 +12,7 @@ The `agentkit.Agent` is the central configuration object. It defines what LLM, T
 
 `agentkit.NewAgent` uses Go's [functional options pattern](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis). Instead of a large config struct, you pass option functions that each configure one aspect of the agent:
 
+<!-- snippet: fragment -->
 ```go
 agent := agentkit.NewAgent(
     agentkit.WithName("my-assistant"),
@@ -52,6 +53,7 @@ These are passed to `agentkit.NewAgent(opts ...AgentOption)`:
 
 After creating an agent with `NewAgent`, attach vendors using method chaining. Each method returns a **new** `*Agent` (the original is not modified — immutable cloning):
 
+<!-- snippet: fragment -->
 ```go
 agent := agentkit.NewAgent(
     agentkit.WithName("assistant"),
@@ -99,6 +101,7 @@ Note: `WithInstructions`, `WithGreeting`, and `WithName` exist as both `AgentOpt
 
 ## Agent Getters
 
+<!-- snippet: fragment -->
 ```go
 agent.Name() string
 agent.Instructions() string
@@ -126,6 +129,7 @@ agent.FillerWords() *FillerWordsConfig
 
 `ToProperties` converts the agent configuration into a `*Agora.StartAgentsRequestProperties` suitable for the API:
 
+<!-- snippet: fragment -->
 ```go
 props, err := agent.ToProperties(agentkit.ToPropertiesOptions{
     Channel:        "my-channel",
@@ -162,6 +166,7 @@ In cascading mode, `ToProperties` requires both LLM and TTS to be configured —
 
 The agentkit package defines convenient type aliases for common Agora types:
 
+<!-- snippet: fragment -->
 ```go
 type TurnDetectionConfig = Agora.StartAgentsRequestPropertiesTurnDetection
 type SalConfig = Agora.StartAgentsRequestPropertiesSal

@@ -8,12 +8,14 @@ description: API reference for the Fern-generated client, sub-clients, and reque
 
 ## client.NewClient
 
+<!-- snippet: fragment -->
 ```go
 func NewClient(opts ...option.RequestOption) *Client
 ```
 
 Creates a new API client. All sub-clients share the same configuration.
 
+<!-- snippet: fragment -->
 ```go
 import (
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
@@ -21,7 +23,7 @@ import (
 )
 
 c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    option.WithToken("<your_rest_auth_token>"),
 )
 ```
 
@@ -39,42 +41,50 @@ All sub-client methods take `context.Context` as their first argument. See the [
 
 Request options configure authentication, transport, and retry behavior. They can be set at client creation (applied to all requests) or per-request.
 
+### option.WithToken
+
+<!-- snippet: fragment -->
+```go
+func WithToken(token string) *core.TokenOption
+```
+
+Sets a bearer token for authentication. This is the recommended option for new integrations and matches the onboarding guides.
+
+<!-- snippet: fragment -->
+```go
+c := client.NewClient(
+    option.WithToken("<your_rest_auth_token>"),
+)
+```
+
 ### option.WithBasicAuth
 
+<!-- snippet: fragment -->
 ```go
 func WithBasicAuth(username, password string) *core.BasicAuthOption
 ```
 
-Sets the `Authorization: Basic <base64>` header. Use your Agora Customer ID and Customer Secret.
+Sets the `Authorization: Basic <base64>` header using your Agora Customer ID and Customer Secret.
 
+Use this only when you explicitly want Basic Auth. It is still supported by the client, but token auth is the preferred path in the narrative docs and quick starts.
+
+<!-- snippet: fragment -->
 ```go
 c := client.NewClient(
     option.WithBasicAuth("<customer_id>", "<customer_secret>"),
 )
 ```
 
-### option.WithToken
-
-```go
-func WithToken(token string) *core.TokenOption
-```
-
-Sets a bearer token for authentication.
-
-```go
-c := client.NewClient(
-    option.WithToken("<your_api_token>"),
-)
-```
-
 ### option.WithBaseURL
 
+<!-- snippet: fragment -->
 ```go
 func WithBaseURL(baseURL string) *core.BaseURLOption
 ```
 
 Overrides the default API endpoint.
 
+<!-- snippet: fragment -->
 ```go
 import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
@@ -85,12 +95,14 @@ c := client.NewClient(
 
 ### option.WithArea
 
+<!-- snippet: fragment -->
 ```go
 func WithArea(area core.Area) *core.AreaRequestOption
 ```
 
 Enables regional routing with automatic DNS-based domain selection. See [Regional Routing](../guides/regional-routing.md).
 
+<!-- snippet: fragment -->
 ```go
 c := client.NewClient(
     option.WithArea(option.AreaUS),
@@ -99,6 +111,7 @@ c := client.NewClient(
 
 ### option.WithPool
 
+<!-- snippet: fragment -->
 ```go
 func WithPool(pool *core.Pool) *core.AreaRequestOption
 ```
@@ -107,12 +120,14 @@ Uses a pre-configured `Pool` for regional routing. See [Regional Routing](../gui
 
 ### option.WithHTTPClient
 
+<!-- snippet: fragment -->
 ```go
 func WithHTTPClient(httpClient core.HTTPClient) *core.HTTPClientOption
 ```
 
 Provides a custom HTTP client. Recommended for production to set timeouts.
 
+<!-- snippet: fragment -->
 ```go
 import "net/http"
 
@@ -125,6 +140,7 @@ c := client.NewClient(
 
 ### option.WithHTTPHeader
 
+<!-- snippet: fragment -->
 ```go
 func WithHTTPHeader(httpHeader http.Header) *core.HTTPHeaderOption
 ```
@@ -133,6 +149,7 @@ Adds custom HTTP headers to every request.
 
 ### option.WithBodyProperties
 
+<!-- snippet: fragment -->
 ```go
 func WithBodyProperties(bodyProperties map[string]interface{}) *core.BodyPropertiesOption
 ```
@@ -141,6 +158,7 @@ Adds extra properties to the JSON request body.
 
 ### option.WithQueryParameters
 
+<!-- snippet: fragment -->
 ```go
 func WithQueryParameters(queryParameters url.Values) *core.QueryParametersOption
 ```
@@ -149,12 +167,14 @@ Adds query parameters to the request URL.
 
 ### option.WithMaxAttempts
 
+<!-- snippet: fragment -->
 ```go
 func WithMaxAttempts(attempts uint) *core.MaxAttemptsOption
 ```
 
 Configures the maximum number of retry attempts (default: 2). Retries use exponential backoff for status codes 408, 429, and 5xx.
 
+<!-- snippet: fragment -->
 ```go
 c := client.NewClient(
     option.WithMaxAttempts(3),
@@ -163,6 +183,7 @@ c := client.NewClient(
 
 ## Area Constants
 
+<!-- snippet: fragment -->
 ```go
 option.AreaUS      // United States (west + east)
 option.AreaEU      // Europe (west + central)
@@ -173,6 +194,7 @@ option.AreaUnknown // Default
 
 ## Environments
 
+<!-- snippet: fragment -->
 ```go
 import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 

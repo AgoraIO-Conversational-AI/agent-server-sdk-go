@@ -10,15 +10,12 @@ description: AgentSession lifecycle — state machine, methods, and event handli
 
 ## Creating a Session
 
+<!-- snippet: fragment -->
 ```go
-session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-    Client:         c.Agents,
-    Agent:          a,
-    AppID:          "<your_app_id>",
-    AppCertificate: "<your_app_certificate>",
-    Channel:        "my-channel",
-    AgentUID:       "1001",
-    RemoteUIDs:     []string{"1002"},
+session := agent.CreateSession(client, agentkit.CreateSessionOptions{
+    Channel:    "my-channel",
+    AgentUID:   "1001",
+    RemoteUIDs: []string{"1002"},
 })
 ```
 
@@ -84,6 +81,7 @@ All methods that make API calls take `context.Context` as the first argument and
 
 ### Start
 
+<!-- snippet: fragment -->
 ```go
 agentID, err := session.Start(ctx)
 if err != nil {
@@ -97,6 +95,7 @@ Returns the agent ID string assigned by the API.
 
 ### Stop
 
+<!-- snippet: fragment -->
 ```go
 err := session.Stop(ctx)
 if err != nil {
@@ -110,6 +109,7 @@ Transitions: `running` -> `stopping` -> `stopped` (or `error`).
 
 Send text for the agent to speak:
 
+<!-- snippet: fragment -->
 ```go
 err := session.Say(ctx, "Hello, welcome!", nil, nil)
 if err != nil {
@@ -126,6 +126,7 @@ Parameters:
 
 Interrupt the agent's current speech:
 
+<!-- snippet: fragment -->
 ```go
 err := session.Interrupt(ctx)
 if err != nil {
@@ -137,6 +138,7 @@ if err != nil {
 
 Update agent properties while running:
 
+<!-- snippet: fragment -->
 ```go
 err := session.Update(ctx, &Agora.UpdateAgentsRequestProperties{
     // Updated properties...
@@ -150,6 +152,7 @@ if err != nil {
 
 Retrieve conversation history:
 
+<!-- snippet: fragment -->
 ```go
 history, err := session.GetHistory(ctx)
 if err != nil {
@@ -161,6 +164,7 @@ if err != nil {
 
 Get the current agent status from the API:
 
+<!-- snippet: fragment -->
 ```go
 info, err := session.GetInfo(ctx)
 if err != nil {
@@ -172,6 +176,7 @@ if err != nil {
 
 These do not make API calls:
 
+<!-- snippet: fragment -->
 ```go
 session.ID() string              // Agent ID (set after Start)
 session.Status() SessionStatus   // Current state
@@ -184,6 +189,7 @@ session.Raw() *agents.Client     // Underlying Fern-generated client
 
 `AgentSession` supports an event handler pattern for reacting to lifecycle changes:
 
+<!-- snippet: fragment -->
 ```go
 session.On("started", func(data interface{}) {
     info := data.(map[string]string)

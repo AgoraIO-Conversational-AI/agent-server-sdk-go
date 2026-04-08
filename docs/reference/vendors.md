@@ -10,6 +10,7 @@ Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vend
 
 ## SampleRate
 
+<!-- snippet: fragment -->
 ```go
 type SampleRate int
 
@@ -25,6 +26,7 @@ const (
 
 ## Interfaces
 
+<!-- snippet: fragment -->
 ```go
 type LLM interface {
     ToConfig() map[string]interface{}
@@ -55,17 +57,18 @@ type Avatar interface {
 
 ### NewOpenAI
 
+<!-- snippet: fragment -->
 ```go
 func NewOpenAI(opts OpenAIOptions) *OpenAI
 ```
 
-Panics if `APIKey` is empty.
+Panics if `APIKey` is empty unless `Model` is one of the supported preset-backed OpenAI models (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-5-nano`, `gpt-5-mini`) and `BaseURL` / `Vendor` are not set.
 
 #### OpenAIOptions
 
 | Field             | Type                       | Required | Default                                        | Description             |
 | ----------------- | -------------------------- | -------- | ---------------------------------------------- | ----------------------- |
-| `APIKey`          | `string`                   | Yes      | —                                              | OpenAI API key          |
+| `APIKey`          | `string`                   | No       | —                                              | OpenAI API key. Optional for supported preset-backed OpenAI models. |
 | `Model`           | `string`                   | No       | `"gpt-4o-mini"`                                | Model identifier        |
 | `BaseURL`         | `string`                   | No       | `"https://api.openai.com/v1/chat/completions"` | API endpoint            |
 | `Temperature`     | `*float64`                 | No       | —                                              | Sampling temperature    |
@@ -79,6 +82,7 @@ Panics if `APIKey` is empty.
 
 ### NewAzureOpenAI
 
+<!-- snippet: fragment -->
 ```go
 func NewAzureOpenAI(opts AzureOpenAIOptions) *AzureOpenAI
 ```
@@ -103,6 +107,7 @@ Panics if `APIKey`, `Endpoint`, or `DeploymentName` is empty.
 
 ### NewAnthropic
 
+<!-- snippet: fragment -->
 ```go
 func NewAnthropic(opts AnthropicOptions) *Anthropic
 ```
@@ -125,6 +130,7 @@ Panics if `APIKey` is empty.
 
 ### NewGemini
 
+<!-- snippet: fragment -->
 ```go
 func NewGemini(opts GeminiOptions) *Gemini
 ```
@@ -152,6 +158,7 @@ Panics if `APIKey` is empty.
 
 ### NewElevenLabsTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewElevenLabsTTS(opts ElevenLabsTTSOptions) *ElevenLabsTTS
 ```
@@ -171,6 +178,7 @@ Panics if `Key`, `ModelID`, or `VoiceID` is empty.
 
 ### NewMicrosoftTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewMicrosoftTTS(opts MicrosoftTTSOptions) *MicrosoftTTS
 ```
@@ -189,17 +197,18 @@ Panics if `Key`, `Region`, or `VoiceName` is empty.
 
 ### NewOpenAITTS
 
+<!-- snippet: fragment -->
 ```go
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS
 ```
 
-Panics if `APIKey` or `Voice` is empty. Always returns `SampleRate24kHz` from `GetSampleRate()`.
+Panics if `Voice` is empty. `APIKey` is optional for the preset-backed `tts-1` path. Always returns `SampleRate24kHz` from `GetSampleRate()`.
 
 #### OpenAITTSOptions
 
 | Field            | Type       | Required | Description                        |
 | ---------------- | ---------- | -------- | ---------------------------------- |
-| `APIKey`         | `string`   | Yes      | OpenAI API key                     |
+| `APIKey`         | `string`   | No       | OpenAI API key. Optional for the preset-backed `tts-1` path. |
 | `Voice`          | `string`   | Yes      | Voice name                         |
 | `Model`          | `string`   | No       | Model identifier                   |
 | `ResponseFormat` | `string`   | No       | Audio format (e.g., `"pcm"`)       |
@@ -208,6 +217,7 @@ Panics if `APIKey` or `Voice` is empty. Always returns `SampleRate24kHz` from `G
 
 ### NewCartesiaTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewCartesiaTTS(opts CartesiaTTSOptions) *CartesiaTTS
 ```
@@ -226,6 +236,7 @@ Panics if `APIKey` or `VoiceID` is empty.
 
 ### NewGoogleTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewGoogleTTS(opts GoogleTTSOptions) *GoogleTTS
 ```
@@ -243,6 +254,7 @@ Panics if `Key` or `VoiceName` is empty.
 
 ### NewAmazonTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewAmazonTTS(opts AmazonTTSOptions) *AmazonTTS
 ```
@@ -261,6 +273,7 @@ Panics if `AccessKey`, `SecretKey`, `Region`, or `VoiceID` is empty.
 
 ### NewHumeAITTS
 
+<!-- snippet: fragment -->
 ```go
 func NewHumeAITTS(opts HumeAITTSOptions) *HumeAITTS
 ```
@@ -277,6 +290,7 @@ Panics if `Key` is empty.
 
 ### NewRimeTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewRimeTTS(opts RimeTTSOptions) *RimeTTS
 ```
@@ -297,6 +311,7 @@ Panics if `Key` or `Speaker` is empty.
 
 ### NewFishAudioTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewFishAudioTTS(opts FishAudioTTSOptions) *FishAudioTTS
 ```
@@ -313,25 +328,27 @@ Panics if `Key` or `ReferenceID` is empty.
 
 ### NewMiniMaxTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS
 ```
 
-Panics if `Key`, `GroupID`, `Model`, `VoiceID`, or `URL` is empty.
+Panics if `Model` is empty. `Key` is optional for supported preset-backed MiniMax models (`speech-2.6-turbo`, `speech_2_6_turbo`, `speech-2.8-turbo`, `speech_2_8_turbo`). BYOK still requires `Key` and `GroupID`, and preset-backed mode must not set `GroupID`, `VoiceID`, or `URL`.
 
 #### MiniMaxTTSOptions
 
 | Field          | Type     | Required | Description                               |
 | -------------- | -------- | -------- | ----------------------------------------- |
-| `Key`          | `string` | Yes      | MiniMax API key                           |
-| `GroupID`      | `string` | Yes      | MiniMax group ID                          |
+| `Key`          | `string` | No       | MiniMax API key. Optional for supported preset-backed MiniMax models. |
+| `GroupID`      | `string` | No       | MiniMax group ID. Required for BYOK.      |
 | `Model`        | `string` | Yes      | Model name (e.g., `speech-02-turbo`)      |
-| `VoiceID`      | `string` | Yes      | Voice style identifier                    |
-| `URL`          | `string` | Yes      | WebSocket endpoint                        |
+| `VoiceID`      | `string` | No       | Voice style identifier. BYOK only.        |
+| `URL`          | `string` | No       | WebSocket endpoint. BYOK only.            |
 | `SkipPatterns` | `[]int`  | No       | Patterns to skip                          |
 
 ### NewMurfTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewMurfTTS(opts MurfTTSOptions) *MurfTTS
 ```
@@ -349,6 +366,7 @@ Panics if `Key` or `VoiceID` is empty.
 
 ### NewSarvamTTS
 
+<!-- snippet: fragment -->
 ```go
 func NewSarvamTTS(opts SarvamTTSOptions) *SarvamTTS
 ```
@@ -370,6 +388,7 @@ Panics if `Key`, `Speaker`, or `TargetLanguageCode` is empty.
 
 ### NewSpeechmaticsSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewSpeechmaticsSTT(opts SpeechmaticsSTTOptions) *SpeechmaticsSTT
 ```
@@ -386,6 +405,7 @@ Panics if `APIKey` is empty.
 
 ### NewDeepgramSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewDeepgramSTT(opts DeepgramSTTOptions) *DeepgramSTT
 ```
@@ -405,6 +425,7 @@ Panics if `APIKey` is empty.
 
 ### NewMicrosoftSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewMicrosoftSTT(opts MicrosoftSTTOptions) *MicrosoftSTT
 ```
@@ -421,6 +442,7 @@ Panics if `Key` or `Region` is empty.
 
 ### NewOpenAISTT
 
+<!-- snippet: fragment -->
 ```go
 func NewOpenAISTT(opts OpenAISTTOptions) *OpenAISTT
 ```
@@ -437,6 +459,7 @@ Panics if `APIKey` is empty.
 
 ### NewGoogleSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewGoogleSTT(opts GoogleSTTOptions) *GoogleSTT
 ```
@@ -453,6 +476,7 @@ Panics if `Key` is empty.
 
 ### NewAmazonSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewAmazonSTT(opts AmazonSTTOptions) *AmazonSTT
 ```
@@ -470,6 +494,7 @@ Panics if `AccessKey`, `SecretKey`, or `Region` is empty.
 
 ### NewAssemblyAISTT
 
+<!-- snippet: fragment -->
 ```go
 func NewAssemblyAISTT(opts AssemblyAISTTOptions) *AssemblyAISTT
 ```
@@ -484,6 +509,7 @@ Panics if `APIKey` is empty.
 
 ### NewAresSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewAresSTT(opts AresSTTOptions) *AresSTT
 ```
@@ -499,6 +525,7 @@ Ares is an Agora built-in STT service — no external API key required.
 
 ### NewSonioxSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewSonioxSTT(opts SonioxSTTOptions) *SonioxSTT
 ```
@@ -513,6 +540,7 @@ Panics if `APIKey` is empty.
 
 ### NewSarvamSTT
 
+<!-- snippet: fragment -->
 ```go
 func NewSarvamSTT(opts SarvamSTTOptions) *SarvamSTT
 ```
@@ -533,6 +561,7 @@ Panics if `APIKey` is empty.
 
 ### NewOpenAIRealtime
 
+<!-- snippet: fragment -->
 ```go
 func NewOpenAIRealtime(opts OpenAIRealtimeOptions) *OpenAIRealtime
 ```
@@ -554,6 +583,7 @@ Panics if `APIKey` is empty.
 
 ### NewGeminiLive
 
+<!-- snippet: fragment -->
 ```go
 func NewGeminiLive(opts GeminiLiveOptions) *GeminiLive
 ```
@@ -576,6 +606,7 @@ Panics if `APIKey` or `Model` is empty.
 
 ### NewVertexAI
 
+<!-- snippet: fragment -->
 ```go
 func NewVertexAI(opts VertexAIOptions) *VertexAI
 ```
@@ -604,6 +635,7 @@ func NewVertexAI(opts VertexAIOptions) *VertexAI
 
 ### NewHeyGenAvatar
 
+<!-- snippet: fragment -->
 ```go
 func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar
 ```
@@ -627,6 +659,7 @@ Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
 
 ### NewAkoolAvatar
 
+<!-- snippet: fragment -->
 ```go
 func NewAkoolAvatar(opts AkoolAvatarOptions) *AkoolAvatar
 ```
@@ -646,6 +679,7 @@ Required TTS sample rate: **16kHz** (`SampleRate16kHz`)
 
 ### NewLiveAvatarAvatar
 
+<!-- snippet: fragment -->
 ```go
 func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
 ```
@@ -656,6 +690,7 @@ Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
 
 ### NewAnamAvatar
 
+<!-- snippet: fragment -->
 ```go
 func NewAnamAvatar(opts AnamAvatarOptions) *AnamAvatar
 ```
@@ -666,6 +701,7 @@ Panics if `APIKey` is empty.
 
 ## Sample Rate Constants
 
+<!-- snippet: fragment -->
 ```go
 const (
     HeyGenRequiredSampleRate = SampleRate24kHz  // 24000 Hz

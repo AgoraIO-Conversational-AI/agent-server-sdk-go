@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: MLLM Flow
-description: Use multimodal models (OpenAI Realtime, Vertex AI) for real-time audio processing.
+description: Use multimodal models (OpenAI Realtime, Gemini Live) for real-time audio processing.
 ---
 
 # MLLM Flow (Multimodal)
@@ -36,16 +36,17 @@ import (
     "log"
 
     Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "<app_id>",
+        AppCertificate: "<app_cert>",
+    })
 
     agent := agentkit.NewAgent(
         agentkit.WithName("openai-realtime"),
@@ -62,14 +63,10 @@ func main() {
         }),
     )
 
-    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-        Client:         c.Agents,
-        Agent:          agent,
-        AppID:          "<app_id>",
-        AppCertificate: "<app_cert>",
-        Channel:        "realtime-channel",
-        AgentUID:       "1001",
-        RemoteUIDs:     []string{"1002"},
+    session := agent.CreateSession(client, agentkit.CreateSessionOptions{
+        Channel:    "realtime-channel",
+        AgentUID:   "1001",
+        RemoteUIDs: []string{"1002"},
     })
 
     ctx := context.Background()
@@ -87,7 +84,7 @@ func main() {
 }
 ```
 
-## Vertex AI (Google Gemini Live) Example
+## Gemini Live Example
 
 ```go
 agent := agentkit.NewAgent(
@@ -96,15 +93,11 @@ agent := agentkit.NewAgent(
         EnableMllm: Agora.Bool(true),
     }),
 ).WithMllm(
-    vendors.NewVertexAI(vendors.VertexAIOptions{
-        ProjectID:           "<gcp_project_id>",
-        Location:            "us-central1",
-        Model:               "gemini-2.0-flash-exp",
-        ADCredentialsString: "<adc_json>",
-        Instructions:        "You are a helpful assistant.",
-        AdditionalParams: map[string]interface{}{
-            "voice": "Puck",
-        },
+    vendors.NewGeminiLive(vendors.GeminiLiveOptions{
+        APIKey:       "<google_ai_api_key>",
+        Model:        "gemini-live-2.5-flash",
+        Instructions: "You are a helpful assistant.",
+        Voice:        "Puck",
     }),
 )
 ```
