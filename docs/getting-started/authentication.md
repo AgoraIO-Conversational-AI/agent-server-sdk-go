@@ -1,150 +1,53 @@
 ---
 sidebar_position: 2
 title: Authentication
-description: Configure authentication for the Agora Conversational AI Go SDK — Basic Auth, Token Auth, and App Credentials.
+description: Configure the Go SDK with the recommended app-credentials flow and understand the supported auth modes.
 ---
 
 # Authentication
 
-The SDK supports three authentication modes. Choose the one that fits your deployment model.
+The recommended production path is app credentials mode.
 
-## 1. Basic Auth (Customer ID + Customer Secret)
+Create `AgoraClient` with `AppID` and `AppCertificate`, then let `AgentSession` generate the ConvoAI REST auth token and the RTC join token automatically.
 
-Use `option.WithBasicAuth` to authenticate with your Agora Customer ID and Customer Secret from the Agora Console RESTful API page.
-
-```go
-package main
-
-import (
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
-    // Use c.Agents, c.Telephony, c.PhoneNumbers...
-    _ = c
-}
-```
-
-## 2. Token Auth
-
-Use `option.WithToken` to authenticate with a bearer token.
-
-```go
-c := client.NewClient(
-    option.WithToken("<your_api_token>"),
-)
-```
-
-## 3. App Credentials (Agentkit Layer)
-
-When using the `agentkit` package, pass `AppID` and `AppCertificate` to `AgentSessionOptions`. The agentkit package automatically generates a combined RTC+RTM token for the Agora channel using HMAC-SHA256.
+## Recommended: app credentials
 
 ```go
 package main
 
 import (
-    "context"
-    "log"
-
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
-
-    // agent := agentkit.NewAgent(...)
-
-    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-        Client:         c.Agents,
-        Agent:          agent,
-        AppID:          "<your_app_id>",
-        AppCertificate: "<your_app_certificate>",
-        Channel:        "my-channel",
-        AgentUID:       "1001",
-        RemoteUIDs:     []string{"1002"},
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "your-app-id",
+        AppCertificate: "your-app-certificate",
     })
 
-    agentID, err := session.Start(context.Background())
-    if err != nil {
-        log.Fatalf("Failed to start: %v", err)
-    }
-    _ = agentID
+    _ = client
 }
 ```
 
-You can also pass a pre-generated token instead of app credentials:
+## Why this is the default
+
+- The SDK handles ConvoAI REST auth and RTC join token generation for you.
+- Your onboarding code stays focused on agent behavior instead of auth plumbing.
+- Your quick start code stays vendor-key free when you use presets.
+
+## Other supported modes
+
+The SDK also supports pre-built token auth and Basic Auth, but they are intentionally not the default onboarding path.
+
+- Pre-built token auth exists for advanced or testing-specific cases.
+- Basic Auth is supported for legacy integrations and account-level workflows.
+
+## Inspecting the resolved auth mode
 
 ```go
-session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-    Client:     c.Agents,
-    Agent:      agent,
-    AppID:      "<your_app_id>",
-    Token:      "<pre_generated_rtc_rtm_token>",
-    Channel:    "my-channel",
-    AgentUID:   "1001",
-    RemoteUIDs: []string{"1002"},
-})
+import "fmt"
+
+fmt.Println(client.AuthMode) // "app-credentials"
 ```
-
-## Comparison
-
-| Mode | When to Use | Credential Source | Layer |
-|---|---|---|---|
-| Basic Auth | Direct API calls | Agora Console > RESTful API | `client` + `option` |
-| Token Auth | Direct API calls with bearer token | Your token provider | `client` + `option` |
-| App Credentials | Agentkit layer, auto token generation | Agora Console > Project Management | `agentkit` |
-
-## Token Generation Details
-
-When using app credentials, the agentkit package calls `agentkit.GenerateConvoAIToken` internally (RTC + RTM combined token) with these defaults:
-
-- **Role:** Publisher (`RolePublisher = 1`)
-- **Expiry:** `86400` seconds (24 hours, Agora maximum), configurable via `AgentSessionOptions.ExpiresIn`
-- **Algorithm:** HMAC-SHA256
-
-You can also call `GenerateConvoAIToken` directly if you need a token outside of a session:
-
-```go
-token, err := agentkit.GenerateConvoAIToken(agentkit.GenerateConvoAITokenOptions{
-    AppID:          "<your_app_id>",
-    AppCertificate: "<your_app_certificate>",
-    ChannelName:    "my-channel",
-    Account:        "1001",
-    TokenExpire:    86400,
-})
-if err != nil {
-    log.Fatalf("Token generation failed: %v", err)
-}
-```
-
-## Token Expiry
-
-To customise the token lifetime, set `ExpiresIn` on `AgentSessionOptions`. Use the `ExpiresInHours` or `ExpiresInMinutes` helpers to avoid raw second values:
-
-```go
-expiresIn, err := agentkit.ExpiresInHours(12) // 12-hour token
-if err != nil {
-    log.Fatalf("Invalid expiry: %v", err)
-}
-
-session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-    Client:         c.Agents,
-    Agent:          agent,
-    AppID:          "<your_app_id>",
-    AppCertificate: "<your_app_certificate>",
-    Channel:        "my-channel",
-    AgentUID:       "1001",
-    RemoteUIDs:     []string{"1002"},
-    ExpiresIn:      expiresIn,
-})
-```
-
-`ExpiresInHours` and `ExpiresInMinutes` return an error if the value is ≤ 0, and log a warning + cap at 86400 if it exceeds 24 hours. Valid range: **1–86400 seconds**.

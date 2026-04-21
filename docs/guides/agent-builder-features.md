@@ -234,16 +234,17 @@ import (
     "log"
 
     Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "<app_id>",
+        AppCertificate: "<app_cert>",
+    })
 
     agent := agentkit.NewAgent(
         agentkit.WithName("full-featured-assistant"),
@@ -301,14 +302,10 @@ func main() {
         Language: "en-US",
     }))
 
-    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-        Client:         c.Agents,
-        Agent:          agent,
-        AppID:          "<app_id>",
-        AppCertificate: "<app_cert>",
-        Channel:        "demo-channel",
-        AgentUID:       "1001",
-        RemoteUIDs:     []string{"1002"},
+    session := agent.CreateSession(client, agentkit.CreateSessionOptions{
+        Channel:    "demo-channel",
+        AgentUID:   "1001",
+        RemoteUIDs: []string{"1002"},
     })
 
     ctx := context.Background()

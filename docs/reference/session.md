@@ -10,6 +10,7 @@ Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit`
 
 ## NewAgentSession
 
+<!-- snippet: fragment -->
 ```go
 func NewAgentSession(opts AgentSessionOptions) *AgentSession
 ```
@@ -18,6 +19,7 @@ Creates a new session. If `Name` is empty, defaults to `agent-<unix_timestamp>`.
 
 ### AgentSessionOptions
 
+<!-- snippet: fragment -->
 ```go
 type AgentSessionOptions struct {
     Client          *agents.Client
@@ -62,6 +64,7 @@ type AgentSessionOptions struct {
 
 ## SessionStatus
 
+<!-- snippet: fragment -->
 ```go
 type SessionStatus string
 
@@ -101,6 +104,7 @@ const (
 
 ### Start
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Start(ctx context.Context) (string, error)
 ```
@@ -114,6 +118,7 @@ Starts the agent session. Returns the agent ID assigned by the API.
 
 ### Stop
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Stop(ctx context.Context) error
 ```
@@ -126,6 +131,7 @@ Stops the running agent.
 
 ### Say
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.SpeakAgentsRequestPriority, interruptable *bool) error
 ```
@@ -140,6 +146,7 @@ Sends text for the agent to speak.
 
 ### Interrupt
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Interrupt(ctx context.Context) error
 ```
@@ -150,6 +157,7 @@ Interrupts the agent's current speech.
 
 ### Update
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Update(ctx context.Context, properties *Agora.UpdateAgentsRequestProperties) error
 ```
@@ -160,6 +168,7 @@ Updates the agent's properties while running.
 
 ### GetHistory
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) GetHistory(ctx context.Context) (*Agora.GetHistoryAgentsResponse, error)
 ```
@@ -170,6 +179,7 @@ Retrieves conversation history.
 
 ### GetInfo
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) GetInfo(ctx context.Context) (*Agora.GetAgentsResponse, error)
 ```
@@ -180,6 +190,7 @@ Gets the current agent status from the API.
 
 ### GetTurns
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsResponse, error)
 ```
@@ -190,26 +201,31 @@ Retrieves turn-by-turn analytics for the session.
 
 ## Getters
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) ID() string
 ```
 Returns the agent ID (empty string before `Start` succeeds).
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Status() SessionStatus
 ```
 Returns the current session state.
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Agent() *Agent
 ```
 Returns the agent configuration.
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) AppID() string
 ```
 Returns the App ID.
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Raw() *agents.Client
 ```
@@ -219,6 +235,7 @@ Returns the underlying Fern-generated agents client for direct API access.
 
 ### On
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) On(event string, handler EventHandler)
 ```
@@ -227,6 +244,7 @@ Registers an event handler. Multiple handlers can be registered for the same eve
 
 ### Off
 
+<!-- snippet: fragment -->
 ```go
 func (s *AgentSession) Off(event string, handler EventHandler)
 ```
@@ -235,6 +253,7 @@ Unregisters a previously registered event handler.
 
 ### EventHandler
 
+<!-- snippet: fragment -->
 ```go
 type EventHandler func(data interface{})
 ```

@@ -6,21 +6,26 @@ description: Introduction to the Agora Conversational AI Go SDK — architecture
 
 # Agora Conversational AI Go SDK
 
-The Agora Conversational AI Go SDK enables you to build voice-powered AI agents that interact with users in real time. It supports two conversation flows:
+The Agora Conversational AI Go SDK lets you build voice-powered AI agents on the [Agora Conversational AI](https://docs.agora.io/en/conversational-ai/overview) platform.
 
-- **Cascading Flow (ASR → LLM → TTS):** Speech-to-text, language model processing, then text-to-speech — three separate vendor services chained together.
-- **MLLM Flow (Multimodal):** A single multimodal model (e.g., OpenAI Realtime, Google Gemini Live) handles audio input and output directly.
+## Conversation flows
 
-## Two-Layer Architecture
+**Cascading flow** uses ASR -> LLM -> TTS and supports the broadest set of vendor combinations.
 
-The SDK has two distinct layers:
+**MLLM flow** uses a multimodal model such as OpenAI Realtime or Gemini Live for end-to-end audio.
+
+## Choose a starting point
+
+- Use [Quick Start](./getting-started/quick-start.md) if you want the recommended preset-based path with no vendor keys.
+- Use [MLLM Flow](./guides/mllm-flow.md) if you want realtime end-to-end audio with OpenAI Realtime or Gemini Live.
+- Use [Cascading Flow](./guides/cascading-flow.md) if you want separate ASR, LLM, and TTS vendors.
+
+## SDK layers
 
 | Layer | Package | Description |
-|-------|---------|-------------|
-| **Fern-generated client** | `client`, `option`, `agents`, `telephony`, `phonenumbers` | Auto-generated from the Agora OpenAPI spec. Provides typed request/response structs and low-level API access. |
-| **Hand-written agentkit layer** | `agentkit`, `agentkit/vendors` | Ergonomic builder layer with functional options, vendor constructors, session lifecycle management, and automatic token generation. |
-
-Most applications should use the `agentkit` layer. Use the raw `client` layer when you need direct control over request construction or access to endpoints the agentkit package doesn't cover (e.g., Telephony, PhoneNumbers).
+|---|---|---|
+| **Fern-generated client** | `client`, `option`, `agents`, `telephony`, `phonenumbers` | Low-level typed REST API access |
+| **Hand-written agentkit layer** | `agentkit`, `agentkit/vendors` | High-level builder pattern, presets, lifecycle, typed vendors |
 
 ## Installation
 
@@ -30,40 +35,29 @@ go get github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
 
 Requires Go 1.21 or later.
 
-## Import Paths
-
-```go
-import (
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"  // Root types, pointer helpers, environments
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client" // Fern-generated API client
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option" // Request options (auth, base URL, retries)
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit" // Agent builder and session management
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors" // Vendor constructors (LLM, TTS, STT, MLLM, Avatar)
-)
-```
-
 ## Documentation
 
-| Section | What You'll Find |
-|---------|------------------|
+| Section | What you'll find |
+|---|---|
 | [Installation](./getting-started/installation.md) | Prerequisites, package install, import paths |
-| [Authentication](./getting-started/authentication.md) | App credentials, pre-built tokens, Basic Auth |
-| [Quick Start](./getting-started/quick-start.md) | End-to-end cascading flow example |
+| [Authentication](./getting-started/authentication.md) | Token auth for REST and RTC joins |
+| [Quick Start](./getting-started/quick-start.md) | Recommended preset-based onboarding flow |
+| [BYOK](./guides/byok.md) | Bring your own vendor credentials and config |
 | [Architecture](./concepts/architecture.md) | Two-layer design, when to use agentkit vs. raw client |
 | [Agent](./concepts/agent.md) | Builder pattern, immutable reuse, vendor configuration |
 | [AgentSession](./concepts/session.md) | State machine, lifecycle methods, events |
 | [Vendors](./concepts/vendors.md) | LLM, TTS, STT, MLLM, and Avatar provider catalog |
-| [Cascading Flow](./guides/cascading-flow.md) | Step-by-step ASR → LLM → TTS |
+| [Cascading Flow](./guides/cascading-flow.md) | Step-by-step ASR -> LLM -> TTS |
 | [MLLM Flow](./guides/mllm-flow.md) | OpenAI Realtime and Vertex AI Gemini Live |
 | [Avatars](./guides/avatars.md) | HeyGen and Akool with sample-rate constraints |
 | [Regional Routing](./guides/regional-routing.md) | Area enum, domain pool, failover |
-| [Error Handling](./guides/error-handling.md) | APIError and API error handling |
+| [Error Handling](./guides/error-handling.md) | API errors and Go error handling patterns |
 | [Pagination](./guides/pagination.md) | Iterate over paginated list endpoints |
 | [Advanced](./guides/advanced.md) | Headers, retries, timeouts, raw response, custom HTTP client |
-| [Low-Level API](./guides/low-level-api.md) | Direct client.Agents.Start() without builder |
+| [Low-Level API](./guides/low-level-api.md) | Direct `client.Agents.Start()` usage |
 | [Client Reference](./reference/client.md) | Constructor options, public methods |
 | [Agent Reference](./reference/agent.md) | Full builder API |
-| [Session Reference](./reference/session.md) | All methods, events, and payload types |
+| [Session Reference](./reference/session.md) | All methods and payload types |
 | [Vendor Reference](./reference/vendors.md) | Constructor options for every vendor class |
 
 For Fern-generated raw API types, see the [API Reference](../../reference.md).

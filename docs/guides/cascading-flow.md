@@ -8,7 +8,7 @@ description: Build agents using the ASR -> LLM -> TTS cascading flow with differ
 
 The cascading flow chains three vendor services: speech-to-text (STT/ASR) converts audio to text, an LLM generates a response, and text-to-speech (TTS) converts it back to audio.
 
-## Example 1: OpenAI + ElevenLabs + Deepgram (Basic Auth)
+## Example 1: OpenAI + ElevenLabs + Deepgram
 
 ```go
 package main
@@ -18,16 +18,17 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "<app_id>",
+        AppCertificate: "<app_cert>",
+    })
 
     agent := agentkit.NewAgent(
         agentkit.WithName("openai-assistant"),
@@ -53,14 +54,10 @@ func main() {
         }),
     )
 
-    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-        Client:         c.Agents,
-        Agent:          agent,
-        AppID:          "<app_id>",
-        AppCertificate: "<app_cert>",
-        Channel:        "demo-channel",
-        AgentUID:       "1001",
-        RemoteUIDs:     []string{"1002"},
+    session := agent.CreateSession(client, agentkit.CreateSessionOptions{
+        Channel:    "demo-channel",
+        AgentUID:   "1001",
+        RemoteUIDs: []string{"1002"},
     })
 
     ctx := context.Background()
@@ -90,16 +87,17 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
     "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-    )
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "<app_id>",
+        AppCertificate: "<app_cert>",
+    })
 
     agent := agentkit.NewAgent(
         agentkit.WithName("claude-assistant"),
@@ -124,14 +122,10 @@ func main() {
         }),
     )
 
-    session := agentkit.NewAgentSession(agentkit.AgentSessionOptions{
-        Client:         c.Agents,
-        Agent:          agent,
-        AppID:          "<app_id>",
-        AppCertificate: "<app_cert>",
-        Channel:        "support-channel",
-        AgentUID:       "1001",
-        RemoteUIDs:     []string{"1002"},
+    session := agent.CreateSession(client, agentkit.CreateSessionOptions{
+        Channel:    "support-channel",
+        AgentUID:   "1001",
+        RemoteUIDs: []string{"1002"},
     })
 
     ctx := context.Background()

@@ -12,6 +12,9 @@ jobs:
       - name: Set up go
         uses: actions/setup-go@v5
 
+      - name: Validate docs
+        run: GOCACHE=$(pwd)/.gocache go run ./scripts/validate_docs.go
+
       - name: Compile
         run: go build ./...
   test:
@@ -22,6 +25,9 @@ jobs:
 
       - name: Set up go
         uses: actions/setup-go@v5
+
+      - name: Validate docs
+        run: GOCACHE=$(pwd)/.gocache go run ./scripts/validate_docs.go
 
       - name: Setup wiremock server
         run: |

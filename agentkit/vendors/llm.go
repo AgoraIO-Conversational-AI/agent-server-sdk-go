@@ -2,6 +2,7 @@ package vendors
 
 import (
 	"fmt"
+	"strings"
 )
 
 // ensureMcpTransport sets transport to "streamable_http" on each MCP server
@@ -49,11 +50,21 @@ type OpenAI struct {
 }
 
 func NewOpenAI(opts OpenAIOptions) *OpenAI {
-	if opts.APIKey == "" {
-		panic("OpenAI requires APIKey")
-	}
 	if opts.Model == "" {
 		opts.Model = "gpt-4o-mini"
+	}
+	if opts.APIKey == "" {
+		switch strings.ToLower(strings.TrimSpace(opts.Model)) {
+		case "gpt-4o-mini", "gpt-4.1-mini", "gpt-5-nano", "gpt-5-mini":
+			if opts.BaseURL != "" {
+				panic("OpenAI preset-backed mode does not allow BaseURL")
+			}
+			if opts.Vendor != "" {
+				panic("OpenAI preset-backed mode does not allow Vendor")
+			}
+		default:
+			panic("OpenAI requires APIKey unless using a supported preset-backed model")
+		}
 	}
 	return &OpenAI{options: opts}
 }
@@ -87,10 +98,12 @@ func (o *OpenAI) ToConfig() map[string]interface{} {
 
 	config := map[string]interface{}{
 		"url":              url,
-		"api_key":          o.options.APIKey,
 		"params":           params,
 		"style":            "openai",
 		"input_modalities": inputMod,
+	}
+	if o.options.APIKey != "" {
+		config["api_key"] = o.options.APIKey
 	}
 
 	if o.options.SystemMessages != nil {

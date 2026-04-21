@@ -22,7 +22,7 @@ import (
 
 func main() {
     c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+        option.WithToken("<your_rest_auth_token>"),
         option.WithArea(option.AreaUS),
     )
     _ = c
@@ -46,7 +46,7 @@ For direct control, use `option.WithBaseURL`:
 
 ```go
 c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    option.WithToken("<your_rest_auth_token>"),
     option.WithBaseURL("https://api-us-west-1.agora.io"),
 )
 ```
@@ -92,7 +92,7 @@ func main() {
     }
 
     c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+        option.WithToken("<your_rest_auth_token>"),
         option.WithPool(pool),
     )
     _ = c
@@ -130,7 +130,7 @@ func startWithFailover(pool *core.Pool, req *Agora.StartAgentsRequest) error {
     regions := []string{"primary", "secondary"}
     for _, region := range regions {
         c := client.NewClient(
-            option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+            option.WithToken("<your_rest_auth_token>"),
             option.WithPool(pool),
         )
 

@@ -1,5 +1,7 @@
 package vendors
 
+import "strings"
+
 type ElevenLabsTTSOptions struct {
 	Key                      string
 	ModelID                  string
@@ -136,11 +138,14 @@ type OpenAITTS struct {
 }
 
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS {
-	if opts.APIKey == "" {
-		panic("OpenAITTS requires APIKey")
-	}
 	if opts.Voice == "" {
 		panic("OpenAITTS requires Voice")
+	}
+	if opts.APIKey == "" {
+		model := strings.ToLower(strings.TrimSpace(opts.Model))
+		if model != "" && model != "tts-1" {
+			panic("OpenAITTS requires APIKey unless using the preset-backed tts-1 model")
+		}
 	}
 	return &OpenAITTS{options: opts}
 }
@@ -152,8 +157,10 @@ func (o *OpenAITTS) GetSampleRate() *SampleRate {
 
 func (o *OpenAITTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"api_key": o.options.APIKey,
-		"voice":   o.options.Voice,
+		"voice": o.options.Voice,
+	}
+	if o.options.APIKey != "" {
+		params["api_key"] = o.options.APIKey
 	}
 	if o.options.Model != "" {
 		params["model"] = o.options.Model
@@ -224,10 +231,10 @@ func (c *CartesiaTTS) ToConfig() map[string]interface{} {
 }
 
 type GoogleTTSOptions struct {
-	Key           string
-	VoiceName     string
-	LanguageCode  string
-	SampleRate    *SampleRate
+	Key          string
+	VoiceName    string
+	LanguageCode string
+	SampleRate   *SampleRate
 	SkipPatterns []int
 }
 
@@ -471,9 +478,17 @@ type MiniMaxTTS struct {
 
 func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS {
 	if opts.Key == "" {
-		panic("MiniMaxTTS requires Key")
+		model := strings.ToLower(strings.TrimSpace(opts.Model))
+		switch model {
+		case "speech-2.6-turbo", "speech_2_6_turbo", "speech-2.8-turbo", "speech_2_8_turbo":
+			if opts.GroupID != "" || opts.VoiceID != "" || opts.URL != "" {
+				panic("MiniMaxTTS preset-backed mode does not allow GroupID, VoiceID, or URL")
+			}
+		default:
+			panic("MiniMaxTTS requires Key unless using a supported preset-backed model")
+		}
 	}
-	if opts.GroupID == "" {
+	if opts.Key != "" && opts.GroupID == "" {
 		panic("MiniMaxTTS requires GroupID")
 	}
 	return &MiniMaxTTS{options: opts}
@@ -485,11 +500,19 @@ func (m *MiniMaxTTS) GetSampleRate() *SampleRate {
 
 func (m *MiniMaxTTS) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{
-		"key":           m.options.Key,
-		"group_id":      m.options.GroupID,
-		"model":         m.options.Model,
-		"voice_setting": map[string]interface{}{"voice_id": m.options.VoiceID},
-		"url":           m.options.URL,
+		"model": m.options.Model,
+	}
+	if m.options.Key != "" {
+		params["key"] = m.options.Key
+	}
+	if m.options.GroupID != "" {
+		params["group_id"] = m.options.GroupID
+	}
+	if m.options.VoiceID != "" {
+		params["voice_setting"] = map[string]interface{}{"voice_id": m.options.VoiceID}
+	}
+	if m.options.URL != "" {
+		params["url"] = m.options.URL
 	}
 
 	config := map[string]interface{}{

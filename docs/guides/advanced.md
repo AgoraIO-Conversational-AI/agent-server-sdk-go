@@ -22,7 +22,7 @@ import (
 
 func main() {
     c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+        option.WithToken("<your_rest_auth_token>"),
     )
 
     headers := http.Header{}
@@ -63,7 +63,7 @@ Default retry limit: 2. Override with `option.WithMaxAttempts`:
 
 ```go
 c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    option.WithToken("<your_rest_auth_token>"),
     option.WithMaxAttempts(0), // disable retries
 )
 
@@ -86,7 +86,7 @@ import (
 )
 
 func main() {
-    c := client.NewClient(option.WithBasicAuth("<customer_id>", "<customer_secret>"))
+    c := client.NewClient(option.WithToken("<your_rest_auth_token>"))
 
     ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
     defer cancel()
@@ -109,7 +109,7 @@ import (
 )
 
 c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    option.WithToken("<your_rest_auth_token>"),
     option.WithHTTPClient(&http.Client{
         Timeout: 60 * time.Second,
     }),
@@ -173,7 +173,7 @@ import (
 proxyURL, _ := url.Parse("http://my.proxy.example.com:8080")
 
 c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+    option.WithToken("<your_rest_auth_token>"),
     option.WithHTTPClient(&http.Client{
         Transport: &http.Transport{
             Proxy: http.ProxyURL(proxyURL),

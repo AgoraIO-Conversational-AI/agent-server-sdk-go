@@ -27,7 +27,7 @@ import (
 
 func main() {
     c := client.NewClient(
-        option.WithBasicAuth("<customer_id>", "<customer_secret>"),
+        option.WithToken("<your_rest_auth_token>"),
     )
 
     ctx := context.Background()
