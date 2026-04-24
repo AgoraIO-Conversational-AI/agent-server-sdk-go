@@ -481,9 +481,6 @@ func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS {
 		model := strings.ToLower(strings.TrimSpace(opts.Model))
 		switch model {
 		case "speech-2.6-turbo", "speech_2_6_turbo", "speech-2.8-turbo", "speech_2_8_turbo":
-			if opts.GroupID != "" || opts.VoiceID != "" || opts.URL != "" {
-				panic("MiniMaxTTS preset-backed mode does not allow GroupID, VoiceID, or URL")
-			}
 		default:
 			panic("MiniMaxTTS requires Key unless using a supported preset-backed model")
 		}

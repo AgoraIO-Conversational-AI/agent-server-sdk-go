@@ -233,7 +233,9 @@ func TestPresetBackedOpenAIVendorsAllowMissingKeys(t *testing.T) {
 
 func TestPresetBackedMiniMaxTTSAllowsMissingKey(t *testing.T) {
 	tts := vendors.NewMiniMaxTTS(vendors.MiniMaxTTSOptions{
-		Model: "speech-2.6-turbo",
+		Model:   "speech-2.6-turbo",
+		VoiceID: "English_captivating_female1",
+		URL:     "wss://api-uw.minimax.io/ws/v1/t2a_v2",
 	}).ToConfig()
 
 	assert.Equal(t, "minimax", tts["vendor"])
@@ -241,8 +243,8 @@ func TestPresetBackedMiniMaxTTSAllowsMissingKey(t *testing.T) {
 	assert.Equal(t, "speech-2.6-turbo", params["model"])
 	assert.NotContains(t, params, "key")
 	assert.NotContains(t, params, "group_id")
-	assert.NotContains(t, params, "voice_setting")
-	assert.NotContains(t, params, "url")
+	assert.Equal(t, map[string]interface{}{"voice_id": "English_captivating_female1"}, params["voice_setting"])
+	assert.Equal(t, "wss://api-uw.minimax.io/ws/v1/t2a_v2", params["url"])
 }
 
 func TestToPropertiesBubblesMLLMFieldsAndPreservesVendorOverrides(t *testing.T) {
