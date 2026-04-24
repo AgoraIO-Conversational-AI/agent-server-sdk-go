@@ -5,6 +5,9 @@ type OpenAIRealtimeOptions struct {
 	Model            string
 	URL              string
 	GreetingMessage  string
+	FailureMessage   string
+	MaxHistory       *int
+	PredefinedTools  []string
 	InputModalities  []string
 	OutputModalities []string
 	Messages         []map[string]interface{}
@@ -52,6 +55,15 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	if o.options.GreetingMessage != "" {
 		config["greeting_message"] = o.options.GreetingMessage
 	}
+	if o.options.FailureMessage != "" {
+		config["failure_message"] = o.options.FailureMessage
+	}
+	if o.options.MaxHistory != nil {
+		config["max_history"] = *o.options.MaxHistory
+	}
+	if o.options.PredefinedTools != nil {
+		config["predefined_tools"] = o.options.PredefinedTools
+	}
 	if o.options.InputModalities != nil {
 		config["input_modalities"] = o.options.InputModalities
 	}
@@ -68,9 +80,13 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 type GeminiLiveOptions struct {
 	APIKey           string
 	Model            string
+	URL              string
 	Instructions     string
 	Voice            string
 	GreetingMessage  string
+	FailureMessage   string
+	MaxHistory       *int
+	PredefinedTools  []string
 	InputModalities  []string
 	OutputModalities []string
 	Messages         []map[string]interface{}
@@ -110,8 +126,20 @@ func (g *GeminiLive) ToConfig() map[string]interface{} {
 		"api_key": g.options.APIKey,
 		"params":  params,
 	}
+	if g.options.URL != "" {
+		config["url"] = g.options.URL
+	}
 	if g.options.GreetingMessage != "" {
 		config["greeting_message"] = g.options.GreetingMessage
+	}
+	if g.options.FailureMessage != "" {
+		config["failure_message"] = g.options.FailureMessage
+	}
+	if g.options.MaxHistory != nil {
+		config["max_history"] = *g.options.MaxHistory
+	}
+	if g.options.PredefinedTools != nil {
+		config["predefined_tools"] = g.options.PredefinedTools
 	}
 	if g.options.InputModalities != nil {
 		config["input_modalities"] = g.options.InputModalities
@@ -129,12 +157,16 @@ type VertexAIOptions struct {
 	ProjectID           string
 	Location            string
 	Model               string
+	URL                 string
 	Voice               string
 	Instructions        string
 	Messages            []map[string]interface{}
 	ADCredentialsString string
 	AdditionalParams    map[string]interface{}
 	GreetingMessage     string
+	FailureMessage      string
+	MaxHistory          *int
+	PredefinedTools     []string
 	InputModalities     []string
 	OutputModalities    []string
 }
@@ -181,8 +213,20 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 		"params": params,
 	}
 
+	if v.options.URL != "" {
+		config["url"] = v.options.URL
+	}
 	if v.options.GreetingMessage != "" {
 		config["greeting_message"] = v.options.GreetingMessage
+	}
+	if v.options.FailureMessage != "" {
+		config["failure_message"] = v.options.FailureMessage
+	}
+	if v.options.MaxHistory != nil {
+		config["max_history"] = *v.options.MaxHistory
+	}
+	if v.options.PredefinedTools != nil {
+		config["predefined_tools"] = v.options.PredefinedTools
 	}
 	if v.options.InputModalities != nil {
 		config["input_modalities"] = v.options.InputModalities

@@ -527,6 +527,16 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 				mllmConfig["greeting_message"] = a.greeting
 			}
 		}
+		if a.failureMessage != "" {
+			if _, exists := mllmConfig["failure_message"]; !exists {
+				mllmConfig["failure_message"] = a.failureMessage
+			}
+		}
+		if a.maxHistory != nil {
+			if _, exists := mllmConfig["max_history"]; !exists {
+				mllmConfig["max_history"] = *a.maxHistory
+			}
+		}
 		var mllm Agora.StartAgentsRequestPropertiesMllm
 		if err := mapToStruct(mllmConfig, &mllm); err != nil {
 			return nil, fmt.Errorf("failed to convert MLLM config: %w", err)

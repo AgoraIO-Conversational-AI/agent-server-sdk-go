@@ -124,12 +124,17 @@ func TestOffRemovesRegisteredHandler(t *testing.T) {
 }
 
 func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
+	maxHistory := 8
 	config := vendors.NewGeminiLive(vendors.GeminiLiveOptions{
 		APIKey:           "google-key",
 		Model:            "gemini-live-2.5-flash",
+		URL:              "wss://generativelanguage.googleapis.com/ws",
 		Instructions:     "Be concise.",
 		Voice:            "Aoede",
 		GreetingMessage:  "Hello from Gemini",
+		FailureMessage:   "Please try again.",
+		MaxHistory:       &maxHistory,
+		PredefinedTools:  []string{"_publish_message"},
 		InputModalities:  []string{"audio"},
 		OutputModalities: []string{"text", "audio"},
 		Messages: []map[string]interface{}{
@@ -144,6 +149,7 @@ func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 		"vendor":  "gemini",
 		"style":   "openai",
 		"api_key": "google-key",
+		"url":     "wss://generativelanguage.googleapis.com/ws",
 		"params": map[string]interface{}{
 			"temperature":  0.2,
 			"model":        "gemini-live-2.5-flash",
@@ -154,9 +160,43 @@ func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 			{"role": "system", "content": "short memory"},
 		},
 		"greeting_message":  "Hello from Gemini",
+		"failure_message":   "Please try again.",
+		"max_history":       8,
+		"predefined_tools":  []string{"_publish_message"},
 		"input_modalities":  []string{"audio"},
 		"output_modalities": []string{"text", "audio"},
 	}, config)
+}
+
+func TestMLLMWrappersIncludeOptionalFields(t *testing.T) {
+	openAIMaxHistory := 3
+	openAIConfig := vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
+		APIKey:          "key",
+		URL:             "wss://openai.example.com/realtime",
+		PredefinedTools: []string{"_publish_message"},
+		FailureMessage:  "Retry",
+		MaxHistory:      &openAIMaxHistory,
+	}).ToConfig()
+	assert.Equal(t, "wss://openai.example.com/realtime", openAIConfig["url"])
+	assert.Equal(t, []string{"_publish_message"}, openAIConfig["predefined_tools"])
+	assert.Equal(t, "Retry", openAIConfig["failure_message"])
+	assert.Equal(t, 3, openAIConfig["max_history"])
+
+	vertexMaxHistory := 5
+	vertexConfig := vendors.NewVertexAI(vendors.VertexAIOptions{
+		Model:               "gemini-live",
+		URL:                 "wss://vertex.example.com/realtime",
+		ProjectID:           "project",
+		Location:            "us-central1",
+		ADCredentialsString: "adc",
+		PredefinedTools:     []string{"_publish_message"},
+		FailureMessage:      "Try again",
+		MaxHistory:          &vertexMaxHistory,
+	}).ToConfig()
+	assert.Equal(t, "wss://vertex.example.com/realtime", vertexConfig["url"])
+	assert.Equal(t, []string{"_publish_message"}, vertexConfig["predefined_tools"])
+	assert.Equal(t, "Try again", vertexConfig["failure_message"])
+	assert.Equal(t, 5, vertexConfig["max_history"])
 }
 
 func TestPresetBackedOpenAIVendorsAllowMissingKeys(t *testing.T) {
@@ -193,7 +233,9 @@ func TestPresetBackedOpenAIVendorsAllowMissingKeys(t *testing.T) {
 
 func TestPresetBackedMiniMaxTTSAllowsMissingKey(t *testing.T) {
 	tts := vendors.NewMiniMaxTTS(vendors.MiniMaxTTSOptions{
-		Model: "speech-2.6-turbo",
+		Model:   "speech-2.6-turbo",
+		VoiceID: "English_captivating_female1",
+		URL:     "wss://api-uw.minimax.io/ws/v1/t2a_v2",
 	}).ToConfig()
 
 	assert.Equal(t, "minimax", tts["vendor"])
@@ -201,11 +243,11 @@ func TestPresetBackedMiniMaxTTSAllowsMissingKey(t *testing.T) {
 	assert.Equal(t, "speech-2.6-turbo", params["model"])
 	assert.NotContains(t, params, "key")
 	assert.NotContains(t, params, "group_id")
-	assert.NotContains(t, params, "voice_setting")
-	assert.NotContains(t, params, "url")
+	assert.Equal(t, map[string]interface{}{"voice_id": "English_captivating_female1"}, params["voice_setting"])
+	assert.Equal(t, "wss://api-uw.minimax.io/ws/v1/t2a_v2", params["url"])
 }
 
-func TestToPropertiesDoesNotBubbleUnsupportedMLLMFields(t *testing.T) {
+func TestToPropertiesBubblesMLLMFieldsAndPreservesVendorOverrides(t *testing.T) {
 	enableMllm := true
 	maxHistory := 9
 	agent := NewAgent(
@@ -214,8 +256,11 @@ func TestToPropertiesDoesNotBubbleUnsupportedMLLMFields(t *testing.T) {
 		WithMaxHistory(maxHistory),
 		WithAdvancedFeatures(&AdvancedFeatures{EnableMllm: &enableMllm}),
 	).WithMllm(vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
-		APIKey: "openai-key",
-		Model:  "gpt-4o-realtime-preview",
+		APIKey:          "openai-key",
+		Model:           "gpt-4o-realtime-preview",
+		URL:             "wss://openai.example.com/realtime",
+		GreetingMessage: "Vendor greeting",
+		PredefinedTools: []string{"_publish_message"},
 	}))
 
 	props, err := agent.ToProperties(ToPropertiesOptions{
@@ -231,8 +276,18 @@ func TestToPropertiesDoesNotBubbleUnsupportedMLLMFields(t *testing.T) {
 	payload, err := json.Marshal(props.Mllm)
 	require.NoError(t, err)
 	assert.Contains(t, string(payload), "greeting_message")
-	assert.NotContains(t, string(payload), "failure_message")
-	assert.NotContains(t, string(payload), "max_history")
+	assert.Contains(t, string(payload), "failure_message")
+	assert.Contains(t, string(payload), "max_history")
+	assert.Contains(t, string(payload), "predefined_tools")
+	assert.Contains(t, string(payload), "url")
+
+	var decoded map[string]interface{}
+	require.NoError(t, json.Unmarshal(payload, &decoded))
+	assert.Equal(t, "Vendor greeting", decoded["greeting_message"])
+	assert.Equal(t, "Agent failure", decoded["failure_message"])
+	assert.Equal(t, float64(9), decoded["max_history"])
+	assert.Equal(t, []interface{}{"_publish_message"}, decoded["predefined_tools"])
+	assert.Equal(t, "wss://openai.example.com/realtime", decoded["url"])
 }
 
 func TestAvatarHelpersCoverLiveAvatarAndAnam(t *testing.T) {

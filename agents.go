@@ -8074,7 +8074,7 @@ func (s *StartAgentsRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
 		embed: embed(*s),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
-	return json.Marshal(explicitMarshaler)
+	return internal.MarshalJSONWithExtraProperties(explicitMarshaler, s.extraProperties)
 }
 
 func (s *StartAgentsRequestPropertiesMllm) String() string {
@@ -10528,7 +10528,7 @@ func (u *UpdateAgentsRequestPropertiesMllm) MarshalJSON() ([]byte, error) {
 		embed: embed(*u),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
-	return json.Marshal(explicitMarshaler)
+	return internal.MarshalJSONWithExtraProperties(explicitMarshaler, u.extraProperties)
 }
 
 func (u *UpdateAgentsRequestPropertiesMllm) String() string {
