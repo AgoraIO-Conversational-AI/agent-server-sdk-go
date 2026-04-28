@@ -53,7 +53,9 @@ func (r *RequestOptions) ToHeader() http.Header {
 	if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
-	header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
+	if r.Authorization != "" {
+		header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
+	}
 	return header
 }
 
