@@ -232,7 +232,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		SkipVendorValidation: len(s.preset) > 0 || s.pipelineID != "",
 	}
 
-	properties, err := s.agent.ToProperties(propOpts)
+	properties, err := s.agent.ToPropertiesMap(propOpts)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -241,7 +241,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	resolvedPreset, resolvedProperties, err := ResolveSessionPresets(s.preset, properties)
+	resolvedPreset, resolvedProperties, err := ResolveSessionPresetsMap(s.preset, properties)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -255,10 +255,19 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		Name:       s.name,
 		Preset:     stringPtrOrNil(resolvedPreset),
 		PipelineID: stringPtrOrNil(s.pipelineID),
-		Properties: resolvedProperties,
 	}
 	if s.debug {
-		if payload, err := json.Marshal(req); err == nil {
+		debugPayload := map[string]interface{}{
+			"name":       s.name,
+			"properties": resolvedProperties,
+		}
+		if resolvedPreset != "" {
+			debugPayload["preset"] = resolvedPreset
+		}
+		if s.pipelineID != "" {
+			debugPayload["pipeline_id"] = s.pipelineID
+		}
+		if payload, err := json.Marshal(debugPayload); err == nil {
 			log.Printf("[Agora Debug] Starting agent session: %s", payload)
 		} else {
 			s.warnf(fmt.Sprintf("debug logging failed to marshal start request: %v", err))
@@ -266,7 +275,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 	}
 
 	reqOpts := s.convoAIRequestOpts(ctx)
-	resp, err := s.client.Start(ctx, req, reqOpts...)
+	resp, err := s.client.StartWithPropertiesMap(ctx, req, resolvedProperties, reqOpts...)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError

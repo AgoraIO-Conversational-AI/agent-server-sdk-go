@@ -20,6 +20,60 @@ func mapToStruct(m map[string]interface{}, target interface{}) error {
 	return nil
 }
 
+func structToMap(value interface{}) (map[string]interface{}, error) {
+	data, err := json.Marshal(value)
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func cloneConfig(config map[string]interface{}) map[string]interface{} {
+	if config == nil {
+		return nil
+	}
+	clone := make(map[string]interface{}, len(config))
+	for k, v := range config {
+		clone[k] = cloneValue(v)
+	}
+	return clone
+}
+
+func cloneValue(value interface{}) interface{} {
+	switch v := value.(type) {
+	case map[string]interface{}:
+		return cloneConfig(v)
+	case []interface{}:
+		clone := make([]interface{}, len(v))
+		for i, item := range v {
+			clone[i] = cloneValue(item)
+		}
+		return clone
+	case []map[string]interface{}:
+		clone := make([]map[string]interface{}, len(v))
+		for i, item := range v {
+			clone[i] = cloneConfig(item)
+		}
+		return clone
+	case []string:
+		return append([]string(nil), v...)
+	case []int:
+		return append([]int(nil), v...)
+	case map[string]string:
+		clone := make(map[string]string, len(v))
+		for key, item := range v {
+			clone[key] = item
+		}
+		return clone
+	default:
+		return value
+	}
+}
+
 // =============================================================================
 // Top-level configuration aliases
 // =============================================================================
@@ -650,6 +704,50 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 	}
 
 	return props, nil
+}
+
+func (a *Agent) ToPropertiesMap(opts ToPropertiesOptions) (map[string]interface{}, error) {
+	props, err := a.ToProperties(opts)
+	if err != nil {
+		return nil, err
+	}
+	propsMap, err := structToMap(props)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert properties to map: %w", err)
+	}
+
+	if a.llm != nil {
+		llmConfig := cloneConfig(a.llm)
+		if a.instructions != "" {
+			llmConfig["system_messages"] = []map[string]interface{}{
+				{"role": "system", "content": a.instructions},
+			}
+		}
+		if a.greeting != "" {
+			if _, exists := llmConfig["greeting_message"]; !exists {
+				llmConfig["greeting_message"] = a.greeting
+			}
+		}
+		if a.failureMessage != "" {
+			if _, exists := llmConfig["failure_message"]; !exists {
+				llmConfig["failure_message"] = a.failureMessage
+			}
+		}
+		if a.maxHistory != nil {
+			if _, exists := llmConfig["max_history"]; !exists {
+				llmConfig["max_history"] = *a.maxHistory
+			}
+		}
+		propsMap["llm"] = llmConfig
+	}
+	if a.tts != nil {
+		propsMap["tts"] = cloneConfig(a.tts)
+	}
+	if a.stt != nil {
+		propsMap["asr"] = cloneConfig(a.stt)
+	}
+
+	return propsMap, nil
 }
 
 type ToPropertiesOptions struct {

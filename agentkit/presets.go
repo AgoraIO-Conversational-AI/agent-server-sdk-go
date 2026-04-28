@@ -81,6 +81,28 @@ func ResolveSessionPresets(presets []string, properties *Agora.StartAgentsReques
 		return "", nil, err
 	}
 
+	resolvedPreset, resolvedProps, err := ResolveSessionPresetsMap(presets, props)
+	if err != nil {
+		return "", nil, err
+	}
+
+	resolvedPayload, err := json.Marshal(resolvedProps)
+	if err != nil {
+		return "", nil, err
+	}
+
+	var resolved Agora.StartAgentsRequestProperties
+	if err := json.Unmarshal(resolvedPayload, &resolved); err != nil {
+		return "", nil, err
+	}
+	return resolvedPreset, &resolved, nil
+}
+
+func ResolveSessionPresetsMap(presets []string, properties map[string]interface{}) (string, map[string]interface{}, error) {
+	if properties == nil {
+		return NormalizePresetInput(presets), nil, nil
+	}
+	props := cloneConfig(properties)
 	explicit := parsePresetInput(presets)
 	explicitCategories := map[string]bool{}
 	for _, preset := range explicit {
@@ -110,16 +132,7 @@ func ResolveSessionPresets(presets []string, properties *Agora.StartAgentsReques
 	}
 
 	combined := append(append([]string{}, explicit...), inferred...)
-	resolvedPayload, err := json.Marshal(props)
-	if err != nil {
-		return "", nil, err
-	}
-
-	var resolved Agora.StartAgentsRequestProperties
-	if err := json.Unmarshal(resolvedPayload, &resolved); err != nil {
-		return "", nil, err
-	}
-	return NormalizePresetInput(combined), &resolved, nil
+	return NormalizePresetInput(combined), props, nil
 }
 
 func parsePresetInput(presets []string) []string {
@@ -167,7 +180,7 @@ func inferASRPreset(value interface{}) (string, bool) {
 		return "", false
 	}
 	params := asMap(asr["params"])
-	if _, ok := params["api_key"]; ok {
+	if hasNonEmptyString(params, "api_key") {
 		return "", false
 	}
 	switch normalizeModelName(params["model"]) {
@@ -185,7 +198,7 @@ func inferLLMPreset(value interface{}) (string, bool) {
 	if len(llm) == 0 {
 		return "", false
 	}
-	if _, ok := llm["api_key"]; ok {
+	if hasNonEmptyString(llm, "api_key") {
 		return "", false
 	}
 	if vendor, ok := llm["vendor"].(string); ok && vendor != "" && vendor != "openai" {
@@ -217,7 +230,7 @@ func inferTTSPreset(value interface{}) (string, bool) {
 	switch tts["vendor"] {
 	case "openai":
 		params := asMap(tts["params"])
-		if _, ok := params["api_key"]; ok {
+		if hasNonEmptyString(params, "api_key") || hasNonEmptyString(params, "key") {
 			return "", false
 		}
 		model := normalizeModelName(params["model"])
@@ -226,7 +239,7 @@ func inferTTSPreset(value interface{}) (string, bool) {
 		}
 	case "minimax":
 		params := asMap(tts["params"])
-		if _, ok := params["key"]; ok {
+		if hasNonEmptyString(params, "key") {
 			return "", false
 		}
 		switch normalizeModelName(params["model"]) {
@@ -237,6 +250,17 @@ func inferTTSPreset(value interface{}) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func hasNonEmptyString(m map[string]interface{}, key string) bool {
+	value, ok := m[key]
+	if !ok {
+		return false
+	}
+	if s, ok := value.(string); ok {
+		return strings.TrimSpace(s) != ""
+	}
+	return value != nil
 }
 
 func stripInferredASRFields(value interface{}) {
@@ -254,7 +278,7 @@ func stripInferredASRFields(value interface{}) {
 func stripInferredLLMFields(value interface{}) {
 	llm := asMap(value)
 	delete(llm, "api_key")
-	if url, ok := llm["url"].(string); ok && url == openAIChatCompletionsURL {
+	if url, ok := llm["url"].(string); ok && (url == "" || url == openAIChatCompletionsURL) {
 		delete(llm, "url")
 	}
 	params := asMap(llm["params"])
@@ -272,10 +296,13 @@ func stripInferredTTSFields(value interface{}, preset string) {
 	switch preset {
 	case AgentPresets.Tts.OpenAITts1:
 		delete(params, "api_key")
+		delete(params, "key")
 		delete(params, "model")
 	case AgentPresets.Tts.MiniMaxSpeech26Turbo, AgentPresets.Tts.MiniMaxSpeech28Turbo:
 		delete(params, "key")
+		delete(params, "group_id")
 		delete(params, "model")
+		delete(params, "url")
 	}
 	if len(params) == 0 {
 		tts["params"] = map[string]interface{}{}
