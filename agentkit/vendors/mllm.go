@@ -1,5 +1,7 @@
 package vendors
 
+import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+
 type OpenAIRealtimeOptions struct {
 	APIKey           string
 	Model            string
@@ -12,6 +14,7 @@ type OpenAIRealtimeOptions struct {
 	OutputModalities []string
 	Messages         []map[string]interface{}
 	Params           map[string]interface{}
+	TurnDetection    *Agora.StartAgentsRequestPropertiesMllmTurnDetection
 }
 
 type OpenAIRealtime struct {
@@ -42,7 +45,6 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 
 	config := map[string]interface{}{
 		"vendor":  "openai",
-		"style":   "openai",
 		"api_key": o.options.APIKey,
 	}
 	if o.options.URL != "" {
@@ -73,6 +75,9 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	if o.options.Messages != nil {
 		config["messages"] = o.options.Messages
 	}
+	if o.options.TurnDetection != nil {
+		config["turn_detection"] = o.options.TurnDetection
+	}
 
 	return config
 }
@@ -91,6 +96,7 @@ type GeminiLiveOptions struct {
 	OutputModalities []string
 	Messages         []map[string]interface{}
 	AdditionalParams map[string]interface{}
+	TurnDetection    *Agora.StartAgentsRequestPropertiesMllmTurnDetection
 }
 
 type GeminiLive struct {
@@ -122,7 +128,6 @@ func (g *GeminiLive) ToConfig() map[string]interface{} {
 
 	config := map[string]interface{}{
 		"vendor":  "gemini",
-		"style":   "openai",
 		"api_key": g.options.APIKey,
 		"params":  params,
 	}
@@ -150,6 +155,9 @@ func (g *GeminiLive) ToConfig() map[string]interface{} {
 	if g.options.Messages != nil {
 		config["messages"] = g.options.Messages
 	}
+	if g.options.TurnDetection != nil {
+		config["turn_detection"] = g.options.TurnDetection
+	}
 	return config
 }
 
@@ -169,6 +177,7 @@ type VertexAIOptions struct {
 	PredefinedTools     []string
 	InputModalities     []string
 	OutputModalities    []string
+	TurnDetection       *Agora.StartAgentsRequestPropertiesMllmTurnDetection
 }
 
 type VertexAI struct {
@@ -209,7 +218,6 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 
 	config := map[string]interface{}{
 		"vendor": "vertexai",
-		"style":  "openai",
 		"params": params,
 	}
 
@@ -236,6 +244,9 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 	}
 	if v.options.Messages != nil {
 		config["messages"] = v.options.Messages
+	}
+	if v.options.TurnDetection != nil {
+		config["turn_detection"] = v.options.TurnDetection
 	}
 
 	return config

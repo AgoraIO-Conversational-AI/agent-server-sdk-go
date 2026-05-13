@@ -10,20 +10,15 @@ The MLLM flow uses a single multimodal model to process audio input and generate
 
 ## Enabling MLLM Mode
 
-MLLM mode requires setting `EnableMllm: Agora.Bool(true)` in the advanced features:
+Call `WithMllm(vendor)` to enable MLLM mode. The builder sets `mllm.enable = true` automatically.
 
 ```go
 import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithName("realtime-agent"),
-    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
-        EnableMllm: Agora.Bool(true),
-    }),
 )
 ```
-
-Note the use of `Agora.Bool(true)` — this is a pointer helper that returns `*bool`. The Agora API uses pointer types for optional fields, so you cannot pass a bare `true` literal.
 
 ## OpenAI Realtime Example
 
@@ -50,9 +45,6 @@ func main() {
 
     agent := agentkit.NewAgent(
         agentkit.WithName("openai-realtime"),
-        agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
-            EnableMllm: Agora.Bool(true),
-        }),
     ).WithMllm(
         vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
             APIKey: "<openai_key>",
@@ -89,9 +81,6 @@ func main() {
 ```go
 agent := agentkit.NewAgent(
     agentkit.WithName("gemini-live"),
-    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
-        EnableMllm: Agora.Bool(true),
-    }),
 ).WithMllm(
     vendors.NewGeminiLive(vendors.GeminiLiveOptions{
         APIKey:       "<google_ai_api_key>",
@@ -104,24 +93,22 @@ agent := agentkit.NewAgent(
 
 ## MLLM with Turn Detection
 
-Server-side VAD works with MLLM mode. The preferred approach uses the SOS/EOS (Start of Speech / End of Speech) model via `Config.StartOfSpeech` and `Config.EndOfSpeech` — see the [Agent Reference](../reference/agent.md) for full type definitions.
+Configure MLLM turn detection on the MLLM vendor with `TurnDetection`. When set, `mllm.turn_detection` overrides the top-level `turn_detection` object.
 
-Legacy format:
+Example:
 
 ```go
 agent := agentkit.NewAgent(
     agentkit.WithName("realtime-vad"),
-    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
-        EnableMllm: Agora.Bool(true),
-    }),
-    agentkit.WithTurnDetectionConfig(&agentkit.TurnDetectionConfig{
-        Type:              agentkit.TurnDetectionTypeServerVad.Ptr(), // deprecated; use Config.EndOfSpeech instead
-        Threshold:         Agora.Float64(0.5),
-        SilenceDurationMs: Agora.Int(500),
-    }),
 ).WithMllm(
     vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
         APIKey: "<openai_key>",
+        TurnDetection: &Agora.StartAgentsRequestPropertiesMllmTurnDetection{
+            Mode: Agora.StartAgentsRequestPropertiesMllmTurnDetectionModeServerVad.Ptr(),
+            ServerVadConfig: &Agora.StartAgentsRequestPropertiesMllmTurnDetectionServerVadConfig{
+                IdleTimeoutMs: Agora.Int(5000),
+            },
+        },
     }),
 )
 ```
@@ -142,10 +129,8 @@ c.Agents.Start(
             AgentRtcUID:   "1001",
             RemoteRtcUIDs: []string{"1002"},
             IdleTimeout:   Agora.Int(120),
-            AdvancedFeatures: &Agora.StartAgentsRequestPropertiesAdvancedFeatures{
-                EnableMllm: Agora.Bool(true),
-            },
             Mllm: &Agora.StartAgentsRequestPropertiesMllm{
+                Enable: Agora.Bool(true),
                 URL:    Agora.String("wss://api.openai.com/v1/realtime"),
                 APIKey: Agora.String("<openai_key>"),
                 Vendor: Agora.StartAgentsRequestPropertiesMllmVendorOpenai,
@@ -167,7 +152,7 @@ MLLM configuration makes heavy use of pointer helpers for optional fields:
 
 | Helper | Type | Example |
 |---|---|---|
-| `Agora.Bool(true)` | `*bool` | `EnableMllm: Agora.Bool(true)` |
+| `Agora.Bool(true)` | `*bool` | `Enable: Agora.Bool(true)` |
 | `Agora.String("...")` | `*string` | `APIKey: Agora.String("<key>")` |
 | `Agora.Int(120)` | `*int` | `IdleTimeout: Agora.Int(120)` |
 | `Agora.Float64(0.5)` | `*float64` | `Threshold: Agora.Float64(0.5)` |
@@ -181,4 +166,4 @@ These exist because Go does not allow taking the address of a literal value (`&t
 | Vendors required | LLM + TTS (STT optional) | MLLM only |
 | Audio processing | Three-step chain | Single model, end-to-end |
 | Latency | Higher (3 network hops) | Lower (1 network hop) |
-| `AdvancedFeatures.EnableMllm` | Not set or `false` | Must be `Agora.Bool(true)` |
+| `mllm.enable` | Not set or `false` | Must be `Agora.Bool(true)` |

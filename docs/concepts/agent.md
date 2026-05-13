@@ -40,9 +40,9 @@ These are passed to `agentkit.NewAgent(opts ...AgentOption)`:
 | `WithGreeting(greeting string)` | Greeting text | First message the agent speaks |
 | `WithFailureMessage(msg string)` | Fallback message | Spoken when the LLM fails |
 | `WithMaxHistory(n int)` | History depth | Max conversation turns to retain |
-| `WithTurnDetectionConfig(td *TurnDetectionConfig)` | VAD config | Server-side voice activity detection |
+| `WithTurnDetectionConfig(td *TurnDetectionConfig)` | Turn detection config | Cascading-flow SOS/EOS detection |
 | `WithSalConfig(sal *SalConfig)` | SAL config | Speech analytics configuration |
-| `WithAdvancedFeatures(af *AdvancedFeatures)` | Feature flags | `EnableMllm`, `EnableAivad`, etc. |
+| `WithAdvancedFeatures(af *AdvancedFeatures)` | Feature flags | RTM, tools, and other advanced features |
 | `WithParameters(params *SessionParams)` | Session params | Additional session parameters |
 | `WithGeofence(gf *GeofenceConfig)` | Geofence config | Regional access restriction |
 | `WithLabels(labels map[string]string)` | Labels map | Custom key-value labels (returned in callbacks) |
@@ -83,7 +83,7 @@ agent := agentkit.NewAgent(
 | `WithStt(vendor vendors.STT)` | `vendors.STT` interface | Set the STT vendor |
 | `WithMllm(vendor vendors.MLLM)` | `vendors.MLLM` interface | Set the MLLM vendor (for multimodal flow) |
 | `WithAvatar(vendor vendors.Avatar)` | `vendors.Avatar` interface | Set the avatar vendor (validates sample rate) |
-| `WithTurnDetection(td *TurnDetectionConfig)` | Pointer to config | Override turn detection (use `Config.StartOfSpeech` / `Config.EndOfSpeech` for SOS/EOS) |
+| `WithTurnDetection(td *TurnDetectionConfig)` | Pointer to config | Override cascading-flow SOS/EOS detection; use interruption config for interruption behavior |
 | `WithInstructions(instructions string)` | String | Override instructions on a cloned agent |
 | `WithGreeting(greeting string)` | String | Override greeting on a cloned agent |
 | `WithName(name string)` | String | Override name on a cloned agent |
@@ -160,7 +160,7 @@ if err != nil {
 
 If `Token` is empty, `ToProperties` generates one from `AppID` + `AppCertificate`. If both are empty, it returns an error.
 
-In cascading mode, `ToProperties` requires both LLM and TTS to be configured — it returns an error if either is missing. In MLLM mode (when `AdvancedFeatures.EnableMllm` is `true`), LLM and TTS are not required.
+In cascading mode, `ToProperties` requires both LLM and TTS to be configured — it returns an error if either is missing. In MLLM mode (when `mllm.enable` is `true`), LLM and TTS are not required.
 
 ## Type Aliases
 

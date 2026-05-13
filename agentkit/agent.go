@@ -266,6 +266,7 @@ type Agent struct {
 	avatar                   map[string]interface{}
 	avatarRequiredSampleRate *vendors.SampleRate
 	turnDetection            *TurnDetectionConfig
+	interruption             *InterruptionConfig
 	sal                      *SalConfig
 	advancedFeatures         *AdvancedFeatures
 	parameters               *SessionParams
@@ -319,6 +320,12 @@ func WithMaxHistory(n int) AgentOption {
 func WithTurnDetectionConfig(td *TurnDetectionConfig) AgentOption {
 	return func(a *Agent) {
 		a.turnDetection = td
+	}
+}
+
+func WithInterruptionConfig(interruption *InterruptionConfig) AgentOption {
+	return func(a *Agent) {
+		a.interruption = interruption
 	}
 }
 
@@ -413,18 +420,14 @@ func (a *Agent) WithMllm(vendor vendors.MLLM) *Agent {
 	clone := a.clone()
 	clone.mllm = vendor.ToConfig()
 	if clone.mllm != nil {
-		if _, exists := clone.mllm["enable"]; !exists {
-			clone.mllm["enable"] = true
+		clone.mllm["enable"] = true
+	}
+	if clone.advancedFeatures != nil {
+		clone.advancedFeatures.EnableMllm = nil
+		if clone.advancedFeatures.EnableRtm == nil && clone.advancedFeatures.EnableSal == nil && clone.advancedFeatures.EnableTools == nil {
+			clone.advancedFeatures = nil
 		}
 	}
-	enableMllm := true
-	if clone.advancedFeatures == nil {
-		clone.advancedFeatures = &AdvancedFeatures{}
-	} else {
-		advancedFeatures := *clone.advancedFeatures
-		clone.advancedFeatures = &advancedFeatures
-	}
-	clone.advancedFeatures.EnableMllm = &enableMllm
 	return clone
 }
 
@@ -449,6 +452,12 @@ func (a *Agent) WithAvatar(vendor vendors.Avatar) *Agent {
 func (a *Agent) WithTurnDetection(td *TurnDetectionConfig) *Agent {
 	clone := a.clone()
 	clone.turnDetection = td
+	return clone
+}
+
+func (a *Agent) WithInterruption(interruption *InterruptionConfig) *Agent {
+	clone := a.clone()
+	clone.interruption = interruption
 	return clone
 }
 
@@ -555,6 +564,7 @@ func (a *Agent) FailureMessage() string                        { return a.failur
 func (a *Agent) MaxHistory() *int                              { return a.maxHistory }
 func (a *Agent) Avatar() map[string]interface{}                { return a.avatar }
 func (a *Agent) TurnDetection() *TurnDetectionConfig           { return a.turnDetection }
+func (a *Agent) Interruption() *InterruptionConfig             { return a.interruption }
 func (a *Agent) Sal() *SalConfig                               { return a.sal }
 func (a *Agent) AdvancedFeatures() *AdvancedFeatures           { return a.advancedFeatures }
 func (a *Agent) Parameters() *SessionParams                    { return a.parameters }
@@ -681,6 +691,9 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 	if a.turnDetection != nil {
 		props.TurnDetection = a.turnDetection
 	}
+	if a.interruption != nil {
+		props.Interruption = a.interruption
+	}
 	if a.sal != nil {
 		props.Sal = a.sal
 	}
@@ -718,8 +731,7 @@ func (a *Agent) ToProperties(opts ToPropertiesOptions) (*Agora.StartAgentsReques
 		props.FillerWords = a.fillerWords
 	}
 
-	isMllmMode := (a.advancedFeatures != nil && a.advancedFeatures.EnableMllm != nil && *a.advancedFeatures.EnableMllm) ||
-		(a.mllm != nil && boolFromMap(a.mllm, "enable"))
+	isMllmMode := a.mllm != nil
 	if isMllmMode {
 		return props, nil
 	}

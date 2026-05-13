@@ -604,6 +604,7 @@ Panics if `APIKey` is empty.
 | `OutputModalities` | `[]string`                | No       | —                           | Output modalities                                  |
 | `Messages`        | `[]map[string]interface{}` | No       | —                           | Conversation messages for short-term memory        |
 | `Params`          | `map[string]interface{}`   | No       | —                           | Additional realtime params such as `voice`         |
+| `TurnDetection`   | `*Agora.StartAgentsRequestPropertiesMllmTurnDetection` | No | — | MLLM turn detection configuration; overrides top-level turn detection |
 
 ### NewGeminiLive
 
@@ -627,6 +628,7 @@ Panics if `APIKey` or `Model` is empty.
 | `OutputModalities` | `[]string`                 | No       | —       | Output modalities |
 | `Messages`         | `[]map[string]interface{}` | No       | —       | Conversation messages |
 | `AdditionalParams` | `map[string]interface{}`   | No       | —       | Additional Gemini params |
+| `TurnDetection`    | `*Agora.StartAgentsRequestPropertiesMllmTurnDetection` | No | — | MLLM turn detection configuration; overrides top-level turn detection |
 
 ### NewVertexAI
 
@@ -652,6 +654,7 @@ func NewVertexAI(opts VertexAIOptions) *VertexAI
 | `InputModalities` | `[]string`                 | No       | —                        | Input modalities                                |
 | `OutputModalities` | `[]string`                | No       | —                        | Output modalities                               |
 | `AdditionalParams` | `map[string]interface{}`  | No       | —                        | Additional Vertex/Gemini params                 |
+| `TurnDetection`    | `*Agora.StartAgentsRequestPropertiesMllmTurnDetection` | No | — | MLLM turn detection configuration; overrides top-level turn detection |
 
 ---
 

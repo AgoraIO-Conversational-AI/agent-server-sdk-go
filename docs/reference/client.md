@@ -207,7 +207,7 @@ The root `Agora` package provides helper functions for creating pointers to lite
 
 | Function | Signature | Example |
 |---|---|---|
-| `Agora.Bool` | `func(bool) *bool` | `EnableMllm: Agora.Bool(true)` |
+| `Agora.Bool` | `func(bool) *bool` | `Enable: Agora.Bool(true)` |
 | `Agora.Int` | `func(int) *int` | `IdleTimeout: Agora.Int(120)` |
 | `Agora.String` | `func(string) *string` | `APIKey: Agora.String("<key>")` |
 | `Agora.Float64` | `func(float64) *float64` | `Threshold: Agora.Float64(0.5)` |

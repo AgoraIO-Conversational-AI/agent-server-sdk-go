@@ -63,11 +63,7 @@ Enable MLLM, RTM, SAL, or tools:
 
 ```go
 // MLLM mode (see mllm-flow guide)
-agent := agentkit.NewAgent(
-    agentkit.WithAdvancedFeatures(&agentkit.AdvancedFeatures{
-        EnableMllm: Agora.Bool(true),
-    }),
-).WithMllm(/* ... */)
+agent := agentkit.NewAgent().WithMllm(/* ... */)
 
 // RTM signaling for custom data delivery
 agent := agentkit.NewAgent(
@@ -319,5 +315,5 @@ func main() {
 
 - [Agent Reference](../reference/agent.md) — full API signatures
 - [Cascading Flow](./cascading-flow.md) — ASR → LLM → TTS setup
-- [MLLM Flow](./mllm-flow.md) — multimodal flow with `EnableMllm`
+- [MLLM Flow](./mllm-flow.md) — multimodal flow with `mllm.enable`
 - [Regional Routing](./regional-routing.md) — client area and geofence

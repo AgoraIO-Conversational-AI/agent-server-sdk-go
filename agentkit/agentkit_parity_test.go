@@ -16,6 +16,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type disabledMllmVendor struct{}
+
+func (disabledMllmVendor) ToConfig() map[string]interface{} {
+	return map[string]interface{}{
+		"vendor": "openai",
+		"enable": false,
+	}
+}
+
 func TestToPropertiesSupportsPresetFlowAndRTMDefault(t *testing.T) {
 	enableRTM := true
 	agent := NewAgent(
@@ -214,6 +223,12 @@ func TestOffRemovesRegisteredHandler(t *testing.T) {
 
 func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 	maxHistory := 8
+	mllmTurnDetection := &Agora.StartAgentsRequestPropertiesMllmTurnDetection{
+		Mode: Agora.StartAgentsRequestPropertiesMllmTurnDetectionModeServerVad.Ptr(),
+		ServerVadConfig: &Agora.StartAgentsRequestPropertiesMllmTurnDetectionServerVadConfig{
+			IdleTimeoutMs: Agora.Int(5000),
+		},
+	}
 	config := vendors.NewGeminiLive(vendors.GeminiLiveOptions{
 		APIKey:           "google-key",
 		Model:            "gemini-live-2.5-flash",
@@ -232,11 +247,11 @@ func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 		AdditionalParams: map[string]interface{}{
 			"temperature": 0.2,
 		},
+		TurnDetection: mllmTurnDetection,
 	}).ToConfig()
 
 	assert.Equal(t, map[string]interface{}{
 		"vendor":  "gemini",
-		"style":   "openai",
 		"api_key": "google-key",
 		"url":     "wss://generativelanguage.googleapis.com/ws",
 		"params": map[string]interface{}{
@@ -254,6 +269,7 @@ func TestGeminiLiveMatchesTypeScriptShape(t *testing.T) {
 		"predefined_tools":  []string{"_publish_message"},
 		"input_modalities":  []string{"audio"},
 		"output_modalities": []string{"text", "audio"},
+		"turn_detection":    mllmTurnDetection,
 	}, config)
 }
 
@@ -270,6 +286,7 @@ func TestMLLMWrappersIncludeOptionalFields(t *testing.T) {
 	assert.Equal(t, []string{"_publish_message"}, openAIConfig["predefined_tools"])
 	assert.Equal(t, "Retry", openAIConfig["failure_message"])
 	assert.Equal(t, 3, openAIConfig["max_history"])
+	assert.NotContains(t, openAIConfig, "style")
 
 	vertexMaxHistory := 5
 	vertexConfig := vendors.NewVertexAI(vendors.VertexAIOptions{
@@ -286,6 +303,36 @@ func TestMLLMWrappersIncludeOptionalFields(t *testing.T) {
 	assert.Equal(t, []string{"_publish_message"}, vertexConfig["predefined_tools"])
 	assert.Equal(t, "Try again", vertexConfig["failure_message"])
 	assert.Equal(t, 5, vertexConfig["max_history"])
+	assert.NotContains(t, vertexConfig, "style")
+}
+
+func TestWithInterruptionForwardsConfig(t *testing.T) {
+	interruption := &InterruptionConfig{
+		Enable: Agora.Bool(false),
+		DisabledConfig: &Agora.StartAgentsRequestPropertiesInterruptionDisabledConfig{
+			Strategy: Agora.StartAgentsRequestPropertiesInterruptionDisabledConfigStrategyIgnore.Ptr(),
+		},
+	}
+
+	props, err := NewAgent(WithInterruptionConfig(interruption)).ToProperties(ToPropertiesOptions{
+		Channel:              "room",
+		Token:                "rtc-token",
+		AgentUID:             "1",
+		RemoteUIDs:           []string{"100"},
+		SkipVendorValidation: true,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, interruption, props.Interruption)
+
+	props, err = NewAgent().WithInterruption(interruption).ToProperties(ToPropertiesOptions{
+		Channel:              "room",
+		Token:                "rtc-token",
+		AgentUID:             "1",
+		RemoteUIDs:           []string{"100"},
+		SkipVendorValidation: true,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, interruption, props.Interruption)
 }
 
 func TestPresetBackedOpenAIVendorsAllowMissingKeys(t *testing.T) {
@@ -541,7 +588,7 @@ func TestBYOKProvidersAreNotTreatedAsManagedPresets(t *testing.T) {
 	assert.Equal(t, "minimax-group", ttsParams["group_id"])
 }
 
-func TestWithMllmSetsLegacyEnableMllmFlag(t *testing.T) {
+func TestWithMllmSetsMllmEnableWithoutLegacyFlag(t *testing.T) {
 	props, err := NewAgent().WithMllm(vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
 		APIKey: "openai-key",
 	})).ToProperties(ToPropertiesOptions{
@@ -554,19 +601,72 @@ func TestWithMllmSetsLegacyEnableMllmFlag(t *testing.T) {
 	require.NotNil(t, props.Mllm)
 	require.NotNil(t, props.Mllm.Enable)
 	assert.True(t, *props.Mllm.Enable)
+	assert.Nil(t, props.AdvancedFeatures)
+}
+
+func TestWithMllmForcesEnableAndRemovesDeprecatedAdvancedFlag(t *testing.T) {
+	enableMllm := true
+	enableRtm := true
+	props, err := NewAgent(WithAdvancedFeatures(&AdvancedFeatures{
+		EnableMllm: &enableMllm,
+		EnableRtm:  &enableRtm,
+	})).WithMllm(disabledMllmVendor{}).ToProperties(ToPropertiesOptions{
+		Channel:    "room",
+		Token:      "rtc-token",
+		AgentUID:   "1",
+		RemoteUIDs: []string{"100"},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, props.Mllm)
+	require.NotNil(t, props.Mllm.Enable)
+	assert.True(t, *props.Mllm.Enable)
 	require.NotNil(t, props.AdvancedFeatures)
-	require.NotNil(t, props.AdvancedFeatures.EnableMllm)
-	assert.True(t, *props.AdvancedFeatures.EnableMllm)
+	assert.Nil(t, props.AdvancedFeatures.EnableMllm)
+	require.NotNil(t, props.AdvancedFeatures.EnableRtm)
+	assert.True(t, *props.AdvancedFeatures.EnableRtm)
+}
+
+func TestWithMllmDropsAdvancedFeaturesWhenOnlyDeprecatedEnableMllmWasSet(t *testing.T) {
+	enableMllm := true
+	props, err := NewAgent(WithAdvancedFeatures(&AdvancedFeatures{
+		EnableMllm: &enableMllm,
+	})).WithMllm(vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
+		APIKey: "openai-key",
+	})).ToProperties(ToPropertiesOptions{
+		Channel:    "room",
+		Token:      "rtc-token",
+		AgentUID:   "1",
+		RemoteUIDs: []string{"100"},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, props.Mllm)
+	require.NotNil(t, props.Mllm.Enable)
+	assert.True(t, *props.Mllm.Enable)
+	assert.Nil(t, props.AdvancedFeatures)
+}
+
+func TestMllmModeDoesNotRequireLlmOrTtsWhenEnableMissing(t *testing.T) {
+	agent := NewAgent()
+	agent.mllm = map[string]interface{}{
+		"vendor": "openai",
+	}
+
+	props, err := agent.ToProperties(ToPropertiesOptions{
+		Channel:    "room",
+		Token:      "rtc-token",
+		AgentUID:   "1",
+		RemoteUIDs: []string{"100"},
+	})
+	require.NoError(t, err)
+	require.NotNil(t, props.Mllm)
 }
 
 func TestToPropertiesBubblesMLLMFieldsAndPreservesVendorOverrides(t *testing.T) {
-	enableMllm := true
 	maxHistory := 9
 	agent := NewAgent(
 		WithGreeting("Agent greeting"),
 		WithFailureMessage("Agent failure"),
 		WithMaxHistory(maxHistory),
-		WithAdvancedFeatures(&AdvancedFeatures{EnableMllm: &enableMllm}),
 	).WithMllm(vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
 		APIKey:          "openai-key",
 		Model:           "gpt-4o-realtime-preview",
