@@ -835,6 +835,159 @@ client.Agents.Interrupt(
 </dl>
 </details>
 
+## Agent Management
+<details><summary><code>client.AgentManagement.AgentThink(Appid, AgentID, request) -> *Agora.AgentThinkAgentManagementResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Send a custom text instruction to the specified conversational AI agent instance.
+
+The instruction is injected into the current conversation pipeline as user input, and the agent processes and responds to it following the standard user input logic.
+
+Use this endpoint for the following scenarios:
+- **Implicit instruction injection**: Inject hidden context or directives into the conversation.
+- **Client-side event triggering**: Notify the agent of client-side events, such as a user clicking a button.
+- **Voice and text collaboration**: Combine text instructions with voice input for richer interaction.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &Agora.AgentThinkAgentManagementRequest{
+        Appid: "appid",
+        AgentID: "agentId",
+        Text: "The user just clicked the purchase button.",
+        OnListeningAction: Agora.AgentThinkAgentManagementRequestOnListeningActionInject.Ptr(),
+        OnThinkingAction: Agora.AgentThinkAgentManagementRequestOnThinkingActionInterrupt.Ptr(),
+        OnSpeakingAction: Agora.AgentThinkAgentManagementRequestOnSpeakingActionIgnore.Ptr(),
+        Interruptable: Agora.Bool(
+            true,
+        ),
+        Metadata: map[string]string{
+            "publisher": "user123",
+            "model": "deepseek-r1",
+        },
+    }
+client.AgentManagement.AgentThink(
+        context.TODO(),
+        request,
+    )
+}
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**appid:** `string` — The App ID of the project.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**agentID:** `string` — The agent instance ID you obtained after successfully calling `join` to start a conversational AI agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**text:** `string` — The custom instruction text to inject into the current conversation pipeline. The system processes this as user input.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**onListeningAction:** `*Agora.AgentThinkAgentManagementRequestOnListeningAction` 
+
+The action to take when the agent is in a listening state:
+- `inject`: Inject the custom text instruction into the current turn without interrupting it.
+- `ignore`: Ignore the request.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**onThinkingAction:** `*Agora.AgentThinkAgentManagementRequestOnThinkingAction` 
+
+The action to take when the agent is in a thinking state:
+- `interrupt`: Interrupt the current state and start a new conversation turn.
+- `ignore`: Ignore the request.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**onSpeakingAction:** `*Agora.AgentThinkAgentManagementRequestOnSpeakingAction` 
+
+The action to take when the agent is in a speaking state:
+- `interrupt`: Interrupt the current state and start a new conversation turn.
+- `ignore`: Ignore the request.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**interruptable:** `*bool` 
+
+Whether user speech can interrupt the injected instruction:
+- `true`: User speech can interrupt the instruction.
+- `false`: User speech cannot interrupt the instruction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `map[string]string` — Custom metadata in key-value pair format. Use this field to pass additional business information such as identifiers or model references.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Telephony
 <details><summary><code>client.Telephony.List(Appid) -> *Agora.ListTelephonyResponse</code></summary>
 <dl>

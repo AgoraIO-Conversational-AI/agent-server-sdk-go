@@ -3,6 +3,7 @@
 package client
 
 import (
+	agentmanagement "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
 	agents "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
 	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
@@ -12,9 +13,10 @@ import (
 )
 
 type Client struct {
-	Agents       *agents.Client
-	Telephony    *telephony.Client
-	PhoneNumbers *phonenumbers.Client
+	Agents          *agents.Client
+	AgentManagement *agentmanagement.Client
+	Telephony       *telephony.Client
+	PhoneNumbers    *phonenumbers.Client
 
 	options *core.RequestOptions
 	baseURL string
@@ -24,11 +26,12 @@ type Client struct {
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
 	return &Client{
-		Agents:       agents.NewClient(options),
-		Telephony:    telephony.NewClient(options),
-		PhoneNumbers: phonenumbers.NewClient(options),
-		options:      options,
-		baseURL:      options.BaseURL,
+		Agents:          agents.NewClient(options),
+		AgentManagement: agentmanagement.NewClient(options),
+		Telephony:       telephony.NewClient(options),
+		PhoneNumbers:    phonenumbers.NewClient(options),
+		options:         options,
+		baseURL:         options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,

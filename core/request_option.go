@@ -53,9 +53,7 @@ func (r *RequestOptions) ToHeader() http.Header {
 	if r.Username != "" && r.Password != "" {
 		header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(r.Username+":"+r.Password)))
 	}
-	if r.Authorization != "" {
-		header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
-	}
+	header.Set("Authorization", fmt.Sprintf("%v", r.Authorization))
 	return header
 }
 
@@ -63,8 +61,8 @@ func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go")
-	headers.Set("X-Fern-SDK-Version", "v1.3.0")
-	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/1.3.0")
+	headers.Set("X-Fern-SDK-Version", "v1.4.0")
+	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/v1.4.0")
 	return headers
 }
 
