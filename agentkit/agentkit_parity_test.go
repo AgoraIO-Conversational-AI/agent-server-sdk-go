@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
@@ -675,6 +676,53 @@ func TestSessionThinkRoutesToAgentManagement(t *testing.T) {
 	session.agentID = "agent_123"
 
 	resp, err := session.Think(context.Background(), "Injected instruction", nil, nil, nil, nil, nil)
+	require.NoError(t, err)
+	require.NotNil(t, resp)
+	assert.Equal(t, "agent_123", *resp.AgentID)
+}
+
+func TestSessionThinkWithOptionsForwardsFields(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v2/projects/appid/agents/agent_123/think":
+			var req map[string]interface{}
+			require.NoError(t, json.NewDecoder(r.Body).Decode(&req))
+			assert.Equal(t, "Injected instruction", req["text"])
+			assert.Equal(t, "interrupt", req["on_thinking_action"])
+			assert.Equal(t, false, req["interruptable"])
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"agent_id":"agent_123","channel":"room-1","start_ts":123}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	rawClient := client.NewClient(
+		option.WithBaseURL(server.URL),
+		option.WithBasicAuth("user", "pass"),
+		option.WithMaxAttempts(1),
+	)
+
+	session := NewAgentSession(AgentSessionOptions{
+		Client:                rawClient.Agents,
+		AgentManagementClient: rawClient.AgentManagement,
+		Agent:                 NewAgent(),
+		AppID:                 "appid",
+		Name:                  "agent",
+		Channel:               "room-1",
+		AgentUID:              "1",
+		RemoteUIDs:            []string{"2"},
+	})
+	session.status = StatusRunning
+	session.agentID = "agent_123"
+
+	onThinking := Agora.AgentThinkRequestOnThinkingActionInterrupt
+	notInterruptable := false
+	resp, err := session.ThinkWithOptions(context.Background(), "Injected instruction", &ThinkOptions{
+		OnThinkingAction: &onThinking,
+		Interruptable:    &notInterruptable,
+	})
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	assert.Equal(t, "agent_123", *resp.AgentID)
