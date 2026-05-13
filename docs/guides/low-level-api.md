@@ -8,6 +8,13 @@ description: Direct client.Agents.Start() usage without the builder pattern.
 
 For direct control over the REST API, use `client.Agents.Start()` with raw request objects. See the [API Reference](../../reference.md) for full details.
 
+## Raw Telephony And Phone-Number APIs
+
+AgentKit focuses on realtime agent session helpers. Telephony call status, call hangup, and phone-number management are exposed through the generated low-level clients:
+
+- `c.Telephony` for call status and hangup operations
+- `c.PhoneNumbers` for phone-number list, create, retrieve, update, and delete operations
+
 ## Direct Client Usage
 
 ```go

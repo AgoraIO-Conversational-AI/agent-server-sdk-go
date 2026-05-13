@@ -108,7 +108,6 @@ Note: `OpenAITTS` always returns `SampleRate24kHz`. Other TTS vendors return the
 | `NewAmazonSTT` | `AmazonSTTOptions` | `AccessKey`, `SecretKey`, `Region` |
 | `NewAssemblyAISTT` | `AssemblyAISTTOptions` | `APIKey` |
 | `NewAresSTT` | `AresSTTOptions` | None |
-| `NewSonioxSTT` | `SonioxSTTOptions` | `APIKey` |
 | `NewSarvamSTT` | `SarvamSTTOptions` | `APIKey` |
 
 <!-- snippet: fragment -->
