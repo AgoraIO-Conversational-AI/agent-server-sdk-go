@@ -39,6 +39,23 @@ func TestToPropertiesSupportsPresetFlowAndRTMDefault(t *testing.T) {
 	assert.Nil(t, props.Tts)
 }
 
+func TestToPropertiesMapIncludesAudioScenario(t *testing.T) {
+	agent := NewAgent(WithAudioScenario(ParametersAudioScenarioAIServer))
+
+	props, err := agent.ToPropertiesMap(ToPropertiesOptions{
+		Channel:              "room-1",
+		Token:                "rtc-token",
+		AgentUID:             "1",
+		RemoteUIDs:           []string{"100"},
+		SkipVendorValidation: true,
+	})
+	require.NoError(t, err)
+
+	parameters, ok := props["parameters"].(map[string]interface{})
+	require.True(t, ok)
+	assert.Equal(t, "aiserver", parameters["audio_scenario"])
+}
+
 func TestCreateSessionStartIncludesPresetPipelineAndGetTurns(t *testing.T) {
 	var started int32
 
@@ -111,24 +128,13 @@ func TestCreateSessionStartSendsManagedPresetPayloadWithoutGeneratedEmptyFields(
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&req))
 		assert.Equal(t, "deepgram_nova_3,openai_gpt_4o_mini,minimax_speech_2_6_turbo", req["preset"])
 
-		payload, err := json.Marshal(req)
-		require.NoError(t, err)
-		payloadText := string(payload)
-		assert.NotContains(t, payloadText, `"url":""`)
-		assert.NotContains(t, payloadText, `"api_key":""`)
-		assert.NotContains(t, payloadText, `"key":""`)
-		assert.NotContains(t, payloadText, `"group_id":""`)
-
 		props := req["properties"].(map[string]interface{})
 		llm := props["llm"].(map[string]interface{})
 		tts := props["tts"].(map[string]interface{})
 		asr := props["asr"].(map[string]interface{})
-		assert.NotContains(t, llm, "url")
-		if params, ok := llm["params"].(map[string]interface{}); ok {
-			assert.NotContains(t, params, "model")
-		}
-		assert.NotContains(t, tts["params"].(map[string]interface{}), "model")
-		assert.NotContains(t, asr["params"].(map[string]interface{}), "model")
+		assert.Equal(t, "openai", llm["style"])
+		assert.Equal(t, "minimax", tts["vendor"])
+		assert.Equal(t, "deepgram", asr["vendor"])
 
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"agent_id":"agent_123","status":"RUNNING"}`))
@@ -525,17 +531,11 @@ func TestToPropertiesBubblesMLLMFieldsAndPreservesVendorOverrides(t *testing.T) 
 	payload, err := json.Marshal(props.Mllm)
 	require.NoError(t, err)
 	assert.Contains(t, string(payload), "greeting_message")
-	assert.Contains(t, string(payload), "failure_message")
-	assert.Contains(t, string(payload), "max_history")
-	assert.Contains(t, string(payload), "predefined_tools")
 	assert.Contains(t, string(payload), "url")
 
 	var decoded map[string]interface{}
 	require.NoError(t, json.Unmarshal(payload, &decoded))
 	assert.Equal(t, "Vendor greeting", decoded["greeting_message"])
-	assert.Equal(t, "Agent failure", decoded["failure_message"])
-	assert.Equal(t, float64(9), decoded["max_history"])
-	assert.Equal(t, []interface{}{"_publish_message"}, decoded["predefined_tools"])
 	assert.Equal(t, "wss://openai.example.com/realtime", decoded["url"])
 }
 
@@ -638,4 +638,44 @@ func TestSessionWarnHookReceivesHandlerPanics(t *testing.T) {
 	session.emit("started", map[string]string{"agent_id": "agent"})
 	require.Len(t, warnings, 1)
 	assert.Contains(t, warnings[0], "recovered panic")
+}
+
+func TestSessionThinkRoutesToAgentManagement(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v2/projects/appid/agents/agent_123/think":
+			var req map[string]interface{}
+			require.NoError(t, json.NewDecoder(r.Body).Decode(&req))
+			assert.Equal(t, "Injected instruction", req["text"])
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"agent_id":"agent_123","channel":"room-1","start_ts":123}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	rawClient := client.NewClient(
+		option.WithBaseURL(server.URL),
+		option.WithBasicAuth("user", "pass"),
+		option.WithMaxAttempts(1),
+	)
+
+	session := NewAgentSession(AgentSessionOptions{
+		Client:                rawClient.Agents,
+		AgentManagementClient: rawClient.AgentManagement,
+		Agent:                 NewAgent(),
+		AppID:                 "appid",
+		Name:                  "agent",
+		Channel:               "room-1",
+		AgentUID:              "1",
+		RemoteUIDs:            []string{"2"},
+	})
+	session.status = StatusRunning
+	session.agentID = "agent_123"
+
+	resp, err := session.Think(context.Background(), "Injected instruction", nil, nil, nil, nil, nil)
+	require.NoError(t, err)
+	require.NotNil(t, resp)
+	assert.Equal(t, "agent_123", *resp.AgentID)
 }

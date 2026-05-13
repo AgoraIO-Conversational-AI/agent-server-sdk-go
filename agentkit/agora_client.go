@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
@@ -49,10 +50,11 @@ type AgoraClientOptions struct {
 //
 // Agents is the underlying agents REST client and is available for advanced usage.
 type AgoraClient struct {
-	Agents         *agents.Client
-	AppID          string
-	AppCertificate string
-	AuthMode       AuthMode
+	Agents          *agents.Client
+	AgentManagement *agentmanagement.Client
+	AppID           string
+	AppCertificate  string
+	AuthMode        AuthMode
 }
 
 // NewAgoraClient creates a new AgoraClient with the given options.
@@ -97,10 +99,11 @@ func NewAgoraClient(opts AgoraClientOptions) *AgoraClient {
 
 	c := client.NewClient(reqOpts...)
 	return &AgoraClient{
-		Agents:         c.Agents,
-		AppID:          opts.AppID,
-		AppCertificate: opts.AppCertificate,
-		AuthMode:       authMode,
+		Agents:          c.Agents,
+		AgentManagement: c.AgentManagement,
+		AppID:           opts.AppID,
+		AppCertificate:  opts.AppCertificate,
+		AuthMode:        authMode,
 	}
 }
 

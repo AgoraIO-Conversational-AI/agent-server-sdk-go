@@ -12,6 +12,7 @@ import (
 	"time"
 
 	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
@@ -32,6 +33,7 @@ type EventHandler func(data interface{})
 
 type AgentSession struct {
 	client          *agents.Client
+	agentManagement *agentmanagement.Client
 	agent           *Agent
 	appID           string
 	appCertificate  string
@@ -56,17 +58,18 @@ type AgentSession struct {
 }
 
 type AgentSessionOptions struct {
-	Client          *agents.Client
-	Agent           *Agent
-	AppID           string
-	AppCertificate  string
-	Name            string
-	Channel         string
-	Token           string
-	AgentUID        string
-	RemoteUIDs      []string
-	IdleTimeout     *int
-	EnableStringUID *bool
+	Client                *agents.Client
+	AgentManagementClient *agentmanagement.Client
+	Agent                 *Agent
+	AppID                 string
+	AppCertificate        string
+	Name                  string
+	Channel               string
+	Token                 string
+	AgentUID              string
+	RemoteUIDs            []string
+	IdleTimeout           *int
+	EnableStringUID       *bool
 	// ExpiresIn is the token lifetime in seconds (default: 86400 = 24 hours, Agora maximum).
 	// Only applies when the SDK auto-generates a token. Valid range: 1–86400.
 	// Use ExpiresInHours() / ExpiresInMinutes() for clarity.
@@ -88,6 +91,7 @@ func NewAgentSession(opts AgentSessionOptions) *AgentSession {
 
 	return &AgentSession{
 		client:          opts.Client,
+		agentManagement: opts.AgentManagementClient,
 		agent:           opts.Agent,
 		appID:           opts.AppID,
 		appCertificate:  opts.AppCertificate,
@@ -153,6 +157,10 @@ func (s *AgentSession) AppID() string {
 
 func (s *AgentSession) Raw() *agents.Client {
 	return s.client
+}
+
+func (s *AgentSession) RawAgentManagement() *agentmanagement.Client {
+	return s.agentManagement
 }
 
 func (s *AgentSession) warnf(message string) {
@@ -232,7 +240,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		SkipVendorValidation: len(s.preset) > 0 || s.pipelineID != "",
 	}
 
-	properties, err := s.agent.ToPropertiesMap(propOpts)
+	properties, err := s.agent.ToProperties(propOpts)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -241,7 +249,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	resolvedPreset, resolvedProperties, err := ResolveSessionPresetsMap(s.preset, properties)
+	resolvedPreset, resolvedProperties, err := ResolveSessionPresets(s.preset, properties)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -274,8 +282,9 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		}
 	}
 
+	req.Properties = resolvedProperties
 	reqOpts := s.convoAIRequestOpts(ctx)
-	resp, err := s.client.StartWithPropertiesMap(ctx, req, resolvedProperties, reqOpts...)
+	resp, err := s.client.Start(ctx, req, reqOpts...)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -380,6 +389,43 @@ func (s *AgentSession) Interrupt(ctx context.Context) error {
 		AgentID: s.agentID,
 	}, reqOpts...)
 	return err
+}
+
+func (s *AgentSession) Think(
+	ctx context.Context,
+	text string,
+	onListeningAction *Agora.AgentThinkRequestOnListeningAction,
+	onThinkingAction *Agora.AgentThinkRequestOnThinkingAction,
+	onSpeakingAction *Agora.AgentThinkRequestOnSpeakingAction,
+	interruptable *bool,
+	metadata map[string]string,
+) (*Agora.AgentThinkResponse, error) {
+	s.mu.RLock()
+	if s.status != StatusRunning {
+		s.mu.RUnlock()
+		return nil, fmt.Errorf("cannot think in %s state", s.status)
+	}
+	if s.agentID == "" {
+		s.mu.RUnlock()
+		return nil, fmt.Errorf("no agent ID available")
+	}
+	s.mu.RUnlock()
+	if s.agentManagement == nil {
+		return nil, fmt.Errorf("agent management client is not configured")
+	}
+
+	req := &Agora.AgentThinkRequest{
+		Appid:             s.appID,
+		AgentID:           s.agentID,
+		Text:              text,
+		OnListeningAction: onListeningAction,
+		OnThinkingAction:  onThinkingAction,
+		OnSpeakingAction:  onSpeakingAction,
+		Interruptable:     interruptable,
+		Metadata:          metadata,
+	}
+	reqOpts := s.convoAIRequestOpts(ctx)
+	return s.agentManagement.AgentThink(ctx, req, reqOpts...)
 }
 
 func (s *AgentSession) Update(ctx context.Context, properties *Agora.UpdateAgentsRequestProperties) error {

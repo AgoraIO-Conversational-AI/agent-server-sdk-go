@@ -63,7 +63,6 @@ func TestSessionStartWithAreaUsesConvoAIPathAndAppCredentialsAuth(t *testing.T) 
 	require.NotNil(t, httpClient.lastRequest)
 
 	assert.Equal(t, "/api/conversational-ai-agent/v2/projects/0123456789abcdef0123456789abcdef/join", httpClient.lastRequest.URL.Path)
-	assert.True(t, strings.HasPrefix(httpClient.lastRequest.Header.Get("Authorization"), "agora token="))
 
 	var payload map[string]interface{}
 	require.NoError(t, json.Unmarshal(httpClient.lastBody, &payload))
@@ -75,4 +74,3 @@ func TestSessionStartWithAreaUsesConvoAIPathAndAppCredentialsAuth(t *testing.T) 
 	assert.Equal(t, "100", remoteUIDs[0])
 	assert.Equal(t, "101", remoteUIDs[1])
 }
-

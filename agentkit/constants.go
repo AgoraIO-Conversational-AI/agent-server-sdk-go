@@ -28,6 +28,17 @@ var (
 	DataChannelDatastream = Agora.StartAgentsRequestPropertiesParametersDataChannelDatastream
 )
 
+var (
+	// AudioScenarioDefault maps to the default RTC audio scenario.
+	AudioScenarioDefault = ParametersAudioScenarioDefault
+
+	// AudioScenarioChorus is optimized for ultra-low-latency chorus use cases.
+	AudioScenarioChorus = ParametersAudioScenarioChorus
+
+	// AudioScenarioAIServer is optimized for conversational AI interaction reliability.
+	AudioScenarioAIServer = ParametersAudioScenarioAIServer
+)
+
 // =============================================================================
 // Silence action constants
 // =============================================================================
