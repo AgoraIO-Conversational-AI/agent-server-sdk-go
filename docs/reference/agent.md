@@ -446,9 +446,22 @@ type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
 type AsrConfig = Agora.StartAgentsRequestPropertiesAsr
 type TtsConfig = Agora.Tts
 type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
+type SttConfig = AsrConfig
+type LlmStyle = Agora.StartAgentsRequestPropertiesLlmStyle
+type SessionInfo = Agora.GetAgentsResponse
+type ThinkResponse = Agora.AgentThinkAgentManagementResponse
 ```
 
-Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, and related sub-types. See the agentkit package for the full list.
+Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, and related sub-types. Session/conversation aliases: `SessionListResponse`, `ConversationHistory`, `ConversationTurns`, etc. Think type aliases: `ThinkOnListeningAction`, `ThinkOnThinkingAction`, `ThinkOnSpeakingAction`.
+
+## Cross-SDK discovery map
+
+| Concept | Go | TypeScript | Python |
+|---|---|---|---|
+| STT payload alias (wire: `asr`) | `AsrConfig` / `SttConfig` | `SttConfig` / `AsrConfig` | `SttConfig` / `AsrConfig` |
+| xAI MLLM (primary) | `XaiGrok` / `NewXaiGrok` | `XaiGrok` | `XaiGrok` |
+| Avatar token helper | `IsAvatarTokenManaged` | `isAvatarTokenManaged` | `is_avatar_token_managed` |
+| Think inject constant | `ThinkOnListeningActionInject` | `ThinkOnListeningActionInject` | `ThinkOnListeningActionInject` |
 
 ## Token Generation
 
