@@ -2,6 +2,9 @@ package agentkit
 
 import "fmt"
 
+// IsHeyGenAvatar reports whether vendor is the legacy HeyGen wire value ("heygen").
+//
+// Deprecated: Use IsLiveAvatarAvatar with vendor "liveavatar" for new integrations.
 func IsHeyGenAvatar(vendor string) bool {
 	return vendor == "heygen"
 }

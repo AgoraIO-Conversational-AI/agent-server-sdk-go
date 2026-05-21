@@ -75,8 +75,9 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	return config
 }
 
-// XAIGrokOptions is deprecated. Use XaiGrokOptions instead.
-type XAIGrokOptions struct {
+// XaiGrokOptions configures the xAI Grok MLLM vendor (mllm.vendor "xai").
+// Future xAI ASR/TTS wrappers should be named XaiSTT and XaiTTS, not XaiRealtime.
+type XaiGrokOptions struct {
 	APIKey           string
 	URL              string
 	Voice            string
@@ -91,35 +92,34 @@ type XAIGrokOptions struct {
 	TurnDetection    *Agora.StartAgentsRequestPropertiesMllmTurnDetection
 }
 
-// XaiGrokOptions configures the xAI Grok MLLM vendor (mllm.vendor "xai").
-// Future xAI ASR/TTS wrappers should be named XaiSTT and XaiTTS, not XaiRealtime.
-type XaiGrokOptions = XAIGrokOptions
-
-// XAIGrok is deprecated. Use XaiGrok and NewXaiGrok instead.
-type XAIGrok struct {
-	options XAIGrokOptions
-}
-
 // XaiGrok is the xAI Grok MLLM vendor (mllm.vendor "xai").
-type XaiGrok = XAIGrok
+type XaiGrok struct {
+	options XaiGrokOptions
+}
 
 // NewXaiGrok creates an xAI Grok MLLM vendor.
 func NewXaiGrok(opts XaiGrokOptions) *XaiGrok {
-	return NewXAIGrok(opts)
-}
-
-// NewXAIGrok is deprecated. Use NewXaiGrok instead.
-func NewXAIGrok(opts XAIGrokOptions) *XAIGrok {
 	if opts.APIKey == "" {
 		panic("XaiGrok requires APIKey")
 	}
 	if opts.URL == "" {
 		opts.URL = "wss://api.x.ai/v1/realtime"
 	}
-	return &XAIGrok{options: opts}
+	return &XaiGrok{options: opts}
 }
 
-func (x *XAIGrok) ToConfig() map[string]interface{} {
+// XAIGrokOptions is deprecated. Use XaiGrokOptions instead.
+type XAIGrokOptions = XaiGrokOptions
+
+// XAIGrok is deprecated. Use XaiGrok instead.
+type XAIGrok = XaiGrok
+
+// NewXAIGrok is deprecated. Use NewXaiGrok instead.
+func NewXAIGrok(opts XAIGrokOptions) *XAIGrok {
+	return NewXaiGrok(opts)
+}
+
+func (x *XaiGrok) ToConfig() map[string]interface{} {
 	params := map[string]interface{}{}
 	for k, v := range x.options.Params {
 		params[k] = v

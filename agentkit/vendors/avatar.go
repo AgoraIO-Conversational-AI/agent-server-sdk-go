@@ -1,12 +1,11 @@
 package vendors
 
 const (
-	HeyGenRequiredSampleRate     = SampleRate24kHz
 	LiveAvatarRequiredSampleRate = SampleRate24kHz
 	AkoolRequiredSampleRate      = SampleRate16kHz
 )
 
-type HeyGenAvatarOptions struct {
+type LiveAvatarAvatarOptions struct {
 	APIKey              string
 	Quality             string
 	AgoraUID            string
@@ -17,107 +16,6 @@ type HeyGenAvatarOptions struct {
 	ActivityIdleTimeout *int
 	AdditionalParams    map[string]interface{}
 }
-
-type HeyGenAvatar struct {
-	options HeyGenAvatarOptions
-}
-
-// Deprecated: HeyGen has been renamed to LiveAvatar. Use NewLiveAvatarAvatar instead.
-func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar {
-	if opts.APIKey == "" {
-		panic("HeyGenAvatar requires APIKey")
-	}
-	if opts.Quality == "" {
-		panic("HeyGenAvatar requires Quality (low, medium, or high)")
-	}
-	if opts.Quality != "low" && opts.Quality != "medium" && opts.Quality != "high" {
-		panic("HeyGenAvatar Quality must be one of: low, medium, high")
-	}
-	if opts.AgoraUID == "" {
-		panic("HeyGenAvatar requires AgoraUID")
-	}
-	return &HeyGenAvatar{options: opts}
-}
-
-func (h *HeyGenAvatar) RequiredSampleRate() SampleRate {
-	return HeyGenRequiredSampleRate
-}
-
-func (h *HeyGenAvatar) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{}
-	for k, v := range h.options.AdditionalParams {
-		params[k] = v
-	}
-	params["api_key"] = h.options.APIKey
-	params["quality"] = h.options.Quality
-	params["agora_uid"] = h.options.AgoraUID
-	if h.options.AgoraToken != "" {
-		params["agora_token"] = h.options.AgoraToken
-	}
-	if h.options.AvatarID != "" {
-		params["avatar_id"] = h.options.AvatarID
-	}
-	if h.options.DisableIdleTimeout != nil {
-		params["disable_idle_timeout"] = *h.options.DisableIdleTimeout
-	}
-	if h.options.ActivityIdleTimeout != nil {
-		params["activity_idle_timeout"] = *h.options.ActivityIdleTimeout
-	}
-
-	enable := true
-	if h.options.Enable != nil {
-		enable = *h.options.Enable
-	}
-	return map[string]interface{}{
-		"enable": enable,
-		"vendor": "heygen",
-		"params": params,
-	}
-}
-
-type AkoolAvatarOptions struct {
-	APIKey           string
-	AvatarID         string
-	Enable           *bool
-	AdditionalParams map[string]interface{}
-}
-
-type AkoolAvatar struct {
-	options AkoolAvatarOptions
-}
-
-func NewAkoolAvatar(opts AkoolAvatarOptions) *AkoolAvatar {
-	if opts.APIKey == "" {
-		panic("AkoolAvatar requires APIKey")
-	}
-	return &AkoolAvatar{options: opts}
-}
-
-func (a *AkoolAvatar) RequiredSampleRate() SampleRate {
-	return AkoolRequiredSampleRate
-}
-
-func (a *AkoolAvatar) ToConfig() map[string]interface{} {
-	params := map[string]interface{}{}
-	for k, v := range a.options.AdditionalParams {
-		params[k] = v
-	}
-	params["api_key"] = a.options.APIKey
-	if a.options.AvatarID != "" {
-		params["avatar_id"] = a.options.AvatarID
-	}
-	enable := true
-	if a.options.Enable != nil {
-		enable = *a.options.Enable
-	}
-	return map[string]interface{}{
-		"enable": enable,
-		"vendor": "akool",
-		"params": params,
-	}
-}
-
-type LiveAvatarAvatarOptions = HeyGenAvatarOptions
 
 type LiveAvatarAvatar struct {
 	options LiveAvatarAvatarOptions
@@ -171,6 +69,48 @@ func (l *LiveAvatarAvatar) ToConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"enable": enable,
 		"vendor": "liveavatar",
+		"params": params,
+	}
+}
+
+type AkoolAvatarOptions struct {
+	APIKey           string
+	AvatarID         string
+	Enable           *bool
+	AdditionalParams map[string]interface{}
+}
+
+type AkoolAvatar struct {
+	options AkoolAvatarOptions
+}
+
+func NewAkoolAvatar(opts AkoolAvatarOptions) *AkoolAvatar {
+	if opts.APIKey == "" {
+		panic("AkoolAvatar requires APIKey")
+	}
+	return &AkoolAvatar{options: opts}
+}
+
+func (a *AkoolAvatar) RequiredSampleRate() SampleRate {
+	return AkoolRequiredSampleRate
+}
+
+func (a *AkoolAvatar) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{}
+	for k, v := range a.options.AdditionalParams {
+		params[k] = v
+	}
+	params["api_key"] = a.options.APIKey
+	if a.options.AvatarID != "" {
+		params["avatar_id"] = a.options.AvatarID
+	}
+	enable := true
+	if a.options.Enable != nil {
+		enable = *a.options.Enable
+	}
+	return map[string]interface{}{
+		"enable": enable,
+		"vendor": "akool",
 		"params": params,
 	}
 }
@@ -278,6 +218,67 @@ func (g *GenericAvatar) ToConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"enable": enable,
 		"vendor": "generic",
+		"params": params,
+	}
+}
+
+// HeyGenAvatarOptions is deprecated. Use LiveAvatarAvatarOptions instead.
+type HeyGenAvatarOptions = LiveAvatarAvatarOptions
+
+// HeyGenAvatar is deprecated. Use LiveAvatarAvatar instead.
+type HeyGenAvatar struct {
+	options HeyGenAvatarOptions
+}
+
+// NewHeyGenAvatar is deprecated. Use NewLiveAvatarAvatar instead.
+func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar {
+	if opts.APIKey == "" {
+		panic("HeyGenAvatar requires APIKey")
+	}
+	if opts.Quality == "" {
+		panic("HeyGenAvatar requires Quality (low, medium, or high)")
+	}
+	if opts.Quality != "low" && opts.Quality != "medium" && opts.Quality != "high" {
+		panic("HeyGenAvatar Quality must be one of: low, medium, high")
+	}
+	if opts.AgoraUID == "" {
+		panic("HeyGenAvatar requires AgoraUID")
+	}
+	return &HeyGenAvatar{options: opts}
+}
+
+func (h *HeyGenAvatar) RequiredSampleRate() SampleRate {
+	return LiveAvatarRequiredSampleRate
+}
+
+func (h *HeyGenAvatar) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{}
+	for k, v := range h.options.AdditionalParams {
+		params[k] = v
+	}
+	params["api_key"] = h.options.APIKey
+	params["quality"] = h.options.Quality
+	params["agora_uid"] = h.options.AgoraUID
+	if h.options.AgoraToken != "" {
+		params["agora_token"] = h.options.AgoraToken
+	}
+	if h.options.AvatarID != "" {
+		params["avatar_id"] = h.options.AvatarID
+	}
+	if h.options.DisableIdleTimeout != nil {
+		params["disable_idle_timeout"] = *h.options.DisableIdleTimeout
+	}
+	if h.options.ActivityIdleTimeout != nil {
+		params["activity_idle_timeout"] = *h.options.ActivityIdleTimeout
+	}
+
+	enable := true
+	if h.options.Enable != nil {
+		enable = *h.options.Enable
+	}
+	return map[string]interface{}{
+		"enable": enable,
+		"vendor": "heygen",
 		"params": params,
 	}
 }
