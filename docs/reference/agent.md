@@ -469,7 +469,7 @@ Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOf
 ```go
 func GenerateRtcToken(opts GenerateTokenOptions) (string, error)
 func GenerateRtcTokenWithAccount(opts GenerateRtcTokenWithAccountOptions) (string, error)
-func GenerateAvatarRtcToken(opts GenerateAvatarRtcTokenOptions) (string, error)
+func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error)
 ```
 
 ### GenerateTokenOptions
@@ -497,4 +497,4 @@ const (
 )
 ```
 
-`GenerateAvatarRtcToken` uses the same ConvoAI token format as agent tokens and scopes the token to the avatar `AgoraUID`.
+Avatar token automation uses `GenerateConvoAIToken` with the avatar `AgoraUID` as `UID`.

@@ -138,7 +138,7 @@ func (c *AgoraClient) StopAgent(ctx context.Context, agentID string) error {
 			AppID:          c.AppID,
 			AppCertificate: c.AppCertificate,
 			ChannelName:    "stop",
-			Account:        agentID,
+			UID:            0,
 		})
 		if err != nil {
 			return fmt.Errorf("agentkit: failed to generate token for StopAgent: %w", err)

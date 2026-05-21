@@ -25,7 +25,6 @@ AgentKit alignment for Conversational AI v2.7.
 - **`vendors.NewXaiGrok`** — xAI Grok MLLM sessions (`mllm.vendor`: `"xai"`), matching the TypeScript `XaiGrok` shape. `NewXAIGrok` remains as a deprecated alias.
 - **`vendors.NewGenericAvatar` and `IsGenericAvatar`** — Generic avatar wrapper for custom avatar providers.
 - **Avatar parameter enrichment** — Generic avatars get `agora_appid`, `agora_channel`, and `agora_token` from the session when omitted; LiveAvatar and HeyGen get `agora_token` auto-generated when omitted.
-- **`GenerateAvatarRtcToken`** — Advanced avatar token generation. Avatar tokens use the same ConvoAI token format as agent tokens and are scoped to the avatar UID.
 - **`WithGreetingConfigs`** — `llm.greeting_configs`, including v2.7 `interruptable`.
 - **`GetTurnsOptions` and `GetAllTurns`** — Turn pagination helpers. `GetAllTurns` returns the full response with aggregated `Turns`.
 - **Think action constants** — `ThinkOnListeningAction*`, `ThinkOnThinkingAction*`, and `ThinkOnSpeakingAction*` for v2.7 Think actions.

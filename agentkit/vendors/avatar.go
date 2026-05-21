@@ -222,15 +222,21 @@ func (g *GenericAvatar) ToConfig() map[string]interface{} {
 	}
 }
 
-// HeyGenAvatarOptions is deprecated. Use LiveAvatarAvatarOptions instead.
+// HeyGenAvatarOptions is deprecated.
+//
+// Deprecated: Use LiveAvatarAvatarOptions instead.
 type HeyGenAvatarOptions = LiveAvatarAvatarOptions
 
-// HeyGenAvatar is deprecated. Use LiveAvatarAvatar instead.
+// HeyGenAvatar is deprecated.
+//
+// Deprecated: Use LiveAvatarAvatar instead.
 type HeyGenAvatar struct {
 	options HeyGenAvatarOptions
 }
 
-// NewHeyGenAvatar is deprecated. Use NewLiveAvatarAvatar instead.
+// NewHeyGenAvatar is deprecated.
+//
+// Deprecated: Use NewLiveAvatarAvatar instead.
 func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar {
 	if opts.APIKey == "" {
 		panic("HeyGenAvatar requires APIKey")

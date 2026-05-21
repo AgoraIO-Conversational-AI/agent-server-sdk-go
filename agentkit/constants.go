@@ -75,8 +75,14 @@ var (
 // =============================================================================
 
 var (
+	// TurnDetectionTypeAgoraVad uses Agora voice activity detection.
+	TurnDetectionTypeAgoraVad = Agora.StartAgentsRequestPropertiesTurnDetectionTypeAgoraVad
+
 	// TurnDetectionTypeServerVad uses server-side voice activity detection.
 	TurnDetectionTypeServerVad = Agora.StartAgentsRequestPropertiesTurnDetectionTypeServerVad
+
+	// TurnDetectionTypeSemanticVad uses semantic voice activity detection.
+	TurnDetectionTypeSemanticVad = Agora.StartAgentsRequestPropertiesTurnDetectionTypeSemanticVad
 )
 
 // =============================================================================

@@ -108,13 +108,19 @@ func NewXaiGrok(opts XaiGrokOptions) *XaiGrok {
 	return &XaiGrok{options: opts}
 }
 
-// XAIGrokOptions is deprecated. Use XaiGrokOptions instead.
+// XAIGrokOptions is deprecated.
+//
+// Deprecated: Use XaiGrokOptions instead.
 type XAIGrokOptions = XaiGrokOptions
 
-// XAIGrok is deprecated. Use XaiGrok instead.
+// XAIGrok is deprecated.
+//
+// Deprecated: Use XaiGrok instead.
 type XAIGrok = XaiGrok
 
-// NewXAIGrok is deprecated. Use NewXaiGrok instead.
+// NewXAIGrok is deprecated.
+//
+// Deprecated: Use NewXaiGrok instead.
 func NewXAIGrok(opts XAIGrokOptions) *XAIGrok {
 	return NewXaiGrok(opts)
 }

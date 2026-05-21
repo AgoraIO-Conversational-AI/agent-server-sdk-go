@@ -18,15 +18,31 @@ import (
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
 )
 
-type SessionStatus string
+// AgentSessionLifecycle is the local client lifecycle state for AgentSession.
+type AgentSessionLifecycle string
 
 const (
-	StatusIdle     SessionStatus = "idle"
-	StatusStarting SessionStatus = "starting"
-	StatusRunning  SessionStatus = "running"
-	StatusStopping SessionStatus = "stopping"
-	StatusStopped  SessionStatus = "stopped"
-	StatusError    SessionStatus = "error"
+	AgentSessionLifecycleIdle     AgentSessionLifecycle = "idle"
+	AgentSessionLifecycleStarting AgentSessionLifecycle = "starting"
+	AgentSessionLifecycleRunning  AgentSessionLifecycle = "running"
+	AgentSessionLifecycleStopping AgentSessionLifecycle = "stopping"
+	AgentSessionLifecycleStopped  AgentSessionLifecycle = "stopped"
+	AgentSessionLifecycleError    AgentSessionLifecycle = "error"
+)
+
+const (
+	// Deprecated: Use AgentSessionLifecycleIdle.
+	StatusIdle = AgentSessionLifecycleIdle
+	// Deprecated: Use AgentSessionLifecycleStarting.
+	StatusStarting = AgentSessionLifecycleStarting
+	// Deprecated: Use AgentSessionLifecycleRunning.
+	StatusRunning = AgentSessionLifecycleRunning
+	// Deprecated: Use AgentSessionLifecycleStopping.
+	StatusStopping = AgentSessionLifecycleStopping
+	// Deprecated: Use AgentSessionLifecycleStopped.
+	StatusStopped = AgentSessionLifecycleStopped
+	// Deprecated: Use AgentSessionLifecycleError.
+	StatusError = AgentSessionLifecycleError
 )
 
 type EventHandler func(data interface{})
@@ -52,7 +68,7 @@ type AgentSession struct {
 	warn            func(string)
 
 	agentID  string
-	status   SessionStatus
+	status   AgentSessionLifecycle
 	mu       sync.RWMutex
 	handlers map[string][]EventHandler
 }
@@ -121,11 +137,15 @@ func (s *AgentSession) convoAIRequestOpts(ctx context.Context) ([]option.Request
 	if s.appCertificate == "" {
 		return nil, fmt.Errorf("appCertificate is required for app-credentials auth mode; pass AppCertificate when creating AgoraClient")
 	}
+	uid, err := parseNumericUID(s.agentUID, "agent UID")
+	if err != nil {
+		return nil, err
+	}
 	token, err := GenerateConvoAIToken(GenerateConvoAITokenOptions{
 		AppID:          s.appID,
 		AppCertificate: s.appCertificate,
 		ChannelName:    s.channel,
-		Account:        s.agentUID,
+		UID:            uid,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate ConvoAI token for app-credentials auth mode: %w", err)
@@ -141,7 +161,7 @@ func (s *AgentSession) ID() string {
 	return s.agentID
 }
 
-func (s *AgentSession) Status() SessionStatus {
+func (s *AgentSession) Status() AgentSessionLifecycle {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.status
@@ -400,6 +420,18 @@ func (s *AgentSession) Stop(ctx context.Context) error {
 }
 
 func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.SpeakAgentsRequestPriority, interruptable *bool) error {
+	return s.SayWithOptions(ctx, text, &SayOptions{
+		Priority:      priority,
+		Interruptable: interruptable,
+	})
+}
+
+type SayOptions struct {
+	Priority      *Agora.SpeakAgentsRequestPriority
+	Interruptable *bool
+}
+
+func (s *AgentSession) SayWithOptions(ctx context.Context, text string, opts *SayOptions) error {
 	s.mu.RLock()
 	if s.status != StatusRunning {
 		s.mu.RUnlock()
@@ -412,11 +444,13 @@ func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.Spe
 	s.mu.RUnlock()
 
 	req := &Agora.SpeakAgentsRequest{
-		Appid:         s.appID,
-		AgentID:       s.agentID,
-		Text:          text,
-		Priority:      priority,
-		Interruptable: interruptable,
+		Appid:   s.appID,
+		AgentID: s.agentID,
+		Text:    text,
+	}
+	if opts != nil {
+		req.Priority = opts.Priority
+		req.Interruptable = opts.Interruptable
 	}
 
 	reqOpts, err := s.convoAIRequestOpts(ctx)

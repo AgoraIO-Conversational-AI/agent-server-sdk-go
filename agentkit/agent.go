@@ -3,6 +3,7 @@ package agentkit
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
@@ -95,6 +96,10 @@ type SalConfig = Agora.StartAgentsRequestPropertiesSal
 type SalMode = Agora.StartAgentsRequestPropertiesSalSalMode
 type AdvancedFeatures = Agora.StartAgentsRequestPropertiesAdvancedFeatures
 type SessionParams = Agora.StartAgentsRequestPropertiesParameters
+
+// SessionParamsInput is an alias for SessionParams. Use WithAudioScenario for
+// ergonomic audio scenario configuration.
+type SessionParamsInput = SessionParams
 type GeofenceConfig = Agora.StartAgentsRequestPropertiesGeofence
 type RtcConfig = Agora.StartAgentsRequestPropertiesRtc
 type FillerWordsConfig = Agora.StartAgentsRequestPropertiesFillerWords
@@ -256,6 +261,9 @@ type SessionListResponse = Agora.ListAgentsResponse
 
 // SessionSummary is a single entry in a session list response.
 type SessionSummary = Agora.ListAgentsResponseDataListItem
+
+// SessionStatus is the API list-item status returned by session list responses.
+type SessionStatus = Agora.ListAgentsResponseDataListItemStatus
 
 // ConversationHistory is the response from GetHistoryAgents.
 type ConversationHistory = Agora.GetHistoryAgentsResponse
@@ -632,12 +640,15 @@ func (a *Agent) WithFillerWords(fw *FillerWordsConfig) *Agent {
 	return clone
 }
 
-func (a *Agent) Name() string                                  { return a.name }
-func (a *Agent) Instructions() string                          { return a.instructions }
-func (a *Agent) Greeting() string                              { return a.greeting }
-func (a *Agent) LlmConfig() map[string]interface{}             { return a.llm }
-func (a *Agent) TtsConfig() map[string]interface{}             { return a.tts }
-func (a *Agent) SttConfig() map[string]interface{}             { return a.stt }
+func (a *Agent) Name() string                      { return a.name }
+func (a *Agent) Instructions() string              { return a.instructions }
+func (a *Agent) Greeting() string                  { return a.greeting }
+func (a *Agent) LlmConfig() map[string]interface{} { return a.llm }
+func (a *Agent) TtsConfig() map[string]interface{} { return a.tts }
+func (a *Agent) Stt() map[string]interface{}       { return a.stt }
+
+// Deprecated: Use Stt.
+func (a *Agent) SttConfig() map[string]interface{}             { return a.Stt() }
 func (a *Agent) MllmConfig() map[string]interface{}            { return a.mllm }
 func (a *Agent) TtsSampleRate() *vendors.SampleRate            { return a.ttsSampleRate }
 func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate { return a.avatarRequiredSampleRate }
@@ -736,12 +747,15 @@ func (a *Agent) ToPropertiesMap(opts ToPropertiesOptions) (map[string]interface{
 		if opts.AppID == "" || opts.AppCertificate == "" {
 			return nil, fmt.Errorf("either token or app_id+app_certificate must be provided")
 		}
-		var err error
+		uid, err := parseNumericUID(opts.AgentUID, "agent UID")
+		if err != nil {
+			return nil, err
+		}
 		token, err = GenerateConvoAIToken(GenerateConvoAITokenOptions{
 			AppID:          opts.AppID,
 			AppCertificate: opts.AppCertificate,
 			ChannelName:    opts.Channel,
-			Account:        opts.AgentUID,
+			UID:            uid,
 			TokenExpire:    expiry,
 		})
 		if err != nil {
@@ -942,12 +956,16 @@ func (a *Agent) enrichAvatarParams(opts ToPropertiesOptions) (map[string]interfa
 			if opts.AppCertificate == "" {
 				return nil, fmt.Errorf("cannot auto-generate avatar agora_token: appCertificate is required; pass AppCertificate when creating AgoraClient, or set AgoraToken on the avatar vendor")
 			}
-			generated, err := GenerateAvatarRtcToken(GenerateAvatarRtcTokenOptions{
+			uid, err := parseNumericUID(avatarUID, "avatar agora_uid")
+			if err != nil {
+				return nil, err
+			}
+			generated, err := GenerateConvoAIToken(GenerateConvoAITokenOptions{
 				AppID:          opts.AppID,
 				AppCertificate: opts.AppCertificate,
-				Channel:        opts.Channel,
-				UID:            avatarUID,
-				ExpirySeconds:  opts.ExpiresIn,
+				ChannelName:    opts.Channel,
+				UID:            uid,
+				TokenExpire:    opts.ExpiresIn,
 			})
 			if err != nil {
 				return nil, err
@@ -961,6 +979,11 @@ func (a *Agent) enrichAvatarParams(opts ToPropertiesOptions) (map[string]interfa
 
 func IsAvatarTokenManaged(vendor string) bool {
 	return IsHeyGenAvatar(vendor) || IsLiveAvatarAvatar(vendor) || IsGenericAvatar(vendor)
+}
+
+func IsAvatarTokenManagedFromConfig(avatar map[string]interface{}) bool {
+	vendor, _ := avatar["vendor"].(string)
+	return IsAvatarTokenManaged(vendor)
 }
 
 func avatarConfigEnabled(avatar map[string]interface{}) bool {
@@ -1006,6 +1029,14 @@ func avatarUIDString(value interface{}) string {
 	default:
 		return ""
 	}
+}
+
+func parseNumericUID(uid string, label string) (int, error) {
+	value, err := strconv.Atoi(uid)
+	if err != nil {
+		return 0, fmt.Errorf("%s must be a numeric RTC UID when auto-generating a ConvoAI token", label)
+	}
+	return value, nil
 }
 
 type ToPropertiesOptions struct {

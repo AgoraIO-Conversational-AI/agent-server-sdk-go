@@ -3,6 +3,7 @@ package agentkit
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/AgoraIO-Community/go-tokenbuilder/rtctokenbuilder2"
 )
@@ -62,23 +63,15 @@ type GenerateRtcTokenWithAccountOptions struct {
 	ExpirySeconds  int
 }
 
-type GenerateAvatarRtcTokenOptions struct {
-	AppID          string
-	AppCertificate string
-	Channel        string
-	UID            string
-	ExpirySeconds  int
-}
-
 // GenerateConvoAITokenOptions configures ConvoAI REST API token generation.
 // The token is used as: Authorization: agora token=<token>
 type GenerateConvoAITokenOptions struct {
 	AppID           string
 	AppCertificate  string
 	ChannelName     string
-	Account         string // Agent UID as string (e.g. "1001")
-	TokenExpire     int    // Seconds until expiry (default 86400)
-	PrivilegeExpire int    // 0 means same as TokenExpire
+	UID             int // Numeric ConvoAI participant UID for a user, agent, or avatar.
+	TokenExpire     int // Seconds until expiry (default 86400)
+	PrivilegeExpire int // 0 means same as TokenExpire
 }
 
 // GenerateRtcToken builds an RTC token for channel access.
@@ -155,20 +148,6 @@ func GenerateRtcTokenWithAccount(opts GenerateRtcTokenWithAccountOptions) (strin
 	)
 }
 
-// GenerateAvatarRtcToken builds the token used by an avatar publisher.
-//
-// Avatar tokens use the same ConvoAI token format as agent tokens. The token is
-// scoped to the avatar's agora_uid, which should be distinct from the agent UID.
-func GenerateAvatarRtcToken(opts GenerateAvatarRtcTokenOptions) (string, error) {
-	return GenerateConvoAIToken(GenerateConvoAITokenOptions{
-		AppID:          opts.AppID,
-		AppCertificate: opts.AppCertificate,
-		ChannelName:    opts.Channel,
-		Account:        opts.UID,
-		TokenExpire:    opts.ExpirySeconds,
-	})
-}
-
 // GenerateConvoAIToken builds a combined RTC + RTM token for ConvoAI REST API authentication.
 // Use the result as: Authorization: agora token=<token>
 //
@@ -183,8 +162,9 @@ func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error) {
 	if opts.ChannelName == "" {
 		return "", fmt.Errorf("channel_name is required")
 	}
-	if opts.Account == "" {
-		return "", fmt.Errorf("account is required")
+	account := convoAIUIDToAccount(opts.UID)
+	if account == "" {
+		return "", fmt.Errorf("uid is required")
 	}
 	if opts.TokenExpire <= 0 {
 		opts.TokenExpire = DefaultExpirySeconds
@@ -198,9 +178,13 @@ func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error) {
 		opts.AppID,
 		opts.AppCertificate,
 		opts.ChannelName,
-		opts.Account,
+		account,
 		rtctokenbuilder2.RolePublisher,
 		uint32(opts.TokenExpire),
 		uint32(privExpire),
 	)
+}
+
+func convoAIUIDToAccount(uid int) string {
+	return strconv.FormatInt(int64(uid), 10)
 }
