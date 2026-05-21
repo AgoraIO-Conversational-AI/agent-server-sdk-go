@@ -142,7 +142,11 @@ func (o *OpenAI) ToConfig() map[string]interface{} {
 }
 
 type AzureOpenAIOptions struct {
-	APIKey            string
+	APIKey string
+	// Model is the deployment's underlying model name (e.g., "gpt-4o"). Sent in `params.model`
+	// for parity with the TypeScript SDK; Azure ignores the field for chat completions because
+	// the deployment determines the model, but downstream tooling and logs use it.
+	Model             string
 	Endpoint          string
 	DeploymentName    string
 	APIVersion        string
@@ -204,8 +208,11 @@ func (a *AzureOpenAI) ToConfig() map[string]interface{} {
 		"input_modalities": inputMod,
 	}
 
-	// model is the base; explicit Params entries extend it; named fields win.
+	// model is the base; explicit Params entries override it; named fields (temperature/top_p/max_tokens) win.
 	params := map[string]interface{}{}
+	if a.options.Model != "" {
+		params["model"] = a.options.Model
+	}
 	for k, v := range a.options.Params {
 		params[k] = v
 	}
