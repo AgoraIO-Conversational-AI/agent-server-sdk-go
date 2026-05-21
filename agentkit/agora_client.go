@@ -12,6 +12,8 @@ import (
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
 	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/phonenumbers"
+	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/telephony"
 )
 
 // AuthMode represents the authentication mode for the Agora client.
@@ -48,10 +50,13 @@ type AgoraClientOptions struct {
 // AgoraClient wraps the Fern-generated client with AppID, AppCertificate, and
 // auth mode tracking—providing the same client API as the TypeScript and Python SDKs.
 //
-// Agents is the underlying agents REST client and is available for advanced usage.
+// Agents, AgentManagement, Telephony, and PhoneNumbers expose the underlying
+// REST clients for advanced usage.
 type AgoraClient struct {
 	Agents          *agents.Client
 	AgentManagement *agentmanagement.Client
+	Telephony       *telephony.Client
+	PhoneNumbers    *phonenumbers.Client
 	AppID           string
 	AppCertificate  string
 	AuthMode        AuthMode
@@ -101,6 +106,8 @@ func NewAgoraClient(opts AgoraClientOptions) *AgoraClient {
 	return &AgoraClient{
 		Agents:          c.Agents,
 		AgentManagement: c.AgentManagement,
+		Telephony:       c.Telephony,
+		PhoneNumbers:    c.PhoneNumbers,
 		AppID:           opts.AppID,
 		AppCertificate:  opts.AppCertificate,
 		AuthMode:        authMode,
