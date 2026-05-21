@@ -18,6 +18,10 @@ func IsAnamAvatar(vendor string) bool {
 	return vendor == "anam"
 }
 
+func IsGenericAvatar(vendor string) bool {
+	return vendor == "generic"
+}
+
 func ValidateAvatarConfig(vendor string, params map[string]interface{}) error {
 	if IsHeyGenAvatar(vendor) || IsLiveAvatarAvatar(vendor) {
 		label := "HeyGen"
@@ -27,10 +31,10 @@ func ValidateAvatarConfig(vendor string, params map[string]interface{}) error {
 		if params == nil {
 			return fmt.Errorf("%s avatar requires params", label)
 		}
-		if _, ok := params["api_key"]; !ok {
+		if !hasNonEmptyString(params, "api_key") {
 			return fmt.Errorf("%s avatar requires api_key", label)
 		}
-		if q, ok := params["quality"]; !ok {
+		if q, ok := params["quality"]; !ok || !hasNonEmptyString(params, "quality") {
 			return fmt.Errorf("%s avatar requires quality (low, medium, or high)", label)
 		} else {
 			qs, _ := q.(string)
@@ -38,22 +42,38 @@ func ValidateAvatarConfig(vendor string, params map[string]interface{}) error {
 				return fmt.Errorf("invalid quality for %s: %v. Must be one of: low, medium, high", label, q)
 			}
 		}
-		if _, ok := params["agora_uid"]; !ok {
+		if avatarUIDString(params["agora_uid"]) == "" {
 			return fmt.Errorf("%s avatar requires agora_uid", label)
 		}
 	} else if IsAkoolAvatar(vendor) {
 		if params == nil {
 			return fmt.Errorf("Akool avatar requires params")
 		}
-		if _, ok := params["api_key"]; !ok {
+		if !hasNonEmptyString(params, "api_key") {
 			return fmt.Errorf("Akool avatar requires api_key")
 		}
 	} else if IsAnamAvatar(vendor) {
 		if params == nil {
 			return fmt.Errorf("Anam avatar requires params")
 		}
-		if _, ok := params["api_key"]; !ok {
+		if !hasNonEmptyString(params, "api_key") {
 			return fmt.Errorf("Anam avatar requires api_key")
+		}
+	} else if IsGenericAvatar(vendor) {
+		if params == nil {
+			return fmt.Errorf("Generic avatar requires params")
+		}
+		if !hasNonEmptyString(params, "api_key") {
+			return fmt.Errorf("Generic avatar requires api_key")
+		}
+		if !hasNonEmptyString(params, "api_base_url") {
+			return fmt.Errorf("Generic avatar requires api_base_url")
+		}
+		if !hasNonEmptyString(params, "avatar_id") {
+			return fmt.Errorf("Generic avatar requires avatar_id")
+		}
+		if avatarUIDString(params["agora_uid"]) == "" {
+			return fmt.Errorf("Generic avatar requires agora_uid")
 		}
 	}
 	return nil

@@ -53,6 +53,23 @@ type GenerateTokenOptions struct {
 	ExpirySeconds  int
 }
 
+type GenerateRtcTokenWithAccountOptions struct {
+	AppID          string
+	AppCertificate string
+	Channel        string
+	Account        string
+	Role           int
+	ExpirySeconds  int
+}
+
+type GenerateAvatarRtcTokenOptions struct {
+	AppID          string
+	AppCertificate string
+	Channel        string
+	UID            string
+	ExpirySeconds  int
+}
+
 // GenerateConvoAITokenOptions configures ConvoAI REST API token generation.
 // The token is used as: Authorization: agora token=<token>
 type GenerateConvoAITokenOptions struct {
@@ -98,6 +115,58 @@ func GenerateRtcToken(opts GenerateTokenOptions) (string, error) {
 		expiry,
 		expiry,
 	)
+}
+
+// GenerateRtcTokenWithAccount builds an RTC token for a string account.
+func GenerateRtcTokenWithAccount(opts GenerateRtcTokenWithAccountOptions) (string, error) {
+	if opts.AppID == "" {
+		return "", fmt.Errorf("app_id is required")
+	}
+	if opts.AppCertificate == "" {
+		return "", fmt.Errorf("app_certificate is required")
+	}
+	if opts.Channel == "" {
+		return "", fmt.Errorf("channel is required")
+	}
+	if opts.Account == "" {
+		return "", fmt.Errorf("account is required")
+	}
+	if opts.ExpirySeconds <= 0 {
+		opts.ExpirySeconds = DefaultExpirySeconds
+	}
+	if opts.Role == 0 {
+		opts.Role = RolePublisher
+	}
+
+	var role rtctokenbuilder2.Role = rtctokenbuilder2.RolePublisher
+	if opts.Role == RoleSubscriber {
+		role = rtctokenbuilder2.RoleSubscriber
+	}
+
+	expiry := uint32(opts.ExpirySeconds)
+	return rtctokenbuilder2.BuildTokenWithUserAccount(
+		opts.AppID,
+		opts.AppCertificate,
+		opts.Channel,
+		opts.Account,
+		role,
+		expiry,
+		expiry,
+	)
+}
+
+// GenerateAvatarRtcToken builds the token used by an avatar publisher.
+//
+// Avatar tokens use the same ConvoAI token format as agent tokens. The token is
+// scoped to the avatar's agora_uid, which should be distinct from the agent UID.
+func GenerateAvatarRtcToken(opts GenerateAvatarRtcTokenOptions) (string, error) {
+	return GenerateConvoAIToken(GenerateConvoAITokenOptions{
+		AppID:          opts.AppID,
+		AppCertificate: opts.AppCertificate,
+		ChannelName:    opts.Channel,
+		Account:        opts.UID,
+		TokenExpire:    opts.ExpirySeconds,
+	})
 }
 
 // GenerateConvoAIToken builds a combined RTC + RTM token for ConvoAI REST API authentication.
