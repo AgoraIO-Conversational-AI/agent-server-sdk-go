@@ -8,10 +8,10 @@ import (
 	"sync/atomic"
 	"testing"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go"
+	"github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+	"github.com/AgoraIO/agora-agents-go/client"
+	"github.com/AgoraIO/agora-agents-go/option"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

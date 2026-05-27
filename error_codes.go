@@ -3,7 +3,7 @@
 package Agora
 
 import (
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	internal "github.com/AgoraIO/agora-agents-go/internal"
 )
 
 var ErrorCodes internal.ErrorCodes = internal.ErrorCodes{}

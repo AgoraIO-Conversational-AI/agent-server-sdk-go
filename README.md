@@ -1,6 +1,6 @@
-# Agoraio Go Library
+# Agora Agents Go
 
-[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-server-sdk-go)
+[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO%2Fagora-agents-go)
 
 The Agora Conversational AI SDK provides convenient access to the Agora Conversational AI APIs, 
 enabling you to build voice-powered AI agents with support for both cascading flows (ASR -> LLM -> TTS) 
@@ -36,7 +36,7 @@ and multimodal flows (MLLM) for real-time audio processing.
 
 ```sh
 go mod init example.com/voice-agent
-go get github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
+go get github.com/AgoraIO/agora-agents-go
 ```
 
 ## Quick Start
@@ -52,9 +52,9 @@ import (
     "os"
     "time"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 const (
@@ -225,7 +225,7 @@ API reference documentation is available [here](https://docs.agora.io/en/convers
 
 ## Reference
 
-A full reference for this library is available [here](https://github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/blob/HEAD/./reference.md).
+A full reference for this library is available [here](https://github.com/AgoraIO/agora-agents-go/blob/HEAD/./reference.md).
 
 ## MLLM Flow (Multimodal)
 
@@ -300,9 +300,9 @@ Instantiate and use the client with the following:
 package example
 
 import (
-    client "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+    client "github.com/AgoraIO/agora-agents-go/client"
+    option "github.com/AgoraIO/agora-agents-go/option"
+    Agora "github.com/AgoraIO/agora-agents-go"
     context "context"
 )
 

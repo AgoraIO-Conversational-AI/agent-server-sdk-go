@@ -86,7 +86,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [v1.0.0] — 2026-03-11
 
-Initial stable release of the Agora Agent Server SDK for Go.
+Initial stable release of Agora Agents Go.
 
 ### Added
 

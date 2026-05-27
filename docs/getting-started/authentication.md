@@ -16,8 +16,8 @@ Create `AgoraClient` with `AppID` and `AppCertificate`, then let `AgentSession` 
 package main
 
 import (
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {

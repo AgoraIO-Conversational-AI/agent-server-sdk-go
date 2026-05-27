@@ -30,7 +30,7 @@ The Agora Conversational AI Go SDK lets you build voice-powered AI agents on the
 ## Installation
 
 ```sh
-go get github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
+go get github.com/AgoraIO/agora-agents-go
 ```
 
 Requires Go 1.21 or later.

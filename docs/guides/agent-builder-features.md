@@ -33,9 +33,9 @@ SAL helps the agent focus on the primary speaker and suppress background noise. 
 
 ```go
 import (
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
+    Agora "github.com/AgoraIO/agora-agents-go"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
 )
 
 agent := agentkit.NewAgent(
@@ -123,7 +123,7 @@ agent := agentkit.NewAgent().
 Restrict which geographic regions the backend can use:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithGeofence(&agentkit.GeofenceConfig{
@@ -228,10 +228,10 @@ import (
     "context"
     "log"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    Agora "github.com/AgoraIO/agora-agents-go"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {

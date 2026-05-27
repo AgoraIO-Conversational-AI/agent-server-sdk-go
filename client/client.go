@@ -3,13 +3,13 @@
 package client
 
 import (
-	agentmanagement "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
-	agents "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
-	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
-	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-	phonenumbers "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/phonenumbers"
-	telephony "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/telephony"
+	agentmanagement "github.com/AgoraIO/agora-agents-go/agentmanagement"
+	agents "github.com/AgoraIO/agora-agents-go/agents"
+	core "github.com/AgoraIO/agora-agents-go/core"
+	internal "github.com/AgoraIO/agora-agents-go/internal"
+	option "github.com/AgoraIO/agora-agents-go/option"
+	phonenumbers "github.com/AgoraIO/agora-agents-go/phonenumbers"
+	telephony "github.com/AgoraIO/agora-agents-go/telephony"
 )
 
 type Client struct {

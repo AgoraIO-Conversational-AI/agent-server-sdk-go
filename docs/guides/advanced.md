@@ -16,8 +16,8 @@ package main
 import (
     "net/http"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {
@@ -42,7 +42,7 @@ Use `option.WithQueryParameters`:
 import (
     "net/url"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 params := url.Values{}
@@ -82,7 +82,7 @@ import (
     "context"
     "time"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
+    "github.com/AgoraIO/agora-agents-go/client"
 )
 
 func main() {
@@ -104,8 +104,8 @@ import (
     "net/http"
     "time"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 c := client.NewClient(
@@ -166,8 +166,8 @@ import (
     "net/http"
     "net/url"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 proxyURL, _ := url.Parse("http://my.proxy.example.com:8080")

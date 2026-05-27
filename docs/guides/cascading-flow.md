@@ -18,9 +18,9 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {
@@ -87,9 +87,9 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {
@@ -160,7 +160,7 @@ _, err := agent.ToProperties(agentkit.ToPropertiesOptions{...})
 Add server-side voice activity detection to control when the agent starts processing:
 
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 agent := agentkit.NewAgent(
     agentkit.WithName("vad-agent"),
