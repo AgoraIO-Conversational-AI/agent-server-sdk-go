@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	"github.com/AgoraIO/agora-agents-go/client"
+	"github.com/AgoraIO/agora-agents-go/option"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -5,7 +5,7 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	internal "github.com/AgoraIO/agora-agents-go/internal"
 	big "math/big"
 )
 

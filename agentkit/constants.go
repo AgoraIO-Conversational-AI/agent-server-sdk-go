@@ -1,6 +1,6 @@
 package agentkit
 
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 // =============================================================================
 // SAL mode constants

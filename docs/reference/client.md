@@ -18,8 +18,8 @@ Creates a new API client. All sub-clients share the same configuration.
 <!-- snippet: fragment -->
 ```go
 import (
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 c := client.NewClient(
@@ -36,7 +36,7 @@ c := client.NewClient(
 | `c.Telephony` | `*telephony.Client` | Telephony operations (call, hangup) |
 | `c.PhoneNumbers` | `*phonenumbers.Client` | Phone number management |
 
-All sub-client methods take `context.Context` as their first argument. See the [generated reference](https://github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/blob/HEAD/./reference.md) for full method signatures.
+All sub-client methods take `context.Context` as their first argument. See the [generated reference](https://github.com/AgoraIO/agora-agents-go/blob/HEAD/./reference.md) for full method signatures.
 
 ## Request Options
 
@@ -87,7 +87,7 @@ Overrides the default API endpoint.
 
 <!-- snippet: fragment -->
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 c := client.NewClient(
     option.WithBaseURL(Agora.Environments.Default),
@@ -197,7 +197,7 @@ option.AreaUnknown // Default
 
 <!-- snippet: fragment -->
 ```go
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 Agora.Environments.Default  // "https://api.agora.io/api/conversational-ai-agent"
 ```

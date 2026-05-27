@@ -1,4 +1,4 @@
-module github.com/AgoraIO-Conversational-AI/agent-server-sdk-go
+module github.com/AgoraIO/agora-agents-go
 
 go 1.21
 

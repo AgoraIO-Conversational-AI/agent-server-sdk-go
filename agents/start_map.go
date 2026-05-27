@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go"
+	"github.com/AgoraIO/agora-agents-go/core"
+	"github.com/AgoraIO/agora-agents-go/internal"
+	"github.com/AgoraIO/agora-agents-go/option"
 )
 
 // StartWithMapBody starts an agent using an exact JSON body.

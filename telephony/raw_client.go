@@ -4,10 +4,10 @@ package telephony
 
 import (
 	context "context"
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
-	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go"
+	core "github.com/AgoraIO/agora-agents-go/core"
+	internal "github.com/AgoraIO/agora-agents-go/internal"
+	option "github.com/AgoraIO/agora-agents-go/option"
 	http "net/http"
 )
 

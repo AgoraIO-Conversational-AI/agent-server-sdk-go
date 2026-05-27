@@ -25,6 +25,7 @@ AgentKit alignment for Conversational AI v2.7.
 
 ### Changed
 
+- **Repository and module path** — The public repo is now [`AgoraIO/agora-agents-go`](https://github.com/AgoraIO/agora-agents-go) (formerly `agora-agents-server-go` / `AgoraIO-Conversational-AI/agent-server-sdk-go`). Update imports to `github.com/AgoraIO/agora-agents-go`.
 - **ConvoAI token options** — `GenerateConvoAIToken()` now accepts an integer `UID` and handles the internal token string conversion for users, agents, and avatars.
 - **Avatar token generation** — Removed the dedicated `GenerateAvatarRtcToken()` wrapper; avatar RTC tokens use the existing ConvoAI token helper.
 - **Session lifecycle naming** — Renamed the AgentKit lifecycle type to `AgentSessionLifecycle`; `SessionStatus` is now the generated API status alias.
@@ -146,7 +147,7 @@ AgentKit alignment for Conversational AI v2.7.
 
 ## [v1.0.0] — 2026-03-11
 
-Initial stable release of the Agora Agent Server SDK for Go.
+Initial stable release of Agora Agents Go.
 
 ### Added
 

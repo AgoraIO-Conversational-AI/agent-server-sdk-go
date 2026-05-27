@@ -1,6 +1,6 @@
 package vendors
 
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go"
 
 type OpenAIRealtimeOptions struct {
 	APIKey           string

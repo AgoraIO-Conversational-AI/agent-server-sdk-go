@@ -68,9 +68,9 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {

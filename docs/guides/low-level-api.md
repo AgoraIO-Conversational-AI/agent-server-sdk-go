@@ -24,10 +24,10 @@ import (
     "context"
     "log"
 
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    Agora "github.com/AgoraIO/agora-agents-go"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
+    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/option"
 )
 
 func main() {

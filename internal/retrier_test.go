@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	"github.com/AgoraIO/agora-agents-go/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
