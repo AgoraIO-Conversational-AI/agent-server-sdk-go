@@ -6,7 +6,7 @@ description: Add visual avatars to your agent with token handling and sample rat
 
 # Avatars
 
-Avatars provide a visual representation of your AI agent. The SDK supports HeyGen, LiveAvatar, Akool, Anam, and Generic avatar integrations. Avatar sessions currently require the cascading ASR/LLM/TTS pipeline; MLLM sessions do not support avatars. Vendors that publish an Agora video stream use a separate avatar UID and token from the voice agent.
+Avatars provide a visual representation of your AI agent. The SDK supports LiveAvatar, Generic Avatar, Anam, Akool, and deprecated HeyGen integrations. Avatar sessions currently require the cascading ASR/LLM/TTS pipeline; MLLM sessions do not support avatars. Vendors that publish an Agora video stream use a separate avatar UID and token from the voice agent.
 
 ## Agent Token vs Avatar Token
 
@@ -58,7 +58,7 @@ agent := agentkit.NewAgent(
 
 For Generic avatars, `agora_appid`, `agora_channel`, and `agora_token` are filled from the session when omitted. For LiveAvatar and HeyGen, AgentKit auto-generates only `agora_token` when `agora_uid` is set and `agora_token` is omitted.
 
-## HeyGen Avatar Example
+## LiveAvatar Example
 
 ```go
 package main
@@ -91,7 +91,7 @@ func main() {
             APIKey: "<openai_key>",
         }),
     ).WithTts(
-        // TTS sample rate MUST match the avatar's required rate (24kHz for HeyGen)
+        // TTS sample rate MUST match the avatar's required rate (24kHz for LiveAvatar).
         vendors.NewElevenLabsTTS(vendors.ElevenLabsTTSOptions{
             Key:        "<elevenlabs_key>",
             ModelID:    "eleven_turbo_v2_5",
@@ -103,8 +103,8 @@ func main() {
             APIKey: "<deepgram_key>",
         }),
     ).WithAvatar(
-        vendors.NewHeyGenAvatar(vendors.HeyGenAvatarOptions{
-            APIKey:   "<heygen_key>",
+        vendors.NewLiveAvatarAvatar(vendors.LiveAvatarAvatarOptions{
+            APIKey:   "<liveavatar_key>",
             Quality:  "high",
             AgoraUID: "2001",
         }),
@@ -190,9 +190,9 @@ agent := agentkit.NewAgent(...).
         Key:        "<key>",
         ModelID:    "<model>",
         VoiceID:    "<voice>",
-        SampleRate: &sr,           // 24kHz for HeyGen
+        SampleRate: &sr,           // 24kHz for LiveAvatar
     })).
-    WithAvatar(vendors.NewHeyGenAvatar(vendors.HeyGenAvatarOptions{
+    WithAvatar(vendors.NewLiveAvatarAvatar(vendors.LiveAvatarAvatarOptions{
         APIKey:   "<key>",
         Quality:  "high",
         AgoraUID: "2001",
@@ -200,7 +200,7 @@ agent := agentkit.NewAgent(...).
 ```
 
 ```go
-// Wrong: This panics — TTS is 16kHz but HeyGen requires 24kHz
+// Wrong: This panics because TTS is 16kHz but LiveAvatar requires 24kHz.
 sr := vendors.SampleRate16kHz
 agent := agentkit.NewAgent(...).
     WithTts(vendors.NewElevenLabsTTS(vendors.ElevenLabsTTSOptions{
@@ -209,7 +209,7 @@ agent := agentkit.NewAgent(...).
         VoiceID:    "<voice>",
         SampleRate: &sr,           // 16kHz — mismatch!
     })).
-    WithAvatar(vendors.NewHeyGenAvatar(vendors.HeyGenAvatarOptions{
+    WithAvatar(vendors.NewLiveAvatarAvatar(vendors.LiveAvatarAvatarOptions{
         APIKey:   "<key>",
         Quality:  "high",
         AgoraUID: "2001",
@@ -221,17 +221,19 @@ agent := agentkit.NewAgent(...).
 
 `AgentSession.Start()` also validates the sample rate match before making the API call. If the mismatch was introduced after `WithAvatar()` (e.g., by cloning the agent with a different TTS), `Start()` returns an error instead of panicking.
 
-## HeyGenAvatarOptions Fields
+## LiveAvatarAvatarOptions Fields
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `APIKey` | `string` | Yes | HeyGen API key |
+| `APIKey` | `string` | Yes | LiveAvatar API key |
 | `Quality` | `string` | Yes | `"low"`, `"medium"`, or `"high"` |
 | `AgoraUID` | `string` | Yes | UID for the avatar's video stream |
-| `AvatarName` | `string` | No | Specific avatar model name |
-| `VoiceID` | `string` | No | Override voice for the avatar |
-| `Language` | `string` | No | Language code |
-| `Version` | `string` | No | API version |
+| `AgoraToken` | `string` | No | Avatar token. Auto-generated when omitted. |
+| `AvatarID` | `string` | No | LiveAvatar avatar ID |
+| `Enable` | `*bool` | No | Enable or disable the avatar |
+| `DisableIdleTimeout` | `*bool` | No | Disable the idle timeout |
+| `ActivityIdleTimeout` | `*int` | No | Idle timeout in seconds |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ## AkoolAvatarOptions Fields
 

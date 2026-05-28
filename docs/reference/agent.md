@@ -427,7 +427,7 @@ type ToPropertiesOptions struct {
 | `ExpiresIn` | `int` | Token lifetime in seconds (default: `86400` = 24 h, Agora max). Use `ExpiresInHours()` / `ExpiresInMinutes()` for clarity. Valid range: 1–86400. |
 | `IdleTimeout` | `*int` | Session idle timeout |
 | `EnableStringUID` | `*bool` | Enable string UID mode |
-| `SkipVendorValidation` | `bool` | Allow preset or pipeline-backed starts without explicit LLM/TTS |
+| `SkipVendorValidation` | `bool` | Advanced feature flag for pipeline-backed starts without explicit LLM/TTS |
 | `Warn` | `func(string)` | Warning sink for recoverable config issues |
 
 ## Type Aliases

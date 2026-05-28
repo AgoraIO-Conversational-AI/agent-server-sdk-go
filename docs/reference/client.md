@@ -18,13 +18,15 @@ Creates a new API client. All sub-clients share the same configuration.
 <!-- snippet: fragment -->
 ```go
 import (
-    "github.com/AgoraIO/agora-agents-go/client"
+    "github.com/AgoraIO/agora-agents-go/agentkit"
     "github.com/AgoraIO/agora-agents-go/option"
 )
 
-c := client.NewClient(
-    option.WithToken("<your_rest_auth_token>"),
-)
+c := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+    Area:           option.AreaUS,
+    AppID:          "your-app-id",
+    AppCertificate: "your-app-certificate",
+})
 ```
 
 ## Sub-Clients
@@ -40,41 +42,7 @@ All sub-client methods take `context.Context` as their first argument. See the [
 
 ## Request Options
 
-Request options configure authentication, transport, and retry behavior. They can be set at client creation (applied to all requests) or per-request.
-
-### option.WithToken
-
-<!-- snippet: fragment -->
-```go
-func WithToken(token string) *core.TokenOption
-```
-
-Sets a bearer token for authentication. This is the recommended option for new integrations and matches the onboarding guides.
-
-<!-- snippet: fragment -->
-```go
-c := client.NewClient(
-    option.WithToken("<your_rest_auth_token>"),
-)
-```
-
-### option.WithBasicAuth
-
-<!-- snippet: fragment -->
-```go
-func WithBasicAuth(username, password string) *core.BasicAuthOption
-```
-
-Sets the `Authorization: Basic <base64>` header using your Agora Customer ID and Customer Secret.
-
-Use this only when you explicitly want Basic Auth. It is still supported by the client, but token auth is the preferred path in the narrative docs and quick starts.
-
-<!-- snippet: fragment -->
-```go
-c := client.NewClient(
-    option.WithBasicAuth("<customer_id>", "<customer_secret>"),
-)
-```
+Request options configure transport, retries, and advanced authentication behavior. For new session integrations, prefer `agentkit.NewAgoraClient` with `AppID` and `AppCertificate`; AgentKit mints ConvoAI REST auth and RTC join tokens when session methods run.
 
 ### option.WithBaseURL
 

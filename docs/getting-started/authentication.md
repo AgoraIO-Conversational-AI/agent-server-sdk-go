@@ -35,14 +35,11 @@ func main() {
 
 - The SDK handles ConvoAI REST auth and RTC join token generation for you.
 - Your onboarding code stays focused on agent behavior instead of auth plumbing.
-- Your quick start code stays vendor-key free when you use presets.
+- Your quick start code stays vendor-key free when you use supported Agora-managed models.
 
-## Other supported modes
+## Legacy auth modes
 
-The SDK also supports pre-built token auth and Basic Auth, but they are intentionally not the default onboarding path.
-
-- Pre-built token auth exists for advanced or testing-specific cases.
-- Basic Auth is supported for legacy integrations and account-level workflows.
+The generated low-level client still contains legacy auth hooks for prebuilt REST tokens and HTTP Basic Auth. Do not use those for new session integrations. Use app credentials so AgentKit can mint short-lived ConvoAI REST auth and RTC join tokens for each session.
 
 ## Inspecting the resolved auth mode
 

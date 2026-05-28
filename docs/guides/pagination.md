@@ -6,46 +6,27 @@ description: Iterate over paginated list endpoints.
 
 # Pagination
 
-List endpoints such as `client.Agents.List` and `client.Telephony.List` return a `*core.Page` that you can iterate over.
+Generated list endpoints such as `client.Agents.List` and `client.Telephony.List` return a `*core.Page` that you can iterate over. For agent conversation turns, prefer the AgentKit helpers on `AgentSession`.
 
 ## Iterating Over All Items
 
 Use the `Iterator()` method to loop over all items across pages:
 
 ```go
-package main
+page, err := c.Agents.List(ctx, &Agora.ListAgentsRequest{
+    Appid: "your_app_id",
+})
+if err != nil {
+    log.Fatal(err)
+}
 
-import (
-    "context"
-    "fmt"
-    "log"
-
-    Agora "github.com/AgoraIO/agora-agents-go"
-    "github.com/AgoraIO/agora-agents-go/client"
-    "github.com/AgoraIO/agora-agents-go/option"
-)
-
-func main() {
-    c := client.NewClient(
-        option.WithToken("<your_rest_auth_token>"),
-    )
-
-    ctx := context.Background()
-    page, err := c.Agents.List(ctx, &Agora.ListAgentsRequest{
-        Appid: "your_app_id",
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    iter := page.Iterator()
-    for iter.Next(ctx) {
-        item := iter.Current()
-        fmt.Println(item)
-    }
-    if iter.Err() != nil {
-        log.Fatal(iter.Err())
-    }
+iter := page.Iterator()
+for iter.Next(ctx) {
+    item := iter.Current()
+    fmt.Println(item)
+}
+if iter.Err() != nil {
+    log.Fatal(iter.Err())
 }
 ```
 

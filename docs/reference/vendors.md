@@ -62,13 +62,13 @@ type Avatar interface {
 func NewOpenAI(opts OpenAIOptions) *OpenAI
 ```
 
-Panics if `APIKey` is empty unless `Model` is one of the supported preset-backed OpenAI models (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-5-nano`, `gpt-5-mini`) and `BaseURL` / `Vendor` are not set.
+Panics if `APIKey` is empty unless `Model` is one of the supported Agora-managed OpenAI models (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-5-nano`, `gpt-5-mini`) and `BaseURL` / `Vendor` are not set.
 
 #### OpenAIOptions
 
 | Field             | Type                       | Required | Default                                        | Description             |
 | ----------------- | -------------------------- | -------- | ---------------------------------------------- | ----------------------- |
-| `APIKey`          | `string`                   | No       | —                                              | OpenAI API key. Optional for supported preset-backed OpenAI models. |
+| `APIKey`          | `string`                   | No       | —                                              | OpenAI API key. Optional for supported Agora-managed OpenAI models. |
 | `Model`           | `string`                   | No       | `"gpt-4o-mini"`                                | Model identifier        |
 | `BaseURL`         | `string`                   | No       | `"https://api.openai.com/v1/chat/completions"` | API endpoint            |
 | `Temperature`     | `*float64`                 | No       | —                                              | Sampling temperature    |
@@ -222,13 +222,13 @@ Panics if `Key`, `Region`, or `VoiceName` is empty.
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS
 ```
 
-Panics if `Voice` is empty. `APIKey` is optional for the preset-backed `tts-1` path. Always returns `SampleRate24kHz` from `GetSampleRate()`.
+Panics if `Voice` is empty. `APIKey` is optional for the Agora-managed `tts-1` path. Always returns `SampleRate24kHz` from `GetSampleRate()`.
 
 #### OpenAITTSOptions
 
 | Field            | Type       | Required | Description                        |
 | ---------------- | ---------- | -------- | ---------------------------------- |
-| `APIKey`         | `string`   | No       | OpenAI API key. Optional for the preset-backed `tts-1` path. |
+| `APIKey`         | `string`   | No       | OpenAI API key. Optional for the Agora-managed `tts-1` path. |
 | `Voice`          | `string`   | Yes      | Voice name                         |
 | `Model`          | `string`   | No       | Model identifier                   |
 | `ResponseFormat` | `string`   | No       | Audio format (e.g., `"pcm"`)       |
@@ -373,13 +373,13 @@ Panics if `Key` or `ReferenceID` is empty.
 func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS
 ```
 
-Panics if `Model` is empty. `Key` is optional for supported preset-backed MiniMax models (`speech-2.6-turbo`, `speech_2_6_turbo`, `speech-2.8-turbo`, `speech_2_8_turbo`). BYOK still requires `Key` and `GroupID`, and preset-backed mode must not set `GroupID`, `VoiceID`, or `URL`.
+Panics if `Model` is empty. `Key` is optional for supported Agora-managed MiniMax models (`speech-2.6-turbo`, `speech_2_6_turbo`, `speech-2.8-turbo`, `speech_2_8_turbo`). BYOK still requires `Key` and `GroupID`, and Agora-managed mode must not set `GroupID`, `VoiceID`, or `URL`.
 
 #### MiniMaxTTSOptions
 
 | Field          | Type     | Required | Description                               |
 | -------------- | -------- | -------- | ----------------------------------------- |
-| `Key`          | `string` | No       | MiniMax API key. Optional for supported preset-backed MiniMax models. |
+| `Key`          | `string` | No       | MiniMax API key. Optional for supported Agora-managed MiniMax models. |
 | `GroupID`      | `string` | No       | MiniMax group ID. Required for BYOK.      |
 | `Model`        | `string` | Yes      | Model name (e.g., `speech-02-turbo`)      |
 | `VoiceID`      | `string` | No       | Voice style identifier. BYOK only.        |
@@ -707,26 +707,26 @@ func NewVertexAI(opts VertexAIOptions) *VertexAI
 
 ## Avatar Vendors
 
-### NewHeyGenAvatar
+### NewLiveAvatarAvatar
 
 <!-- snippet: fragment -->
 ```go
-func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar
+func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
 ```
 
 Panics if `APIKey` or `AgoraUID` is empty, or if `Quality` is not one of `"low"`, `"medium"`, `"high"`.
 
 Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
 
-#### HeyGenAvatarOptions
+#### LiveAvatarAvatarOptions
 
 | Field                 | Type     | Required | Description                                      |
 | --------------------- | -------- | -------- | ------------------------------------------------ |
-| `APIKey`              | `string` | Yes      | HeyGen API key                                   |
+| `APIKey`              | `string` | Yes      | LiveAvatar API key                               |
 | `Quality`             | `string` | Yes      | `"low"`, `"medium"`, or `"high"`                 |
 | `AgoraUID`            | `string` | Yes      | UID for avatar's video stream                    |
 | `AgoraToken`          | `string` | No       | Avatar Agora token. Auto-generated when omitted. |
-| `AvatarID`            | `string` | No       | HeyGen avatar ID                                 |
+| `AvatarID`            | `string` | No       | LiveAvatar avatar ID                             |
 | `Enable`              | `*bool`  | No       | Enable or disable the avatar (default: `true`)   |
 | `DisableIdleTimeout`  | `*bool`  | No       | Disable the idle timeout                         |
 | `ActivityIdleTimeout` | `*int`   | No       | Idle timeout in seconds (default: 120)           |
@@ -751,16 +751,14 @@ Required TTS sample rate: **16kHz** (`SampleRate16kHz`)
 | `Enable`           | `*bool`                  | No       | Enable or disable the avatar |
 | `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
-### NewLiveAvatarAvatar
+### NewHeyGenAvatar (deprecated)
 
 <!-- snippet: fragment -->
 ```go
-func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
+func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar
 ```
 
-Panics if `APIKey` or `AgoraUID` is empty, or if `Quality` is not one of `"low"`, `"medium"`, `"high"`.
-
-Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
+Deprecated alias for the LiveAvatar-compatible avatar shape. Use `NewLiveAvatarAvatar` for new integrations.
 
 ### NewAnamAvatar
 
@@ -803,7 +801,6 @@ Generic avatars do not enforce a fixed TTS sample rate. Use the sample rate requ
 <!-- snippet: fragment -->
 ```go
 const (
-    HeyGenRequiredSampleRate = SampleRate24kHz  // 24000 Hz
     LiveAvatarRequiredSampleRate = SampleRate24kHz
     AkoolRequiredSampleRate  = SampleRate16kHz  // 16000 Hz
 )

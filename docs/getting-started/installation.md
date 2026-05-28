@@ -62,3 +62,9 @@ go run main.go
 
 - [Authentication](./authentication.md) — configure your credentials
 - [Quick Start](./quick-start.md) — build your first conversational agent
+
+## Migrating from a previous module path
+
+In v2.0.0 the Go module and repository moved to `github.com/AgoraIO/agora-agents-go` ([AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-agents-go)). Replace `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go` in `go.mod` and in all import paths, then run `go mod tidy`.
+
+For the full change list, see [changelog — v2.0.0](../../changelog.md#v200--2026-05-21).

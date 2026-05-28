@@ -13,11 +13,9 @@ The MLLM flow uses a single multimodal model to process audio input and generate
 Call `WithMllm(vendor)` to enable MLLM mode. The builder sets `mllm.enable = true` automatically.
 
 ```go
-import Agora "github.com/AgoraIO/agora-agents-go"
-
 agent := agentkit.NewAgent(
     agentkit.WithName("realtime-agent"),
-)
+).WithMllm(vendor)
 ```
 
 ## OpenAI Realtime Example
@@ -113,38 +111,9 @@ agent := agentkit.NewAgent(
 )
 ```
 
-## Using the Raw Client
+## Low-Level Usage
 
-You can also use MLLM mode directly with the Fern-generated client without the agentkit package:
-
-```go
-c.Agents.Start(
-    context.Background(),
-    &Agora.StartAgentsRequest{
-        Appid: "<app_id>",
-        Name:  "mllm_agent",
-        Properties: &Agora.StartAgentsRequestProperties{
-            Channel:       "channel_name",
-            Token:         "<token>",
-            AgentRtcUID:   "1001",
-            RemoteRtcUIDs: []string{"1002"},
-            IdleTimeout:   Agora.Int(120),
-            Mllm: &Agora.StartAgentsRequestPropertiesMllm{
-                Enable: Agora.Bool(true),
-                URL:    Agora.String("wss://api.openai.com/v1/realtime"),
-                APIKey: Agora.String("<openai_key>"),
-                Vendor: Agora.StartAgentsRequestPropertiesMllmVendorOpenai,
-                Params: map[string]any{
-                    "model": "gpt-4o-realtime-preview",
-                    "voice": "alloy",
-                },
-                InputModalities:  []string{"audio"},
-                OutputModalities: []string{"text", "audio"},
-            },
-        },
-    },
-)
-```
+Use AgentKit for MLLM session starts. It keeps the app-credentials flow intact and generates the required REST and RTC tokens from `AppID` and `AppCertificate`. See [Low-Level API](./low-level-api.md) for generated-client escape hatches that are outside the realtime session lifecycle.
 
 ## Pointer Helper Functions
 

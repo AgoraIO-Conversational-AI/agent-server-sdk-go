@@ -61,7 +61,7 @@ if errors.As(err, &apiErr) {
     if json.Unmarshal([]byte(apiErr.Unwrap().Error()), &body) == nil {
         switch body.Reason {
         case "invalid_vendor_config":
-            // Prompt the user to verify vendor credentials or preset fields.
+            // Prompt the user to verify vendor credentials or model fields.
         case "token_expired":
             // Regenerate the session or avatar token and retry.
         }

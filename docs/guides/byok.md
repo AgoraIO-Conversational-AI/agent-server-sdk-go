@@ -6,11 +6,11 @@ description: Bring your own vendor credentials and use custom vendor configurati
 
 # BYOK
 
-Use BYOK when you want to provide vendor credentials yourself instead of relying on Agora-managed presets.
+Use BYOK when you want to provide vendor credentials yourself instead of using Agora-managed models.
 
 Typical reasons:
 
-- you need a vendor model that is not part of the preset catalog
+- you need a vendor model that is not part of the Agora-managed catalog
 - you want to point to a custom endpoint
 - you want direct control over vendor-specific parameters
 - your organization manages vendor billing separately from Agora
@@ -80,7 +80,7 @@ func main() {
 }
 ```
 
-## Presets vs BYOK
+## Agora-managed models vs BYOK
 
-- Presets: fastest path, no vendor keys in app code
+- Agora-managed models: fastest path, no vendor keys in app code
 - BYOK: most control, your keys and your vendor configuration
