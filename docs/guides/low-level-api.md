@@ -30,8 +30,8 @@ Use these when you need REST API operations outside the AgentKit session lifecyc
 package main
 
 import (
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    "github.com/AgoraIO/agora-agents-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {
@@ -62,7 +62,7 @@ if err := client.StopAgent(ctx, agentID); err != nil {
 Generated request and response types are still useful for strongly typed values, pointer helpers, and advanced payload construction. The root package exposes helpers such as `Agora.String`, `Agora.Bool`, `Agora.Int`, and `Agora.Float64` for optional fields.
 
 ```go
-import Agora "github.com/AgoraIO/agora-agents-go"
+import Agora "github.com/AgoraIO/agora-agents-go/v2"
 
 idleTimeout := Agora.Int(120)
 greeting := Agora.String("Hello! How can I help?")

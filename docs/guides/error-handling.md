@@ -17,7 +17,7 @@ import (
     "log"
     "net/http"
 
-    core "github.com/AgoraIO/agora-agents-go/core"
+    core "github.com/AgoraIO/agora-agents-go/v2/core"
 )
 
 func main() {

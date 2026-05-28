@@ -8,7 +8,7 @@ description: Introduction to the Agora Conversational AI Go SDK — architecture
 
 The Agora Conversational AI Go SDK lets you build voice-powered AI agents on the [Agora Conversational AI](https://docs.agora.io/en/conversational-ai/overview) platform.
 
-Source: [github.com/AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-agents-go) — module `github.com/AgoraIO/agora-agents-go`.
+Source: [github.com/AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-agents-go) — module `github.com/AgoraIO/agora-agents-go/v2`.
 
 ## Conversation flows
 
@@ -32,7 +32,7 @@ Source: [github.com/AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-ag
 ## Installation
 
 ```sh
-go get github.com/AgoraIO/agora-agents-go
+go get github.com/AgoraIO/agora-agents-go/v2@v2.0.0
 ```
 
 Requires Go 1.21 or later.

@@ -6,7 +6,7 @@ description: Complete API reference for all vendor constructors and configuratio
 
 # Vendors Reference
 
-Package: `github.com/AgoraIO/agora-agents-go/agentkit/vendors`
+Package: `github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors`
 
 ## SampleRate
 

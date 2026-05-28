@@ -13,7 +13,7 @@ description: Install the Agora Conversational AI Go SDK and configure your proje
 ## Install
 
 ```sh
-go get github.com/AgoraIO/agora-agents-go
+go get github.com/AgoraIO/agora-agents-go/v2@v2.0.0
 ```
 
 ## Import Paths
@@ -22,19 +22,19 @@ The SDK is organized into several packages. Import the ones you need:
 
 ```go
 // Root package — type definitions, pointer helpers (Agora.String(), Agora.Bool(), etc.), environments
-Agora "github.com/AgoraIO/agora-agents-go"
+Agora "github.com/AgoraIO/agora-agents-go/v2"
 
 // Fern-generated client — low-level API access
-"github.com/AgoraIO/agora-agents-go/client"
+"github.com/AgoraIO/agora-agents-go/v2/client"
 
 // Request options — authentication, base URL, retries, HTTP client
-"github.com/AgoraIO/agora-agents-go/option"
+"github.com/AgoraIO/agora-agents-go/v2/option"
 
 // Wrapper layer — Agent builder with functional options, session lifecycle
-"github.com/AgoraIO/agora-agents-go/agentkit"
+"github.com/AgoraIO/agora-agents-go/v2/agentkit"
 
 // Vendor constructors — LLM, TTS, STT, MLLM, and Avatar vendors
-"github.com/AgoraIO/agora-agents-go/agentkit/vendors"
+"github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
 ```
 
 ## Verify Installation
@@ -45,7 +45,7 @@ package main
 import (
     "fmt"
 
-    Agora "github.com/AgoraIO/agora-agents-go"
+    Agora "github.com/AgoraIO/agora-agents-go/v2"
 )
 
 func main() {
@@ -65,6 +65,6 @@ go run main.go
 
 ## Migrating from a previous module path
 
-In v2.0.0 the Go module and repository moved to `github.com/AgoraIO/agora-agents-go` ([AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-agents-go)). Replace `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go` in `go.mod` and in all import paths, then run `go mod tidy`.
+In v2.0.0, the repository remains [AgoraIO/agora-agents-go](https://github.com/AgoraIO/agora-agents-go), and the Go module path is `github.com/AgoraIO/agora-agents-go/v2`. Replace `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go` in `go.mod` and in all import paths, then run `go mod tidy`.
 
 For the full change list, see [changelog — v2.0.0](../../changelog.md#v200--2026-05-21).

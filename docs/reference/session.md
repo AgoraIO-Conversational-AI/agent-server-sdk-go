@@ -6,7 +6,7 @@ description: Complete API reference for agentkit.AgentSession — lifecycle meth
 
 # Session Reference
 
-Package: `github.com/AgoraIO/agora-agents-go/agentkit`
+Package: `github.com/AgoraIO/agora-agents-go/v2/agentkit`
 
 ## NewAgentSession
 

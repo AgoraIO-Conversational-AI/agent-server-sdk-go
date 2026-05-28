@@ -18,8 +18,8 @@ Creates a new API client. All sub-clients share the same configuration.
 <!-- snippet: fragment -->
 ```go
 import (
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    "github.com/AgoraIO/agora-agents-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 c := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
@@ -55,7 +55,7 @@ Overrides the default API endpoint.
 
 <!-- snippet: fragment -->
 ```go
-import Agora "github.com/AgoraIO/agora-agents-go"
+import Agora "github.com/AgoraIO/agora-agents-go/v2"
 
 c := client.NewClient(
     option.WithBaseURL(Agora.Environments.Default),
@@ -165,7 +165,7 @@ option.AreaUnknown // Default
 
 <!-- snippet: fragment -->
 ```go
-import Agora "github.com/AgoraIO/agora-agents-go"
+import Agora "github.com/AgoraIO/agora-agents-go/v2"
 
 Agora.Environments.Default  // "https://api.agora.io/api/conversational-ai-agent"
 ```

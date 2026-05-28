@@ -1,7 +1,7 @@
 # Agora Agents Go
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FAgoraIO%2Fagora-agents-go)
-[![Go Reference](https://pkg.go.dev/badge/github.com/AgoraIO/agora-agents-go.svg)](https://pkg.go.dev/github.com/AgoraIO/agora-agents-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/AgoraIO/agora-agents-go/v2.svg)](https://pkg.go.dev/github.com/AgoraIO/agora-agents-go/v2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/AgoraIO/agora-agents-go)](https://goreportcard.com/report/github.com/AgoraIO/agora-agents-go)
 [![Release](https://img.shields.io/github/v/release/AgoraIO/agora-agents-go?sort=semver)](https://github.com/AgoraIO/agora-agents-go/releases)
 
@@ -12,7 +12,7 @@ and multimodal flows (MLLM) for real-time audio processing.
 ## Install
 
 ```sh
-go get github.com/AgoraIO/agora-agents-go
+go get github.com/AgoraIO/agora-agents-go/v2@v2.0.0
 ```
 
 ## Requirements
@@ -32,9 +32,9 @@ import (
     "os"
     "time"
 
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
-    "github.com/AgoraIO/agora-agents-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 const (
@@ -177,7 +177,7 @@ agent := agentkit.NewAgent(
 }))
 ```
 
-Migrating from `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go`? Update your module path and imports to `github.com/AgoraIO/agora-agents-go` — see the [v2.0.0 changelog](./changelog.md#v200--2026-05-21) or [installation guide](./docs/getting-started/installation.md#migrating-from-a-previous-module-path).
+Migrating from `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go`? Update your module path and imports to `github.com/AgoraIO/agora-agents-go/v2` — see the [v2.0.0 changelog](./changelog.md#v200--2026-05-21) or [installation guide](./docs/getting-started/installation.md#migrating-from-a-previous-module-path).
 
 ## BYOK
 
@@ -225,8 +225,8 @@ Instantiate the high-level client with app credentials:
 package example
 
 import (
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    option "github.com/AgoraIO/agora-agents-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    option "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func do() {

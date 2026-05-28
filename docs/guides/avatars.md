@@ -68,9 +68,9 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
-    "github.com/AgoraIO/agora-agents-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {

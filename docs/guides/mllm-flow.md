@@ -28,10 +28,10 @@ import (
     "fmt"
     "log"
 
-    Agora "github.com/AgoraIO/agora-agents-go"
-    "github.com/AgoraIO/agora-agents-go/agentkit"
-    "github.com/AgoraIO/agora-agents-go/agentkit/vendors"
-    "github.com/AgoraIO/agora-agents-go/option"
+    Agora "github.com/AgoraIO/agora-agents-go/v2"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {
