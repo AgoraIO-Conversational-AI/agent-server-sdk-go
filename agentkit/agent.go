@@ -10,6 +10,50 @@ import (
 	"github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
 )
 
+type InteractionLanguage string
+
+const DefaultInteractionLanguage InteractionLanguage = "en-US"
+
+var interactionLanguages = map[string]struct{}{
+	"ar-EG":  {},
+	"ar-JO":  {},
+	"ar-SA":  {},
+	"ar-AE":  {},
+	"bn-IN":  {},
+	"zh-CN":  {},
+	"zh-HK":  {},
+	"zh-TW":  {},
+	"nl-NL":  {},
+	"en-IN":  {},
+	"en-US":  {},
+	"fil-PH": {},
+	"fr-FR":  {},
+	"de-DE":  {},
+	"gu-IN":  {},
+	"he-IL":  {},
+	"hi-IN":  {},
+	"id-ID":  {},
+	"it-IT":  {},
+	"ja-JP":  {},
+	"kn-IN":  {},
+	"ko-KR":  {},
+	"ms-MY":  {},
+	"fa-IR":  {},
+	"pt-PT":  {},
+	"ru-RU":  {},
+	"es-ES":  {},
+	"ta-IN":  {},
+	"te-IN":  {},
+	"th-TH":  {},
+	"tr-TR":  {},
+	"vi-VN":  {},
+}
+
+func isInteractionLanguage(language string) bool {
+	_, ok := interactionLanguages[language]
+	return ok
+}
+
 func mapToStruct(m map[string]interface{}, target interface{}) error {
 	data, err := json.Marshal(m)
 	if err != nil {
@@ -342,6 +386,7 @@ type Agent struct {
 	sal                      *SalConfig
 	advancedFeatures         *AdvancedFeatures
 	parameters               *SessionParams
+	interactionLanguage      InteractionLanguage
 	audioScenario            *ParametersAudioScenario
 	geofence                 *GeofenceConfig
 	labels                   map[string]string
@@ -365,24 +410,28 @@ func WithName(name string) AgentOption {
 	}
 }
 
+// Deprecated: Configure system messages on the LLM vendor instead.
 func WithInstructions(instructions string) AgentOption {
 	return func(a *Agent) {
 		a.instructions = instructions
 	}
 }
 
+// Deprecated: Configure the greeting on the LLM or MLLM vendor instead.
 func WithGreeting(greeting string) AgentOption {
 	return func(a *Agent) {
 		a.greeting = greeting
 	}
 }
 
+// Deprecated: Configure the failure message on the LLM or MLLM vendor instead.
 func WithFailureMessage(msg string) AgentOption {
 	return func(a *Agent) {
 		a.failureMessage = msg
 	}
 }
 
+// Deprecated: Configure max history on the LLM vendor instead.
 func WithMaxHistory(n int) AgentOption {
 	return func(a *Agent) {
 		a.maxHistory = &n
@@ -401,6 +450,7 @@ func WithInterruptionConfig(interruption *InterruptionConfig) AgentOption {
 	}
 }
 
+// Deprecated: Configure greeting playback on the LLM vendor instead.
 func WithGreetingConfigs(configs *LlmGreetingConfigs) AgentOption {
 	return func(a *Agent) {
 		a.greetingConfigs = configs
@@ -431,6 +481,12 @@ func WithTools(enabled bool) AgentOption {
 func WithParameters(params *SessionParams) AgentOption {
 	return func(a *Agent) {
 		a.parameters = params
+	}
+}
+
+func WithInteractionLanguage(language InteractionLanguage) AgentOption {
+	return func(a *Agent) {
+		a.interactionLanguage = language
 	}
 }
 
@@ -494,6 +550,12 @@ func (a *Agent) WithStt(vendor vendors.STT) *Agent {
 	return clone
 }
 
+func (a *Agent) WithInteractionLanguage(language InteractionLanguage) *Agent {
+	clone := a.clone()
+	clone.interactionLanguage = language
+	return clone
+}
+
 func (a *Agent) WithMllm(vendor vendors.MLLM) *Agent {
 	clone := a.clone()
 	clone.mllm = vendor.ToConfig()
@@ -544,18 +606,21 @@ func (a *Agent) WithInterruption(interruption *InterruptionConfig) *Agent {
 	return clone
 }
 
+// Deprecated: Configure greeting playback on the LLM vendor instead.
 func (a *Agent) WithGreetingConfigs(configs *LlmGreetingConfigs) *Agent {
 	clone := a.clone()
 	clone.greetingConfigs = configs
 	return clone
 }
 
+// Deprecated: Configure system messages on the LLM vendor instead.
 func (a *Agent) WithInstructions(instructions string) *Agent {
 	clone := a.clone()
 	clone.instructions = instructions
 	return clone
 }
 
+// Deprecated: Configure the greeting on the LLM or MLLM vendor instead.
 func (a *Agent) WithGreeting(greeting string) *Agent {
 	clone := a.clone()
 	clone.greeting = greeting
@@ -604,12 +669,14 @@ func (a *Agent) WithAudioScenario(audioScenario ParametersAudioScenario) *Agent 
 	return clone
 }
 
+// Deprecated: Configure the failure message on the LLM or MLLM vendor instead.
 func (a *Agent) WithFailureMessage(msg string) *Agent {
 	clone := a.clone()
 	clone.failureMessage = msg
 	return clone
 }
 
+// Deprecated: Configure max history on the LLM vendor instead.
 func (a *Agent) WithMaxHistory(n int) *Agent {
 	clone := a.clone()
 	clone.maxHistory = &n
@@ -661,6 +728,7 @@ func (a *Agent) GreetingConfigs() *LlmGreetingConfigs          { return a.greeti
 func (a *Agent) Sal() *SalConfig                               { return a.sal }
 func (a *Agent) AdvancedFeatures() *AdvancedFeatures           { return a.advancedFeatures }
 func (a *Agent) Parameters() *SessionParams                    { return a.parameters }
+func (a *Agent) InteractionLanguage() InteractionLanguage      { return a.interactionLanguage }
 func (a *Agent) Geofence() *GeofenceConfig                     { return a.geofence }
 func (a *Agent) Labels() map[string]string                     { return a.labels }
 func (a *Agent) Rtc() *RtcConfig                               { return a.rtc }
@@ -854,6 +922,8 @@ func (a *Agent) ToPropertiesMap(opts ToPropertiesOptions) (map[string]interface{
 		return propsMap, nil
 	}
 
+	propsMap["asr"] = a.resolveAsrConfig()
+
 	if !opts.SkipVendorValidation {
 		if a.tts == nil {
 			return nil, fmt.Errorf("TTS configuration is required; use WithTts() to set it")
@@ -869,11 +939,26 @@ func (a *Agent) ToPropertiesMap(opts ToPropertiesOptions) (map[string]interface{
 	if a.tts != nil {
 		propsMap["tts"] = cloneConfig(a.tts)
 	}
-	if a.stt != nil {
-		propsMap["asr"] = cloneConfig(a.stt)
-	}
 
 	return propsMap, nil
+}
+
+func (a *Agent) resolveAsrConfig() map[string]interface{} {
+	asrConfig := cloneConfig(a.stt)
+	if asrConfig == nil {
+		asrConfig = map[string]interface{}{}
+	}
+
+	language := string(a.interactionLanguage)
+	if language == "" {
+		if existing, ok := asrConfig["language"].(string); ok && isInteractionLanguage(existing) {
+			language = existing
+		} else {
+			language = string(DefaultInteractionLanguage)
+		}
+	}
+	asrConfig["language"] = language
+	return asrConfig
 }
 
 func (a *Agent) buildMllmConfigMap() map[string]interface{} {
