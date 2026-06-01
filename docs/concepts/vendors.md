@@ -104,17 +104,19 @@ Note: `OpenAITTS` always returns `SampleRate24kHz`. Other TTS vendors return the
 
 ## STT Vendors
 
+Use `Agent.WithInteractionLanguage()` for Agora `asr.language`; it defaults to `en-US`. STT vendor `Language` fields are serialized under `asr.params` using each provider's own format.
+
 | Constructor | Options Struct | Required Fields |
 |---|---|---|
-| `NewSpeechmaticsSTT` | `SpeechmaticsSTTOptions` | `APIKey` |
+| `NewSpeechmaticsSTT` | `SpeechmaticsSTTOptions` | `APIKey`, `Language` |
 | `NewDeepgramSTT` | `DeepgramSTTOptions` | `APIKey` for BYOK; none for supported Agora-managed Deepgram models |
 | `NewMicrosoftSTT` | `MicrosoftSTTOptions` | `Key`, `Region` |
 | `NewOpenAISTT` | `OpenAISTTOptions` | `APIKey` |
-| `NewGoogleSTT` | `GoogleSTTOptions` | `Key` |
+| `NewGoogleSTT` | `GoogleSTTOptions` | `ProjectID`, `Location`, `ADCCredentialsString` |
 | `NewAmazonSTT` | `AmazonSTTOptions` | `AccessKey`, `SecretKey`, `Region` |
 | `NewAssemblyAISTT` | `AssemblyAISTTOptions` | `APIKey` |
 | `NewAresSTT` | `AresSTTOptions` | None |
-| `NewSarvamSTT` | `SarvamSTTOptions` | `APIKey` |
+| `NewSarvamSTT` | `SarvamSTTOptions` | `APIKey`, `Language` |
 
 <!-- snippet: fragment -->
 ```go

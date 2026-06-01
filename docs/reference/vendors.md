@@ -445,15 +445,18 @@ Panics if `Key`, `Speaker`, or `TargetLanguageCode` is empty.
 func NewSpeechmaticsSTT(opts SpeechmaticsSTTOptions) *SpeechmaticsSTT
 ```
 
-Panics if `APIKey` is empty.
+Panics if `APIKey` or `Language` is empty.
 
 #### SpeechmaticsSTTOptions
 
-| Field      | Type     | Required | Description          |
-| ---------- | -------- | -------- | -------------------- |
-| `APIKey`   | `string` | Yes      | Speechmatics API key |
-| `Language` | `string` | No       | Language code        |
-| `Model`    | `string` | No       | Model identifier     |
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `APIKey` | `string` | Yes | Speechmatics API key |
+| `Language` | `string` | Yes | Speechmatics language code |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
+| `Model` | `string` | No | Model identifier |
+| `URI` | `string` | No | Speechmatics streaming WebSocket URL |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ### NewDeepgramSTT
 
@@ -462,15 +465,16 @@ Panics if `APIKey` is empty.
 func NewDeepgramSTT(opts DeepgramSTTOptions) *DeepgramSTT
 ```
 
-Panics if `APIKey` is empty.
+Does not panic. `APIKey` is optional for Agora-managed Deepgram presets.
 
 #### DeepgramSTTOptions
 
 | Field              | Type                     | Required | Description              |
 | ------------------ | ------------------------ | -------- | ------------------------ |
-| `APIKey`           | `string`                 | Yes      | Deepgram API key         |
+| `APIKey`           | `string`                 | No       | Deepgram API key         |
 | `Model`            | `string`                 | No       | Model (e.g., `"nova-2"`) |
 | `Language`         | `string`                 | No       | Language code            |
+| `InteractionLanguage` | `string`              | No       | Agora `asr.language` override |
 | `SmartFormat`      | `*bool`                  | No       | Enable smart formatting  |
 | `Punctuation`      | `*bool`                  | No       | Enable punctuation       |
 | `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
@@ -491,6 +495,7 @@ Panics if `Key` or `Region` is empty.
 | `Key`      | `string` | Yes      | Azure Speech Services key |
 | `Region`   | `string` | Yes      | Azure region              |
 | `Language` | `string` | No       | Language code             |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
 
 ### NewOpenAISTT
 
@@ -503,11 +508,15 @@ Panics if `APIKey` is empty.
 
 #### OpenAISTTOptions
 
-| Field      | Type     | Required | Description      |
-| ---------- | -------- | -------- | ---------------- |
-| `APIKey`   | `string` | Yes      | OpenAI API key   |
-| `Model`    | `string` | No       | Model identifier |
-| `Language` | `string` | No       | Language code    |
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `APIKey` | `string` | Yes | OpenAI API key |
+| `Model` | `string` | No | Transcription model |
+| `Language` | `string` | No | OpenAI transcription language |
+| `Prompt` | `string` | No | Prompt for OpenAI transcription |
+| `InputAudioTranscription` | `map[string]interface{}` | No | OpenAI transcription settings |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ### NewGoogleSTT
 
@@ -516,15 +525,19 @@ Panics if `APIKey` is empty.
 func NewGoogleSTT(opts GoogleSTTOptions) *GoogleSTT
 ```
 
-Panics if `Key` is empty.
+Panics if `ProjectID`, `Location`, or `ADCCredentialsString` is empty.
 
 #### GoogleSTTOptions
 
-| Field      | Type     | Required | Description          |
-| ---------- | -------- | -------- | -------------------- |
-| `Key`      | `string` | Yes      | Google Cloud API key |
-| `Language` | `string` | No       | Language code        |
-| `Model`    | `string` | No       | Model identifier     |
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `ProjectID` | `string` | Yes | Google Cloud project ID |
+| `Location` | `string` | Yes | Google Cloud region |
+| `ADCCredentialsString` | `string` | Yes | Google service account credentials JSON string |
+| `Language` | `string` | No | Google recognition language |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
+| `Model` | `string` | No | Model identifier |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ### NewAmazonSTT
 
@@ -542,7 +555,9 @@ Panics if `AccessKey`, `SecretKey`, or `Region` is empty.
 | `AccessKey` | `string` | Yes      | AWS access key |
 | `SecretKey` | `string` | Yes      | AWS secret key |
 | `Region`    | `string` | Yes      | AWS region     |
-| `Language`  | `string` | No       | Language code  |
+| `Language`  | `string` | No       | Amazon `language_code` |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ### NewAssemblyAISTT
 
@@ -555,9 +570,13 @@ Panics if `APIKey` is empty.
 
 #### AssemblyAISTTOptions
 
-| Field    | Type     | Required | Description        |
-| -------- | -------- | -------- | ------------------ |
-| `APIKey` | `string` | Yes      | AssemblyAI API key |
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `APIKey` | `string` | Yes | AssemblyAI API key |
+| `Language` | `string` | No | AssemblyAI language code |
+| `InteractionLanguage` | `string` | No | Agora `asr.language` override |
+| `URI` | `string` | No | AssemblyAI streaming WebSocket URL |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
 
 ### NewAresSTT
 
