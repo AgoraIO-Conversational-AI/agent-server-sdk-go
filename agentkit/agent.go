@@ -1039,6 +1039,39 @@ func parseNumericUID(uid string, label string) (int, error) {
 	return value, nil
 }
 
+func avatarUIDString(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case int:
+		return fmt.Sprint(v)
+	case int8:
+		return fmt.Sprint(v)
+	case int16:
+		return fmt.Sprint(v)
+	case int32:
+		return fmt.Sprint(v)
+	case int64:
+		return fmt.Sprint(v)
+	case uint:
+		return fmt.Sprint(v)
+	case uint8:
+		return fmt.Sprint(v)
+	case uint16:
+		return fmt.Sprint(v)
+	case uint32:
+		return fmt.Sprint(v)
+	case uint64:
+		return fmt.Sprint(v)
+	case float32:
+		return fmt.Sprint(v)
+	case float64:
+		return fmt.Sprint(v)
+	default:
+		return ""
+	}
+}
+
 type ToPropertiesOptions struct {
 	Channel        string
 	AgentUID       string
