@@ -40,10 +40,8 @@ request := &Agora.StartAgentsRequest{
             IdleTimeout: Agora.Int(
                 120,
             ),
-            Asr: &Agora.StartAgentsRequestPropertiesAsr{
-                Language: Agora.String(
-                    "en-US",
-                ),
+            Asr: &Agora.Asr{
+                Ares: &Agora.AresAsr{},
             },
             Tts: &Agora.Tts{
                 Microsoft: &Agora.MicrosoftTts{
@@ -54,8 +52,10 @@ request := &Agora.StartAgentsRequest{
                     },
                 },
             },
-            Llm: &Agora.StartAgentsRequestPropertiesLlm{
-                URL: "https://api.openai.com/v1/chat/completions",
+            Llm: &Agora.Llm{
+                URL: Agora.String(
+                    "https://api.openai.com/v1/chat/completions",
+                ),
                 APIKey: Agora.String(
                     "<your_llm_key>",
                 ),
@@ -65,8 +65,10 @@ request := &Agora.StartAgentsRequest{
                         "content": "You are a helpful chatbot.",
                     },
                 },
-                Params: map[string]any{
-                    "model": "gpt-4o-mini",
+                Params: &Agora.LlmParams{
+                    Model: Agora.String(
+                        "gpt-4o-mini",
+                    ),
                 },
                 MaxHistory: Agora.Int(
                     32,
