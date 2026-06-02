@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	"github.com/AgoraIO/agora-agents-go/v2/core"
 )
 
 const (

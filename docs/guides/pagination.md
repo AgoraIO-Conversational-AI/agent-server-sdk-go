@@ -6,46 +6,27 @@ description: Iterate over paginated list endpoints.
 
 # Pagination
 
-List endpoints such as `client.Agents.List` and `client.Telephony.List` return a `*core.Page` that you can iterate over.
+Generated list endpoints such as `client.Agents.List` and `client.Telephony.List` return a `*core.Page` that you can iterate over. For agent conversation turns, prefer the AgentKit helpers on `AgentSession`.
 
 ## Iterating Over All Items
 
 Use the `Iterator()` method to loop over all items across pages:
 
 ```go
-package main
+page, err := c.Agents.List(ctx, &Agora.ListAgentsRequest{
+    Appid: "your_app_id",
+})
+if err != nil {
+    log.Fatal(err)
+}
 
-import (
-    "context"
-    "fmt"
-    "log"
-
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-func main() {
-    c := client.NewClient(
-        option.WithToken("<your_rest_auth_token>"),
-    )
-
-    ctx := context.Background()
-    page, err := c.Agents.List(ctx, &Agora.ListAgentsRequest{
-        Appid: "your_app_id",
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    iter := page.Iterator()
-    for iter.Next(ctx) {
-        item := iter.Current()
-        fmt.Println(item)
-    }
-    if iter.Err() != nil {
-        log.Fatal(iter.Err())
-    }
+iter := page.Iterator()
+for iter.Next(ctx) {
+    item := iter.Current()
+    fmt.Println(item)
+}
+if iter.Err() != nil {
+    log.Fatal(iter.Err())
 }
 ```
 
@@ -72,3 +53,31 @@ for {
 ```
 
 When no more pages exist, `GetNextPage` returns `core.ErrNoPages`. The iterator treats this as a normal end-of-stream (not an error).
+
+## AgentKit GetTurns Pagination
+
+`AgentSession.GetTurns` uses page-number pagination rather than `core.Page`. Pass `GetTurnsOptions` to fetch a specific page, or call `GetAllTurns` to aggregate every page.
+
+```go
+pageIndex := 1
+pageSize := 50
+
+turnsPage, err := session.GetTurns(ctx, agentkit.GetTurnsOptions{
+    PageIndex: &pageIndex,
+    PageSize:  &pageSize,
+})
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println("turns on page:", len(turnsPage.Turns))
+```
+
+```go
+turnsResponse, err := session.GetAllTurns(ctx)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println("all turns:", len(turnsResponse.Turns))
+```
+
+If you also subscribe to notifications, event `112` indicates the session turns have finished and are ready to query.

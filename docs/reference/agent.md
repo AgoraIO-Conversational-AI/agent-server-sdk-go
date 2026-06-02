@@ -6,7 +6,7 @@ description: Complete API reference for agentkit.Agent — functional options, m
 
 # Agent Reference
 
-Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit`
+Package: `github.com/AgoraIO/agora-agents-go/v2/agentkit`
 
 ## NewAgent
 
@@ -87,7 +87,16 @@ Sets cascading-flow turn detection configuration. Use `Config.StartOfSpeech` and
 func WithInterruptionConfig(interruption *InterruptionConfig) AgentOption
 ```
 
-Sets unified interruption control using the top-level `interruption` object.
+Sets unified interruption control using the top-level `interruption` object. Use the `agentkit.InterruptionModeStartOfSpeech` / `InterruptionModeKeywords` and `InterruptionDisabledStrategyAppend` / `InterruptionDisabledStrategyIgnore` convenience constants when populating `InterruptionConfig.Mode` and `InterruptionConfig.DisabledConfig.Strategy`.
+
+### WithGreetingConfigs
+
+<!-- snippet: fragment -->
+```go
+func WithGreetingConfigs(configs *LlmGreetingConfigs) AgentOption
+```
+
+Sets `llm.greeting_configs`, including v2.7 `interruptable`.
 
 ### WithSalConfig
 
@@ -124,6 +133,15 @@ func WithParameters(params *SessionParams) AgentOption
 ```
 
 Sets additional session parameters.
+
+### WithAudioScenario
+
+<!-- snippet: fragment -->
+```go
+func WithAudioScenario(audioScenario ParametersAudioScenario) AgentOption
+```
+
+Sets `parameters.audio_scenario` (`default`, `chorus`, or `aiserver`).
 
 ### WithGeofence
 
@@ -213,6 +231,28 @@ func (a *Agent) WithTurnDetection(td *TurnDetectionConfig) *Agent
 
 Sets cascading-flow turn detection configuration. Use `Config.StartOfSpeech` and `Config.EndOfSpeech` for SOS/EOS detection. Use interruption config for interruption behavior and MLLM vendor `TurnDetection` for MLLM turn detection.
 
+Example with `pause_state_enabled`:
+
+```go
+enabled := true
+mode := "default"
+eosMode := Agora.StartAgentsRequestPropertiesTurnDetectionConfigEndOfSpeechModeSemantic
+
+agent := agentkit.NewAgent(
+    agentkit.WithTurnDetectionConfig(&agentkit.TurnDetectionConfig{
+        Mode: &mode,
+        Config: &agentkit.TurnDetectionNestedConfig{
+            EndOfSpeech: &agentkit.EndOfSpeechConfig{
+                Mode: &eosMode,
+                SemanticConfig: &agentkit.EndOfSpeechSemanticConfig{
+                    PauseStateEnabled: &enabled,
+                },
+            },
+        },
+    }),
+)
+```
+
 ### WithInstructions (method)
 
 <!-- snippet: fragment -->
@@ -256,6 +296,15 @@ func (a *Agent) WithTools(enabled bool) *Agent
 ```
 
 Enables or disables MCP tool invocation by setting `AdvancedFeatures.EnableTools`.
+
+### WithAudioScenario (method)
+
+<!-- snippet: fragment -->
+```go
+func (a *Agent) WithAudioScenario(audioScenario ParametersAudioScenario) *Agent
+```
+
+Sets `parameters.audio_scenario` on immutable agent clones.
 
 ### WithParameters (method)
 
@@ -323,6 +372,8 @@ func (a *Agent) TtsSampleRate() *vendors.SampleRate
 func (a *Agent) AvatarRequiredSampleRate() *vendors.SampleRate
 func (a *Agent) Avatar() map[string]interface{}
 func (a *Agent) TurnDetection() *TurnDetectionConfig
+func (a *Agent) Interruption() *InterruptionConfig
+func (a *Agent) GreetingConfigs() *LlmGreetingConfigs
 func (a *Agent) Sal() *SalConfig
 func (a *Agent) AdvancedFeatures() *AdvancedFeatures
 func (a *Agent) Parameters() *SessionParams
@@ -360,6 +411,8 @@ type ToPropertiesOptions struct {
     ExpiresIn       int
     IdleTimeout     *int
     EnableStringUID *bool
+    SkipVendorValidation bool
+    Warn            func(string)
 }
 ```
 
@@ -374,6 +427,8 @@ type ToPropertiesOptions struct {
 | `ExpiresIn` | `int` | Token lifetime in seconds (default: `86400` = 24 h, Agora max). Use `ExpiresInHours()` / `ExpiresInMinutes()` for clarity. Valid range: 1–86400. |
 | `IdleTimeout` | `*int` | Session idle timeout |
 | `EnableStringUID` | `*bool` | Enable string UID mode |
+| `SkipVendorValidation` | `bool` | Advanced option for pipeline-backed starts without explicit LLM/TTS |
+| `Warn` | `func(string)` | Warning sink for recoverable config issues |
 
 ## Type Aliases
 
@@ -391,15 +446,30 @@ type MllmConfig = Agora.StartAgentsRequestPropertiesMllm
 type AsrConfig = Agora.StartAgentsRequestPropertiesAsr
 type TtsConfig = Agora.Tts
 type AvatarConfig = Agora.StartAgentsRequestPropertiesAvatar
+type SttConfig = AsrConfig
+type LlmStyle = Agora.StartAgentsRequestPropertiesLlmStyle
+type SessionInfo = Agora.GetAgentsResponse
+type ThinkResponse = Agora.AgentThinkAgentManagementResponse
 ```
 
-Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, and related sub-types. See the agentkit package for the full list.
+Additional SOS/EOS turn detection aliases: `TurnDetectionNestedConfig`, `StartOfSpeechConfig`, `EndOfSpeechConfig`, and related sub-types. Session/conversation aliases: `SessionListResponse`, `ConversationHistory`, `ConversationTurns`, etc. Think type aliases: `ThinkOnListeningAction`, `ThinkOnThinkingAction`, `ThinkOnSpeakingAction`.
+
+## Cross-SDK discovery map
+
+| Concept | Go | TypeScript | Python |
+|---|---|---|---|
+| STT payload alias (wire: `asr`) | `AsrConfig` / `SttConfig` | `SttConfig` / `AsrConfig` | `SttConfig` / `AsrConfig` |
+| xAI MLLM (primary) | `XaiGrok` / `NewXaiGrok` | `XaiGrok` | `XaiGrok` |
+| Avatar token helper | `IsAvatarTokenManaged` | `isAvatarTokenManaged` | `is_avatar_token_managed` |
+| Think inject constant | `ThinkOnListeningActionInject` | `ThinkOnListeningActionInject` | `ThinkOnListeningActionInject` |
 
 ## Token Generation
 
 <!-- snippet: fragment -->
 ```go
 func GenerateRtcToken(opts GenerateTokenOptions) (string, error)
+func GenerateRtcTokenWithAccount(opts GenerateRtcTokenWithAccountOptions) (string, error)
+func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error)
 ```
 
 ### GenerateTokenOptions
@@ -423,6 +493,8 @@ type GenerateTokenOptions struct {
 const (
     RolePublisher      = 1
     RoleSubscriber     = 2
-    DefaultExpirySeconds = 3600
+    DefaultExpirySeconds = 86400
 )
 ```
+
+Avatar token automation uses `GenerateConvoAIToken` with the avatar `AgoraUID` as `UID`.

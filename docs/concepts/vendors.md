@@ -39,10 +39,15 @@ type Avatar interface {
 
 | Constructor | Options Struct | Required Fields | Default Model |
 |---|---|---|---|
-| `NewOpenAI` | `OpenAIOptions` | `APIKey` for BYOK; none for supported preset-backed OpenAI models | `gpt-4o-mini` |
+| `NewOpenAI` | `OpenAIOptions` | `APIKey` for BYOK; none for supported Agora-managed OpenAI models | `gpt-4o-mini` |
 | `NewAzureOpenAI` | `AzureOpenAIOptions` | `APIKey`, `Endpoint`, `DeploymentName` | — |
 | `NewAnthropic` | `AnthropicOptions` | `APIKey` | `claude-3-5-sonnet-20241022` |
 | `NewGemini` | `GeminiOptions` | `APIKey` | `gemini-2.0-flash-exp` |
+| `NewGroq` | `GroqOptions` | `APIKey` | `llama-3.3-70b-versatile` |
+| `NewVertexAILLM` | `VertexAILLMOptions` | `APIKey`, `ProjectID`, `Location` | `gemini-2.0-flash-exp` |
+| `NewAmazonBedrock` | `AmazonBedrockOptions` | `APIKey`, `URL`, `Model` | — |
+| `NewDify` | `DifyOptions` | `APIKey`, `URL` | — |
+| `NewCustomLLM` | `CustomLLMOptions` | `APIKey`, `BaseURL`, `Model` | — |
 
 <!-- snippet: fragment -->
 ```go
@@ -59,7 +64,7 @@ agent := agentkit.NewAgent(...).WithLlm(llm)
 |---|---|---|
 | `NewElevenLabsTTS` | `ElevenLabsTTSOptions` | `Key`, `ModelID`, `VoiceID` |
 | `NewMicrosoftTTS` | `MicrosoftTTSOptions` | `Key`, `Region`, `VoiceName` |
-| `NewOpenAITTS` | `OpenAITTSOptions` | `Voice` for preset-backed `tts-1`; `APIKey`, `Voice` for BYOK |
+| `NewOpenAITTS` | `OpenAITTSOptions` | `Voice` for Agora-managed `tts-1`; `APIKey`, `Voice` for BYOK |
 | `NewCartesiaTTS` | `CartesiaTTSOptions` | `Key`, `VoiceID` |
 | `NewGoogleTTS` | `GoogleTTSOptions` | `Key`, `VoiceName` |
 | `NewAmazonTTS` | `AmazonTTSOptions` | `AccessKey`, `SecretKey`, `Region`, `VoiceID` |
@@ -67,7 +72,7 @@ agent := agentkit.NewAgent(...).WithLlm(llm)
 | `NewRimeTTS` | `RimeTTSOptions` | `Key`, `Speaker` |
 | `NewFishAudioTTS` | `FishAudioTTSOptions` | `Key`, `ReferenceID` |
 | `NewGroqTTS` | `GroqTTSOptions` | `Key` |
-| `NewMiniMaxTTS` | `MiniMaxTTSOptions` | `Model` for supported preset-backed MiniMax models; `Key`, `GroupID`, `Model` for BYOK |
+| `NewMiniMaxTTS` | `MiniMaxTTSOptions` | `Model` for supported Agora-managed MiniMax models; `Key`, `GroupID`, `Model` for BYOK |
 | `NewDeepgramTTS` | `DeepgramTTSOptions` | `APIKey`, `Model` |
 | `NewSarvamTTS` | `SarvamTTSOptions` | `APIKey` |
 
@@ -102,7 +107,7 @@ Note: `OpenAITTS` always returns `SampleRate24kHz`. Other TTS vendors return the
 | Constructor | Options Struct | Required Fields |
 |---|---|---|
 | `NewSpeechmaticsSTT` | `SpeechmaticsSTTOptions` | `APIKey` |
-| `NewDeepgramSTT` | `DeepgramSTTOptions` | `APIKey` for BYOK; none for supported preset-backed Deepgram models |
+| `NewDeepgramSTT` | `DeepgramSTTOptions` | `APIKey` for BYOK; none for supported Agora-managed Deepgram models |
 | `NewMicrosoftSTT` | `MicrosoftSTTOptions` | `Key`, `Region` |
 | `NewOpenAISTT` | `OpenAISTTOptions` | `APIKey` |
 | `NewGoogleSTT` | `GoogleSTTOptions` | `Key` |
@@ -135,7 +140,9 @@ agent = agent.WithStt(stt)
 mllm := vendors.NewOpenAIRealtime(vendors.OpenAIRealtimeOptions{
     APIKey: "<key>",
     Model:  "gpt-4o-realtime-preview",
-    Voice:  "alloy",
+    Params: map[string]interface{}{
+        "voice": "alloy",
+    },
 })
 
 agent = agent.WithMllm(mllm)
@@ -145,12 +152,15 @@ agent = agent.WithMllm(mllm)
 
 | Constructor | Options Struct | Required Fields | Required TTS Sample Rate |
 |---|---|---|---|
-| `NewHeyGenAvatar` | `HeyGenAvatarOptions` | `APIKey`, `Quality`, `AgoraUID` | 24kHz |
+| `NewLiveAvatarAvatar` | `LiveAvatarAvatarOptions` | `APIKey`, `Quality`, `AgoraUID` | 24kHz |
+| `NewGenericAvatar` | `GenericAvatarOptions` | `APIKey`, `APIBaseURL`, `AvatarID`, `AgoraUID` | Provider-dependent |
+| `NewAnamAvatar` | `AnamAvatarOptions` | `APIKey` | Provider-managed |
 | `NewAkoolAvatar` | `AkoolAvatarOptions` | `APIKey` | 16kHz |
+| `NewHeyGenAvatar` | `HeyGenAvatarOptions` | `APIKey`, `Quality`, `AgoraUID` | 24kHz; deprecated alias |
 
 <!-- snippet: fragment -->
 ```go
-avatar := vendors.NewHeyGenAvatar(vendors.HeyGenAvatarOptions{
+avatar := vendors.NewLiveAvatarAvatar(vendors.LiveAvatarAvatarOptions{
     APIKey:   "<key>",
     Quality:  "high",
     AgoraUID: "2001",
@@ -168,8 +178,8 @@ All vendor constructors validate required fields and `panic` if they are missing
 
 <!-- snippet: fragment -->
 ```go
-// This panics because gpt-4o is not a supported preset-backed model.
+// This panics because gpt-4o requires an OpenAI API key.
 vendors.NewOpenAI(vendors.OpenAIOptions{Model: "gpt-4o"})
 ```
 
-This is Go-idiomatic for configuration errors that indicate programmer mistakes rather than runtime conditions. Handle these by ensuring BYOK fields are populated when you are not using a supported preset-backed model.
+This fails early so invalid vendor configuration does not reach session start. Provide BYOK fields when you use models outside the Agora-managed catalog.

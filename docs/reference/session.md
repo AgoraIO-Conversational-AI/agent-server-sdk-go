@@ -6,7 +6,7 @@ description: Complete API reference for agentkit.AgentSession — lifecycle meth
 
 # Session Reference
 
-Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit`
+Package: `github.com/AgoraIO/agora-agents-go/v2/agentkit`
 
 ## NewAgentSession
 
@@ -57,7 +57,7 @@ type AgentSessionOptions struct {
 | `EnableStringUID` | `*bool` | No | Enable string UID mode |
 | `ExpiresIn` | `int` | No | Auto-generated token lifetime in seconds |
 | `UseAppCredentialsForREST` | `bool` | No | Generate ConvoAI REST auth headers per request |
-| `Preset` | `[]string` | No | Preset IDs to send on session start |
+| `Preset` | `[]string` | No | Advanced preset value for project-specific routing. Leave unset for normal builder usage. |
 | `PipelineID` | `string` | No | Published pipeline ID to send on session start |
 | `Debug` | `bool` | No | Enable debug logging of the start request |
 | `Warn` | `func(string)` | No | Custom warning sink; defaults to logger |
@@ -141,7 +141,7 @@ Sends text for the agent to speak.
 - **Valid from:** `running`
 - **Parameters:**
   - `text` — the text to speak
-  - `priority` — optional priority level (pass `nil` for default)
+  - `priority` — optional priority level (pass `nil` for default). Use the `agentkit.SpeakPriorityInterrupt.Ptr()`, `agentkit.SpeakPriorityAppend.Ptr()`, or `agentkit.SpeakPriorityIgnore.Ptr()` convenience constants instead of the raw generated enum.
   - `interruptable` — whether the utterance can be interrupted (pass `nil` for default)
 
 ### Interrupt
@@ -192,12 +192,34 @@ Gets the current agent status from the API.
 
 <!-- snippet: fragment -->
 ```go
-func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsResponse, error)
+func (s *AgentSession) GetTurns(ctx context.Context, opts ...GetTurnsOptions) (*Agora.GetTurnsAgentsResponse, error)
+func (s *AgentSession) GetAllTurns(ctx context.Context, opts ...GetAllTurnsOptions) (*Agora.GetTurnsAgentsResponse, error)
+
+type GetTurnsOptions struct {
+    PageIndex *int
+    PageSize  *int
+}
+
+type GetAllTurnsOptions struct {
+    PageSize *int
+}
 ```
 
-Retrieves turn-by-turn analytics for the session.
+Retrieves turn-by-turn analytics for the session. `PageIndex` starts at 1. Use `GetAllTurns` to iterate through every page with a default page size of 50 and return the final response with aggregated `Turns`.
 
 - **Requires:** Valid agent ID
+
+When you consume server notifications, event `112` means all turns for the session have finished and are ready to query.
+
+### Think
+
+<!-- snippet: fragment -->
+```go
+func (s *AgentSession) Think(ctx context.Context, text string, onListeningAction *Agora.AgentThinkAgentManagementRequestOnListeningAction, onThinkingAction *Agora.AgentThinkAgentManagementRequestOnThinkingAction, onSpeakingAction *Agora.AgentThinkAgentManagementRequestOnSpeakingAction, interruptable *bool, metadata map[string]string) (*Agora.AgentThinkAgentManagementResponse, error)
+func (s *AgentSession) ThinkWithOptions(ctx context.Context, text string, opts *ThinkOptions) (*Agora.AgentThinkAgentManagementResponse, error)
+```
+
+Injects a thought or instruction into a running agent. In v2.7, omitting `on_listening_action` uses the server default `interrupt`. Set `agentkit.ThinkOnListeningActionInject.Ptr()` if you need legacy inject behavior. AgentKit also exposes `ThinkOnThinkingActionInterrupt`, `ThinkOnThinkingActionIgnore`, `ThinkOnSpeakingActionInterrupt`, and `ThinkOnSpeakingActionIgnore` convenience constants.
 
 ## Getters
 
@@ -229,7 +251,7 @@ Returns the App ID.
 ```go
 func (s *AgentSession) Raw() *agents.Client
 ```
-Returns the underlying Fern-generated agents client for direct API access.
+Returns the generated agents client for direct API access.
 
 ## Event System
 

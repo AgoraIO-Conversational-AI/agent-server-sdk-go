@@ -1,6 +1,6 @@
 package vendors
 
-import Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
+import Agora "github.com/AgoraIO/agora-agents-go/v2"
 
 type OpenAIRealtimeOptions struct {
 	APIKey           string
@@ -8,8 +8,6 @@ type OpenAIRealtimeOptions struct {
 	URL              string
 	GreetingMessage  string
 	FailureMessage   string
-	MaxHistory       *int
-	PredefinedTools  []string
 	InputModalities  []string
 	OutputModalities []string
 	Messages         []map[string]interface{}
@@ -32,14 +30,15 @@ func NewOpenAIRealtime(opts OpenAIRealtimeOptions) *OpenAIRealtime {
 }
 
 func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
+	// Match TS: `model` is the base; explicit Params entries override it.
 	var params map[string]interface{}
 	if o.options.Model != "" || o.options.Params != nil {
 		params = map[string]interface{}{}
-		for k, v := range o.options.Params {
-			params[k] = v
-		}
 		if o.options.Model != "" {
 			params["model"] = o.options.Model
+		}
+		for k, v := range o.options.Params {
+			params[k] = v
 		}
 	}
 
@@ -60,12 +59,6 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	if o.options.FailureMessage != "" {
 		config["failure_message"] = o.options.FailureMessage
 	}
-	if o.options.MaxHistory != nil {
-		config["max_history"] = *o.options.MaxHistory
-	}
-	if o.options.PredefinedTools != nil {
-		config["predefined_tools"] = o.options.PredefinedTools
-	}
 	if o.options.InputModalities != nil {
 		config["input_modalities"] = o.options.InputModalities
 	}
@@ -82,6 +75,98 @@ func (o *OpenAIRealtime) ToConfig() map[string]interface{} {
 	return config
 }
 
+// XaiGrokOptions configures the xAI Grok MLLM vendor (mllm.vendor "xai").
+// Future xAI ASR/TTS wrappers should be named XaiSTT and XaiTTS, not XaiRealtime.
+type XaiGrokOptions struct {
+	APIKey           string
+	URL              string
+	Voice            string
+	Language         string
+	SampleRate       *int
+	GreetingMessage  string
+	FailureMessage   string
+	InputModalities  []string
+	OutputModalities []string
+	Messages         []map[string]interface{}
+	Params           map[string]interface{}
+	TurnDetection    *Agora.StartAgentsRequestPropertiesMllmTurnDetection
+}
+
+// XaiGrok is the xAI Grok MLLM vendor (mllm.vendor "xai").
+type XaiGrok struct {
+	options XaiGrokOptions
+}
+
+// NewXaiGrok creates an xAI Grok MLLM vendor.
+func NewXaiGrok(opts XaiGrokOptions) *XaiGrok {
+	if opts.APIKey == "" {
+		panic("XaiGrok requires APIKey")
+	}
+	if opts.URL == "" {
+		opts.URL = "wss://api.x.ai/v1/realtime"
+	}
+	return &XaiGrok{options: opts}
+}
+
+// XAIGrokOptions is deprecated.
+//
+// Deprecated: Use XaiGrokOptions instead.
+type XAIGrokOptions = XaiGrokOptions
+
+// XAIGrok is deprecated.
+//
+// Deprecated: Use XaiGrok instead.
+type XAIGrok = XaiGrok
+
+// NewXAIGrok is deprecated.
+//
+// Deprecated: Use NewXaiGrok instead.
+func NewXAIGrok(opts XAIGrokOptions) *XAIGrok {
+	return NewXaiGrok(opts)
+}
+
+func (x *XaiGrok) ToConfig() map[string]interface{} {
+	params := map[string]interface{}{}
+	for k, v := range x.options.Params {
+		params[k] = v
+	}
+	if x.options.Voice != "" {
+		params["voice"] = x.options.Voice
+	}
+	if x.options.Language != "" {
+		params["language"] = x.options.Language
+	}
+	if x.options.SampleRate != nil {
+		params["sample_rate"] = *x.options.SampleRate
+	}
+
+	config := map[string]interface{}{
+		"vendor":  "xai",
+		"api_key": x.options.APIKey,
+		"url":     x.options.URL,
+		"params":  params,
+	}
+	if x.options.GreetingMessage != "" {
+		config["greeting_message"] = x.options.GreetingMessage
+	}
+	if x.options.FailureMessage != "" {
+		config["failure_message"] = x.options.FailureMessage
+	}
+	if x.options.InputModalities != nil {
+		config["input_modalities"] = x.options.InputModalities
+	}
+	if x.options.OutputModalities != nil {
+		config["output_modalities"] = x.options.OutputModalities
+	}
+	if x.options.Messages != nil {
+		config["messages"] = x.options.Messages
+	}
+	if x.options.TurnDetection != nil {
+		config["turn_detection"] = x.options.TurnDetection
+	}
+	return config
+}
+
 type GeminiLiveOptions struct {
 	APIKey           string
 	Model            string
@@ -90,8 +175,6 @@ type GeminiLiveOptions struct {
 	Voice            string
 	GreetingMessage  string
 	FailureMessage   string
-	MaxHistory       *int
-	PredefinedTools  []string
 	InputModalities  []string
 	OutputModalities []string
 	Messages         []map[string]interface{}
@@ -140,12 +223,6 @@ func (g *GeminiLive) ToConfig() map[string]interface{} {
 	if g.options.FailureMessage != "" {
 		config["failure_message"] = g.options.FailureMessage
 	}
-	if g.options.MaxHistory != nil {
-		config["max_history"] = *g.options.MaxHistory
-	}
-	if g.options.PredefinedTools != nil {
-		config["predefined_tools"] = g.options.PredefinedTools
-	}
 	if g.options.InputModalities != nil {
 		config["input_modalities"] = g.options.InputModalities
 	}
@@ -173,8 +250,6 @@ type VertexAIOptions struct {
 	AdditionalParams    map[string]interface{}
 	GreetingMessage     string
 	FailureMessage      string
-	MaxHistory          *int
-	PredefinedTools     []string
 	InputModalities     []string
 	OutputModalities    []string
 	TurnDetection       *Agora.StartAgentsRequestPropertiesMllmTurnDetection
@@ -229,12 +304,6 @@ func (v *VertexAI) ToConfig() map[string]interface{} {
 	}
 	if v.options.FailureMessage != "" {
 		config["failure_message"] = v.options.FailureMessage
-	}
-	if v.options.MaxHistory != nil {
-		config["max_history"] = *v.options.MaxHistory
-	}
-	if v.options.PredefinedTools != nil {
-		config["predefined_tools"] = v.options.PredefinedTools
 	}
 	if v.options.InputModalities != nil {
 		config["input_modalities"] = v.options.InputModalities

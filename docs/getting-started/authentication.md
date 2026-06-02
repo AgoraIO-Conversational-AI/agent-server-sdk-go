@@ -1,12 +1,12 @@
 ---
 sidebar_position: 2
 title: Authentication
-description: Configure the Go SDK with the recommended app-credentials flow and understand the supported auth modes.
+description: Configure the Go SDK with the app-credentials flow and understand the supported auth modes.
 ---
 
 # Authentication
 
-The recommended production path is app credentials mode.
+Use app credentials mode for production session integrations.
 
 Create `AgoraClient` with `AppID` and `AppCertificate`, then let `AgentSession` generate the ConvoAI REST auth token and the RTC join token automatically.
 
@@ -16,8 +16,8 @@ Create `AgoraClient` with `AppID` and `AppCertificate`, then let `AgentSession` 
 package main
 
 import (
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {
@@ -34,15 +34,12 @@ func main() {
 ## Why this is the default
 
 - The SDK handles ConvoAI REST auth and RTC join token generation for you.
-- Your onboarding code stays focused on agent behavior instead of auth plumbing.
-- Your quick start code stays vendor-key free when you use presets.
+- Your session code stays focused on agent behavior while the SDK handles auth details.
+- Your quick start code stays vendor-key free when you use supported Agora-managed models.
 
-## Other supported modes
+## Legacy auth modes
 
-The SDK also supports pre-built token auth and Basic Auth, but they are intentionally not the default onboarding path.
-
-- Pre-built token auth exists for advanced or testing-specific cases.
-- Basic Auth is supported for legacy integrations and account-level workflows.
+The generated REST client still contains legacy auth hooks for prebuilt REST tokens and HTTP Basic Auth. Do not use those for new session integrations. Use app credentials so AgentKit can mint short-lived ConvoAI REST auth and RTC join tokens for each session.
 
 ## Inspecting the resolved auth mode
 

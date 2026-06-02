@@ -1,135 +1,71 @@
 ---
 sidebar_position: 9
 title: Low-Level API
-description: Direct client.Agents.Start() usage without the builder pattern.
+description: Use generated clients for advanced operations while keeping app-credentials auth as the default.
 ---
 
 # Low-Level API
 
-For direct control over the REST API, use `client.Agents.Start()` with raw request objects. See the [API Reference](../../reference.md) for full details.
+For starting and managing realtime agent sessions, prefer the AgentKit builder:
 
-## Raw Telephony And Phone-Number APIs
+- create `agentkit.NewAgoraClient` with `AppID` and `AppCertificate`
+- configure vendors with `WithStt`, `WithLlm`, `WithTts`, or `WithMllm`
+- call `session.Start(ctx)`, `session.Say(ctx, ...)`, `session.Update(ctx, ...)`, and `session.Stop(ctx)`
 
-AgentKit focuses on realtime agent session helpers. Telephony call status, call hangup, and phone-number management are exposed through the generated low-level clients:
+That path generates ConvoAI REST auth and RTC join tokens from app credentials, so application code does not need prebuilt REST tokens, RTC tokens, Customer ID, or Customer Secret.
 
-- `c.Telephony` for call status and hangup operations
-- `c.PhoneNumbers` for phone-number list, create, retrieve, update, and delete operations
+## Generated Clients
 
-## Direct Client Usage
+The SDK also exposes generated clients for API surfaces that are not part of the AgentKit session lifecycle:
+
+- `client.Telephony` for call status and hangup operations
+- `client.PhoneNumbers` for phone-number list, create, retrieve, update, and delete operations
+- `client.AgentManagement` for management actions such as `agent-think`
+
+Use these when you need REST API operations outside the AgentKit session lifecycle. For new session starts, use AgentKit instead of manually constructing `StartAgentsRequest`; AgentKit handles token generation and supported Agora-managed models.
+
+## App-Credentials Client
 
 ```go
 package main
 
 import (
-    "context"
-    "log"
-
-    Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {
-    c := client.NewClient(
-        option.WithToken("<your_rest_auth_token>"),
-    )
+    client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+        Area:           option.AreaUS,
+        AppID:          "your-app-id",
+        AppCertificate: "your-app-certificate",
+    })
 
-    req := &Agora.StartAgentsRequest{
-        Appid: "your_app_id",
-        Name:  "unique_name",
-        Properties: &Agora.StartAgentsRequestProperties{
-            Channel:       "channel_name",
-            Token:         "your_token",
-            AgentRtcUID:   "1001",
-            RemoteRtcUIDs: []string{"1002"},
-            IdleTimeout:   Agora.Int(120),
-            Asr: &Agora.StartAgentsRequestPropertiesAsr{
-                Language: Agora.String("en-US"),
-                Vendor:   Agora.StartAgentsRequestPropertiesAsrVendorDeepgram.Ptr(),
-                Params: map[string]interface{}{
-                    "api_key": "your-deepgram-key",
-                },
-            },
-            Tts: &Agora.Tts{
-                Elevenlabs: &Agora.ElevenLabsTts{
-                    Params: &Agora.ElevenLabsTtsParams{
-                        Key:     "your-elevenlabs-key",
-                        ModelID: "eleven_flash_v2_5",
-                        VoiceID: "your-voice-id",
-                    },
-                },
-            },
-            Llm: &Agora.StartAgentsRequestPropertiesLlm{
-                URL:    "https://api.openai.com/v1/chat/completions",
-                APIKey: Agora.String("<your_llm_key>"),
-                SystemMessages: []map[string]interface{}{
-                    {"role": "system", "content": "You are a helpful chatbot."},
-                },
-                Params: map[string]interface{}{
-                    "model": "gpt-4o-mini",
-                },
-                MaxHistory:       Agora.Int(32),
-                GreetingMessage:  Agora.String("Hello, how can I assist you today?"),
-                FailureMessage:   Agora.String("Please hold on a second."),
-            },
-        },
-    }
-
-    ctx := context.Background()
-    resp, err := c.Agents.Start(ctx, req)
-    if err != nil {
-        log.Fatal(err)
-    }
-    _ = resp
+    _ = client.Telephony
+    _ = client.PhoneNumbers
+    _ = client.AgentManagement
 }
 ```
 
-## Using Pointer Helpers
+## Stopping By Agent ID
 
-The API uses pointer types for optional fields. Use `Agora.Int()`, `Agora.String()`, `Agora.Bool()` from the root package:
-
-```go
-IdleTimeout:   Agora.Int(120),
-Language:      Agora.String("en-US"),
-GreetingMessage: Agora.String("Hello!"),
-```
-
-## MLLM (Raw API)
-
-For MLLM flow without the builder pattern, set `mllm.enable` and pass MLLM turn detection as `mllm.turn_detection`. See the [MLLM Overview](https://docs.agora.io/en/conversational-ai/models/mllm/overview) for details.
+If you need to stop an agent from a separate request handler and do not have the original `AgentSession`, use `StopAgent`. It uses the same app credentials to mint the required ConvoAI REST auth header.
 
 ```go
-req := &Agora.StartAgentsRequest{
-    Appid: "your_app_id",
-    Name:  "mllm_agent",
-    Properties: &Agora.StartAgentsRequestProperties{
-        Channel:       "channel_name",
-        Token:         "your_token",
-        AgentRtcUID:   "1001",
-        RemoteRtcUIDs: []string{"1002"},
-        IdleTimeout:   Agora.Int(120),
-        Mllm: &Agora.StartAgentsRequestPropertiesMllm{
-            Enable: Agora.Bool(true),
-            URL:    "wss://api.openai.com/v1/realtime",
-            APIKey: Agora.String("<your_openai_api_key>"),
-            Vendor: Agora.StartAgentsRequestPropertiesMllmVendorOpenai.Ptr(),
-            Params: map[string]interface{}{
-                "model": "gpt-4o-realtime-preview",
-                "voice": "alloy",
-            },
-            InputModalities:  []string{"audio"},
-            OutputModalities: []string{"text", "audio"},
-            GreetingMessage:  Agora.String("Hello! I'm ready to chat in real-time."),
-            TurnDetection: &Agora.StartAgentsRequestPropertiesMllmTurnDetection{
-                Mode: Agora.StartAgentsRequestPropertiesMllmTurnDetectionModeServerVad.Ptr(),
-                ServerVadConfig: &Agora.StartAgentsRequestPropertiesMllmTurnDetectionServerVadConfig{
-                    IdleTimeoutMs: Agora.Int(5000),
-                },
-            },
-        },
-    },
+if err := client.StopAgent(ctx, agentID); err != nil {
+    return err
 }
 ```
 
-For more on the agentkit-based MLLM flow, see [MLLM Flow](./mllm-flow.md).
+## Raw Types
+
+Generated request and response types are still useful for strongly typed values, pointer helpers, and advanced payload construction. The root package exposes helpers such as `Agora.String`, `Agora.Bool`, `Agora.Int`, and `Agora.Float64` for optional fields.
+
+```go
+import Agora "github.com/AgoraIO/agora-agents-go/v2"
+
+idleTimeout := Agora.Int(120)
+greeting := Agora.String("Hello! How can I help?")
+```
+
+For full generated method signatures, see [reference.md](../../reference.md).

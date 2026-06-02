@@ -20,13 +20,13 @@ The SDK is organized into two layers with distinct responsibilities.
 │  CreateSession()   │  NewElevenLabsTTS()             │
 │  AgentOption funcs │  NewDeepgramSTT()               │
 │  Session lifecycle │  NewOpenAIRealtime()            │
-│  Token generation  │  NewHeyGenAvatar()              │
+│  Token generation  │  NewLiveAvatarAvatar()          │
 │                    │  ... (30+ vendor constructors)  │
 ├─────────────────────────────────────────────────────┤
 │  client/           │  option/                        │
 │  ─────────         │  ────────                       │
-│  NewClient()       │  WithBasicAuth()                │
-│  client.Agents     │  WithToken()                    │
+│  NewClient()       │  WithBaseURL()                  │
+│  client.Agents     │  WithHTTPClient()               │
 │  client.Telephony  │  WithBaseURL()                  │
 │  client.PhoneNums  │  WithArea()                     │
 │                    │  WithMaxAttempts()               │

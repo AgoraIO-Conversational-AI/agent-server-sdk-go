@@ -58,13 +58,13 @@ func NewOpenAI(opts OpenAIOptions) *OpenAI {
 		switch strings.ToLower(strings.TrimSpace(opts.Model)) {
 		case "gpt-4o-mini", "gpt-4.1-mini", "gpt-5-nano", "gpt-5-mini":
 			if opts.BaseURL != "" {
-				panic("OpenAI preset-backed mode does not allow BaseURL")
+				panic("OpenAI Agora-managed mode does not allow BaseURL")
 			}
 			if opts.Vendor != "" {
-				panic("OpenAI preset-backed mode does not allow Vendor")
+				panic("OpenAI Agora-managed mode does not allow Vendor")
 			}
 		default:
-			panic("OpenAI requires APIKey unless using a supported preset-backed model")
+			panic("OpenAI requires APIKey unless using a supported Agora-managed model")
 		}
 	}
 	return &OpenAI{options: opts}
@@ -142,7 +142,11 @@ func (o *OpenAI) ToConfig() map[string]interface{} {
 }
 
 type AzureOpenAIOptions struct {
-	APIKey            string
+	APIKey string
+	// Model is the deployment's underlying model name (e.g., "gpt-4o"). Sent in `params.model`
+	// for parity with the TypeScript SDK; Azure ignores the field for chat completions because
+	// the deployment determines the model, but downstream tooling and logs use it.
+	Model             string
 	Endpoint          string
 	DeploymentName    string
 	APIVersion        string
@@ -204,8 +208,11 @@ func (a *AzureOpenAI) ToConfig() map[string]interface{} {
 		"input_modalities": inputMod,
 	}
 
-	// model is the base; explicit Params entries extend it; named fields win.
+	// model is the base; explicit Params entries override it; named fields (temperature/top_p/max_tokens) win.
 	params := map[string]interface{}{}
+	if a.options.Model != "" {
+		params["model"] = a.options.Model
+	}
 	for k, v := range a.options.Params {
 		params[k] = v
 	}
@@ -460,5 +467,209 @@ func (g *Gemini) ToConfig() map[string]interface{} {
 		config["max_history"] = *g.options.MaxHistory
 	}
 
+	return config
+}
+
+type GroqOptions = OpenAIOptions
+
+type Groq struct {
+	options GroqOptions
+}
+
+func NewGroq(opts GroqOptions) *Groq {
+	if opts.APIKey == "" {
+		panic("Groq requires APIKey")
+	}
+	if opts.Model == "" {
+		opts.Model = "llama-3.3-70b-versatile"
+	}
+	return &Groq{options: opts}
+}
+
+func (g *Groq) ToConfig() map[string]interface{} {
+	opts := g.options
+	if opts.BaseURL == "" {
+		opts.BaseURL = "https://api.groq.com/openai/v1/chat/completions"
+	}
+	return (&OpenAI{options: opts}).ToConfig()
+}
+
+type CustomLLMOptions = OpenAIOptions
+
+type CustomLLM struct {
+	options CustomLLMOptions
+}
+
+func NewCustomLLM(opts CustomLLMOptions) *CustomLLM {
+	if opts.APIKey == "" {
+		panic("CustomLLM requires APIKey")
+	}
+	if opts.BaseURL == "" {
+		panic("CustomLLM requires BaseURL")
+	}
+	if opts.Model == "" {
+		panic("CustomLLM requires Model")
+	}
+	return &CustomLLM{options: opts}
+}
+
+func (c *CustomLLM) ToConfig() map[string]interface{} {
+	opts := c.options
+	if opts.Vendor == "" {
+		opts.Vendor = "custom"
+	}
+	return (&OpenAI{options: opts}).ToConfig()
+}
+
+type VertexAILLMOptions struct {
+	GeminiOptions
+	ProjectID string
+	Location  string
+}
+
+type VertexAILLM struct {
+	options VertexAILLMOptions
+}
+
+func NewVertexAILLM(opts VertexAILLMOptions) *VertexAILLM {
+	if opts.APIKey == "" {
+		panic("VertexAILLM requires APIKey")
+	}
+	if opts.ProjectID == "" {
+		panic("VertexAILLM requires ProjectID")
+	}
+	if opts.Location == "" {
+		panic("VertexAILLM requires Location")
+	}
+	if opts.Model == "" {
+		opts.Model = "gemini-2.0-flash-exp"
+	}
+	return &VertexAILLM{options: opts}
+}
+
+func (v *VertexAILLM) ToConfig() map[string]interface{} {
+	opts := v.options.GeminiOptions
+	opts.APIKey = v.options.APIKey
+	opts.Model = v.options.Model
+	opts.URL = v.options.URL
+	config := (&Gemini{options: opts}).ToConfig()
+	params, _ := config["params"].(map[string]interface{})
+	if params == nil {
+		params = map[string]interface{}{}
+	}
+	params["project_id"] = v.options.ProjectID
+	params["location"] = v.options.Location
+	config["params"] = params
+	return config
+}
+
+type AmazonBedrockOptions = AnthropicOptions
+
+type AmazonBedrock struct {
+	options AmazonBedrockOptions
+}
+
+func NewAmazonBedrock(opts AmazonBedrockOptions) *AmazonBedrock {
+	if opts.APIKey == "" {
+		panic("AmazonBedrock requires APIKey")
+	}
+	if opts.URL == "" {
+		panic("AmazonBedrock requires URL")
+	}
+	if opts.Model == "" {
+		panic("AmazonBedrock requires Model")
+	}
+	return &AmazonBedrock{options: opts}
+}
+
+func (a *AmazonBedrock) ToConfig() map[string]interface{} {
+	return (&Anthropic{options: a.options}).ToConfig()
+}
+
+type DifyOptions struct {
+	APIKey            string
+	URL               string
+	User              string
+	ConversationID    string
+	MaxHistory        *int
+	SystemMessages    []map[string]interface{}
+	GreetingMessage   string
+	FailureMessage    string
+	InputModalities   []string
+	Params            map[string]interface{}
+	Headers           map[string]string
+	OutputModalities  []string
+	GreetingConfigs   map[string]interface{}
+	TemplateVariables map[string]string
+	Vendor            string
+	McpServers        []map[string]interface{}
+}
+
+type Dify struct {
+	options DifyOptions
+}
+
+func NewDify(opts DifyOptions) *Dify {
+	if opts.APIKey == "" {
+		panic("Dify requires APIKey")
+	}
+	if opts.URL == "" {
+		panic("Dify requires URL")
+	}
+	return &Dify{options: opts}
+}
+
+func (d *Dify) ToConfig() map[string]interface{} {
+	inputMod := d.options.InputModalities
+	if inputMod == nil {
+		inputMod = []string{"text"}
+	}
+	params := map[string]interface{}{}
+	for k, v := range d.options.Params {
+		params[k] = v
+	}
+	if d.options.User != "" {
+		params["user"] = d.options.User
+	}
+	if d.options.ConversationID != "" {
+		params["conversation_id"] = d.options.ConversationID
+	}
+	config := map[string]interface{}{
+		"url":              d.options.URL,
+		"api_key":          d.options.APIKey,
+		"params":           params,
+		"style":            "dify",
+		"input_modalities": inputMod,
+	}
+	if d.options.Headers != nil {
+		config["headers"] = d.options.Headers
+	}
+	if d.options.SystemMessages != nil {
+		config["system_messages"] = d.options.SystemMessages
+	}
+	if d.options.GreetingMessage != "" {
+		config["greeting_message"] = d.options.GreetingMessage
+	}
+	if d.options.FailureMessage != "" {
+		config["failure_message"] = d.options.FailureMessage
+	}
+	if d.options.OutputModalities != nil {
+		config["output_modalities"] = d.options.OutputModalities
+	}
+	if d.options.GreetingConfigs != nil {
+		config["greeting_configs"] = d.options.GreetingConfigs
+	}
+	if d.options.TemplateVariables != nil {
+		config["template_variables"] = d.options.TemplateVariables
+	}
+	if d.options.Vendor != "" {
+		config["vendor"] = d.options.Vendor
+	}
+	if d.options.McpServers != nil {
+		config["mcp_servers"] = ensureMcpTransport(d.options.McpServers)
+	}
+	if d.options.MaxHistory != nil {
+		config["max_history"] = *d.options.MaxHistory
+	}
 	return config
 }

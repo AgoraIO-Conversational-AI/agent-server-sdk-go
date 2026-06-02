@@ -1,17 +1,17 @@
 ---
 sidebar_position: 3
 title: Quick Start
-description: Build and run your first Agora Conversational AI agent in Go with app credentials and presets.
+description: Build and run your first Agora Conversational AI agent in Go with app credentials and the builder API.
 ---
 
 # Quick Start
 
-This guide uses the recommended onboarding path:
+This guide starts with the standard AgentKit path:
 
 - `AppID`, `AppCertificate`, and `Area` on `AgoraClient`
-- `Preset` for Agora-managed ASR, LLM, and TTS
+- the `Agent` builder with `WithStt()`, `WithLlm()`, and `WithTts()`
 - automatic ConvoAI REST auth and RTC join token generation
-- no vendor API keys in application code
+- no vendor API keys when using supported Agora-managed models
 
 ## Full example
 
@@ -23,8 +23,9 @@ import (
     "fmt"
     "log"
 
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit"
+    "github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors"
+    "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 func main() {
@@ -37,12 +38,25 @@ func main() {
         AppCertificate: "your-app-certificate",
     })
 
-    // Agent-level behavior lives here. Vendor selection comes from presets below.
     agent := agentkit.NewAgent(
         agentkit.WithName("support-assistant"),
         agentkit.WithInstructions("You are a concise support voice assistant."),
         agentkit.WithGreeting("Hello! How can I help you today?"),
         agentkit.WithMaxHistory(10),
+    ).WithStt(
+        vendors.NewDeepgramSTT(vendors.DeepgramSTTOptions{
+            Model:    "nova-3",
+            Language: "en",
+        }),
+    ).WithLlm(
+        vendors.NewOpenAI(vendors.OpenAIOptions{
+            Model: "gpt-5-mini",
+        }),
+    ).WithTts(
+        vendors.NewOpenAITTS(vendors.OpenAITTSOptions{
+            Model: "tts-1",
+            Voice: "alloy",
+        }),
     )
 
     session := agent.CreateSession(client, agentkit.CreateSessionOptions{
@@ -50,11 +64,6 @@ func main() {
         AgentUID:    "1",
         RemoteUIDs:  []string{"100"},
         IdleTimeout: &idleTimeout,
-        Preset: []string{
-            agentkit.AgentPresets.Asr.DeepgramNova3,
-            agentkit.AgentPresets.Llm.OpenAIGpt5Mini,
-            agentkit.AgentPresets.Tts.OpenAITts1,
-        },
     })
 
     agentSessionID, err := session.Start(ctx)
@@ -76,18 +85,18 @@ func main() {
 
 1. `AgoraClient` runs in app-credentials mode when you pass `AppID` and `AppCertificate` only.
 2. `Agent` holds reusable behavior such as instructions, greeting, and history settings.
-3. `Preset` tells Agora which managed ASR, LLM, and TTS vendors to run.
+3. Vendor constructors on the builder select the ASR, LLM, and TTS stack. AgentKit uses Agora-managed configuration when credentials are omitted for supported models.
 4. `session.Start(...)` lets the SDK generate the required auth tokens automatically.
 5. `session.Start(...)` returns the unique agent session ID.
 
 ## When to use BYOK instead
 
-Use presets when you want the fastest path to a working agent.
+Use the builder without vendor API keys when you are using supported Agora-managed models.
 
 Use BYOK when you need to:
 
 - supply your own vendor API keys
-- use models outside the preset catalog
+- use models outside the Agora-managed catalog
 - point at custom vendor endpoints
 - manage vendor-specific parameters directly
 

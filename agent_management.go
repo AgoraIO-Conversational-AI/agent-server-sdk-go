@@ -5,7 +5,7 @@ package Agora
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
+	internal "github.com/AgoraIO/agora-agents-go/v2/internal"
 	big "math/big"
 )
 
@@ -29,6 +29,7 @@ type AgentThinkAgentManagementRequest struct {
 	Text string `json:"text" url:"-"`
 	// The action to take when the agent is in a listening state:
 	// - `inject`: Inject the custom text instruction into the current turn without interrupting it.
+	// - `interrupt`: Immediately interrupt the current flow and initiate a new round of dialogue.
 	// - `ignore`: Ignore the request.
 	OnListeningAction *AgentThinkAgentManagementRequestOnListeningAction `json:"on_listening_action,omitempty" url:"-"`
 	// The action to take when the agent is in a thinking state:
@@ -115,18 +116,22 @@ func (a *AgentThinkAgentManagementRequest) SetMetadata(metadata map[string]strin
 
 // The action to take when the agent is in a listening state:
 // - `inject`: Inject the custom text instruction into the current turn without interrupting it.
+// - `interrupt`: Immediately interrupt the current flow and initiate a new round of dialogue.
 // - `ignore`: Ignore the request.
 type AgentThinkAgentManagementRequestOnListeningAction string
 
 const (
-	AgentThinkAgentManagementRequestOnListeningActionInject AgentThinkAgentManagementRequestOnListeningAction = "inject"
-	AgentThinkAgentManagementRequestOnListeningActionIgnore AgentThinkAgentManagementRequestOnListeningAction = "ignore"
+	AgentThinkAgentManagementRequestOnListeningActionInject    AgentThinkAgentManagementRequestOnListeningAction = "inject"
+	AgentThinkAgentManagementRequestOnListeningActionInterrupt AgentThinkAgentManagementRequestOnListeningAction = "interrupt"
+	AgentThinkAgentManagementRequestOnListeningActionIgnore    AgentThinkAgentManagementRequestOnListeningAction = "ignore"
 )
 
 func NewAgentThinkAgentManagementRequestOnListeningActionFromString(s string) (AgentThinkAgentManagementRequestOnListeningAction, error) {
 	switch s {
 	case "inject":
 		return AgentThinkAgentManagementRequestOnListeningActionInject, nil
+	case "interrupt":
+		return AgentThinkAgentManagementRequestOnListeningActionInterrupt, nil
 	case "ignore":
 		return AgentThinkAgentManagementRequestOnListeningActionIgnore, nil
 	}
@@ -199,7 +204,7 @@ type AgentThinkAgentManagementResponse struct {
 	AgentID *string `json:"agent_id,omitempty" url:"agent_id,omitempty"`
 	// The name of the RTC channel where the agent is located.
 	Channel *string `json:"channel,omitempty" url:"channel,omitempty"`
-	// Timestamp indicating when the agent was created.
+	// Unix timestamp in seconds when the think request was processed.
 	StartTs *int `json:"start_ts,omitempty" url:"start_ts,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

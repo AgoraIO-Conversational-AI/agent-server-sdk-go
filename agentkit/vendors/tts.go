@@ -144,7 +144,7 @@ func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS {
 	if opts.APIKey == "" {
 		model := strings.ToLower(strings.TrimSpace(opts.Model))
 		if model != "" && model != "tts-1" {
-			panic("OpenAITTS requires APIKey unless using the preset-backed tts-1 model")
+			panic("OpenAITTS requires APIKey unless using the Agora-managed tts-1 model")
 		}
 	}
 	return &OpenAITTS{options: opts}
@@ -534,7 +534,7 @@ func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS {
 		switch model {
 		case "speech-2.6-turbo", "speech_2_6_turbo", "speech-2.8-turbo", "speech_2_8_turbo":
 		default:
-			panic("MiniMaxTTS requires Key unless using a supported preset-backed model")
+			panic("MiniMaxTTS requires Key unless using a supported Agora-managed model")
 		}
 	}
 	if opts.Key != "" && opts.GroupID == "" {

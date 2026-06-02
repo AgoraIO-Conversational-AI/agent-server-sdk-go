@@ -3,7 +3,7 @@
 package client
 
 import (
-	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	option "github.com/AgoraIO/agora-agents-go/v2/option"
 	assert "github.com/stretchr/testify/assert"
 	http "net/http"
 	testing "testing"

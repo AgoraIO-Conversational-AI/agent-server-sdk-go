@@ -4,10 +4,10 @@ package agentmanagement
 
 import (
 	context "context"
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	internal "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/internal"
-	option "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go/v2"
+	core "github.com/AgoraIO/agora-agents-go/v2/core"
+	internal "github.com/AgoraIO/agora-agents-go/v2/internal"
+	option "github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
 type Client struct {

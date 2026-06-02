@@ -60,9 +60,9 @@ func (r *RequestOptions) ToHeader() http.Header {
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go")
-	headers.Set("X-Fern-SDK-Version", "v1.4.0")
-	headers.Set("User-Agent", "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/v1.4.0")
+	headers.Set("X-Fern-SDK-Name", "github.com/AgoraIO/agora-agents-go/v2")
+	headers.Set("X-Fern-SDK-Version", "v2.1.0")
+	headers.Set("User-Agent", "github.com/AgoraIO/agora-agents-go/v2.1.0")
 	return headers
 }
 

@@ -11,22 +11,38 @@ import (
 	"sync"
 	"time"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go/v2"
+	"github.com/AgoraIO/agora-agents-go/v2/agentmanagement"
+	"github.com/AgoraIO/agora-agents-go/v2/agents"
+	"github.com/AgoraIO/agora-agents-go/v2/core"
+	"github.com/AgoraIO/agora-agents-go/v2/option"
 )
 
-type SessionStatus string
+// AgentSessionLifecycle is the local client lifecycle state for AgentSession.
+type AgentSessionLifecycle string
 
 const (
-	StatusIdle     SessionStatus = "idle"
-	StatusStarting SessionStatus = "starting"
-	StatusRunning  SessionStatus = "running"
-	StatusStopping SessionStatus = "stopping"
-	StatusStopped  SessionStatus = "stopped"
-	StatusError    SessionStatus = "error"
+	AgentSessionLifecycleIdle     AgentSessionLifecycle = "idle"
+	AgentSessionLifecycleStarting AgentSessionLifecycle = "starting"
+	AgentSessionLifecycleRunning  AgentSessionLifecycle = "running"
+	AgentSessionLifecycleStopping AgentSessionLifecycle = "stopping"
+	AgentSessionLifecycleStopped  AgentSessionLifecycle = "stopped"
+	AgentSessionLifecycleError    AgentSessionLifecycle = "error"
+)
+
+const (
+	// Deprecated: Use AgentSessionLifecycleIdle.
+	StatusIdle = AgentSessionLifecycleIdle
+	// Deprecated: Use AgentSessionLifecycleStarting.
+	StatusStarting = AgentSessionLifecycleStarting
+	// Deprecated: Use AgentSessionLifecycleRunning.
+	StatusRunning = AgentSessionLifecycleRunning
+	// Deprecated: Use AgentSessionLifecycleStopping.
+	StatusStopping = AgentSessionLifecycleStopping
+	// Deprecated: Use AgentSessionLifecycleStopped.
+	StatusStopped = AgentSessionLifecycleStopped
+	// Deprecated: Use AgentSessionLifecycleError.
+	StatusError = AgentSessionLifecycleError
 )
 
 type EventHandler func(data interface{})
@@ -52,7 +68,7 @@ type AgentSession struct {
 	warn            func(string)
 
 	agentID  string
-	status   SessionStatus
+	status   AgentSessionLifecycle
 	mu       sync.RWMutex
 	handlers map[string][]EventHandler
 }
@@ -114,25 +130,29 @@ func NewAgentSession(opts AgentSessionOptions) *AgentSession {
 }
 
 // convoAIRequestOpts returns per-request options with ConvoAI token when using app credentials.
-func (s *AgentSession) convoAIRequestOpts(ctx context.Context) []option.RequestOption {
-	if !s.useAppCredsREST || s.appCertificate == "" {
-		return nil
+func (s *AgentSession) convoAIRequestOpts(ctx context.Context) ([]option.RequestOption, error) {
+	if !s.useAppCredsREST {
+		return nil, nil
+	}
+	if s.appCertificate == "" {
+		return nil, fmt.Errorf("appCertificate is required for app-credentials auth mode; pass AppCertificate when creating AgoraClient")
+	}
+	uid, err := parseNumericUID(s.agentUID, "agent UID")
+	if err != nil {
+		return nil, err
 	}
 	token, err := GenerateConvoAIToken(GenerateConvoAITokenOptions{
 		AppID:          s.appID,
 		AppCertificate: s.appCertificate,
 		ChannelName:    s.channel,
-		Account:        s.agentUID,
+		UID:            uid,
 	})
 	if err != nil {
-		// Log and fall through without auth headers; the API call will fail with
-		// an auth error, but this log surfaces the real cause.
-		log.Printf("agentkit: failed to generate ConvoAI token: %v", err)
-		return nil
+		return nil, fmt.Errorf("failed to generate ConvoAI token for app-credentials auth mode: %w", err)
 	}
 	h := make(http.Header)
 	h.Set("Authorization", "agora token="+token)
-	return []option.RequestOption{option.WithHTTPHeader(h)}
+	return []option.RequestOption{option.WithHTTPHeader(h)}, nil
 }
 
 func (s *AgentSession) ID() string {
@@ -141,7 +161,7 @@ func (s *AgentSession) ID() string {
 	return s.agentID
 }
 
-func (s *AgentSession) Status() SessionStatus {
+func (s *AgentSession) Status() AgentSessionLifecycle {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.status
@@ -173,6 +193,9 @@ func (s *AgentSession) warnf(message string) {
 
 func (s *AgentSession) validateAvatarConfig() error {
 	if s.agent == nil || s.agent.avatar == nil {
+		return nil
+	}
+	if !avatarConfigEnabled(s.agent.avatar) {
 		return nil
 	}
 
@@ -209,8 +232,12 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		s.mu.Unlock()
 		return "", fmt.Errorf("cannot start session in %s state", s.status)
 	}
+	if s.agent != nil && s.agent.mllm != nil && s.agent.hasEnabledAvatar() {
+		s.mu.Unlock()
+		return "", fmt.Errorf("avatar is only supported with cascading ASR/LLM/TTS sessions; remove the avatar configuration when using MLLM")
+	}
 
-	if s.agent.avatarRequiredSampleRate != nil && s.agent.ttsSampleRate != nil {
+	if s.agent.avatar != nil && avatarConfigEnabled(s.agent.avatar) && s.agent.avatarRequiredSampleRate != nil && *s.agent.avatarRequiredSampleRate != 0 && s.agent.ttsSampleRate != nil {
 		if *s.agent.ttsSampleRate != *s.agent.avatarRequiredSampleRate {
 			s.mu.Unlock()
 			return "", fmt.Errorf(
@@ -238,9 +265,10 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		IdleTimeout:          s.idleTimeout,
 		EnableStringUID:      s.enableStringUID,
 		SkipVendorValidation: len(s.preset) > 0 || s.pipelineID != "",
+		Warn:                 s.warnf,
 	}
 
-	properties, err := s.agent.ToProperties(propOpts)
+	properties, err := s.agent.ToPropertiesMap(propOpts)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -249,7 +277,7 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	resolvedPreset, resolvedProperties, err := ResolveSessionPresets(s.preset, properties)
+	resolvedPreset, resolvedProperties, err := ResolveSessionPresetsMap(s.preset, properties)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -257,13 +285,14 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		s.emit("error", err)
 		return "", err
 	}
-
-	req := &Agora.StartAgentsRequest{
-		Appid:      s.appID,
-		Name:       s.name,
-		Preset:     stringPtrOrNil(resolvedPreset),
-		PipelineID: stringPtrOrNil(s.pipelineID),
+	if err := validateEnrichedAvatarConfig(resolvedProperties); err != nil {
+		s.mu.Lock()
+		s.status = StatusError
+		s.mu.Unlock()
+		s.emit("error", err)
+		return "", err
 	}
+
 	if s.debug {
 		debugPayload := map[string]interface{}{
 			"name":       s.name,
@@ -282,9 +311,15 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 		}
 	}
 
-	req.Properties = resolvedProperties
-	reqOpts := s.convoAIRequestOpts(ctx)
-	resp, err := s.client.Start(ctx, req, reqOpts...)
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		s.mu.Lock()
+		s.status = StatusError
+		s.mu.Unlock()
+		s.emit("error", err)
+		return "", err
+	}
+	resp, err := startAgentsWithMapBody(ctx, s.client, s.appID, s.name, resolvedPreset, s.pipelineID, resolvedProperties, reqOpts...)
 	if err != nil {
 		s.mu.Lock()
 		s.status = StatusError
@@ -304,6 +339,37 @@ func (s *AgentSession) Start(ctx context.Context) (string, error) {
 	return s.agentID, nil
 }
 
+func validateEnrichedAvatarConfig(properties map[string]interface{}) error {
+	if properties == nil {
+		return nil
+	}
+	avatar := asMap(properties["avatar"])
+	if len(avatar) == 0 || !avatarConfigEnabled(avatar) {
+		return nil
+	}
+	vendor, _ := avatar["vendor"].(string)
+	params := asMap(avatar["params"])
+	if err := ValidateAvatarConfig(vendor, params); err != nil {
+		return err
+	}
+	if IsGenericAvatar(vendor) {
+		if !hasNonEmptyString(params, "agora_appid") {
+			return fmt.Errorf("Generic avatar requires agora_appid")
+		}
+		if !hasNonEmptyString(params, "agora_channel") {
+			return fmt.Errorf("Generic avatar requires agora_channel")
+		}
+		if !hasNonEmptyString(params, "agora_token") {
+			return fmt.Errorf("Generic avatar requires agora_token")
+		}
+		return nil
+	}
+	if IsAvatarTokenManaged(vendor) && avatarUIDString(params["agora_uid"]) != "" && !hasNonEmptyString(params, "agora_token") {
+		return fmt.Errorf("%s avatar requires agora_token; pass AgoraToken on the avatar vendor or provide AppCertificate for automatic token generation", vendor)
+	}
+	return nil
+}
+
 func (s *AgentSession) Stop(ctx context.Context) error {
 	s.mu.Lock()
 	if s.status != StatusRunning {
@@ -317,8 +383,15 @@ func (s *AgentSession) Stop(ctx context.Context) error {
 	s.status = StatusStopping
 	s.mu.Unlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
-	err := s.client.Stop(ctx, &Agora.StopAgentsRequest{
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		s.mu.Lock()
+		s.status = StatusError
+		s.mu.Unlock()
+		s.emit("error", err)
+		return err
+	}
+	err = s.client.Stop(ctx, &Agora.StopAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
 	}, reqOpts...)
@@ -347,6 +420,18 @@ func (s *AgentSession) Stop(ctx context.Context) error {
 }
 
 func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.SpeakAgentsRequestPriority, interruptable *bool) error {
+	return s.SayWithOptions(ctx, text, &SayOptions{
+		Priority:      priority,
+		Interruptable: interruptable,
+	})
+}
+
+type SayOptions struct {
+	Priority      *Agora.SpeakAgentsRequestPriority
+	Interruptable *bool
+}
+
+func (s *AgentSession) SayWithOptions(ctx context.Context, text string, opts *SayOptions) error {
 	s.mu.RLock()
 	if s.status != StatusRunning {
 		s.mu.RUnlock()
@@ -359,15 +444,20 @@ func (s *AgentSession) Say(ctx context.Context, text string, priority *Agora.Spe
 	s.mu.RUnlock()
 
 	req := &Agora.SpeakAgentsRequest{
-		Appid:         s.appID,
-		AgentID:       s.agentID,
-		Text:          text,
-		Priority:      priority,
-		Interruptable: interruptable,
+		Appid:   s.appID,
+		AgentID: s.agentID,
+		Text:    text,
+	}
+	if opts != nil {
+		req.Priority = opts.Priority
+		req.Interruptable = opts.Interruptable
 	}
 
-	reqOpts := s.convoAIRequestOpts(ctx)
-	_, err := s.client.Speak(ctx, req, reqOpts...)
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = s.client.Speak(ctx, req, reqOpts...)
 	return err
 }
 
@@ -383,8 +473,11 @@ func (s *AgentSession) Interrupt(ctx context.Context) error {
 	}
 	s.mu.RUnlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
-	_, err := s.client.Interrupt(ctx, &Agora.InterruptAgentsRequest{
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = s.client.Interrupt(ctx, &Agora.InterruptAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
 	}, reqOpts...)
@@ -448,7 +541,10 @@ func (s *AgentSession) ThinkWithOptions(
 		req.Interruptable = opts.Interruptable
 		req.Metadata = opts.Metadata
 	}
-	reqOpts := s.convoAIRequestOpts(ctx)
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return s.agentManagement.AgentThink(ctx, req, reqOpts...)
 }
 
@@ -464,8 +560,11 @@ func (s *AgentSession) Update(ctx context.Context, properties *Agora.UpdateAgent
 	}
 	s.mu.RUnlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
-	_, err := s.client.Update(ctx, &Agora.UpdateAgentsRequest{
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = s.client.Update(ctx, &Agora.UpdateAgentsRequest{
 		Appid:      s.appID,
 		AgentID:    s.agentID,
 		Properties: properties,
@@ -481,7 +580,10 @@ func (s *AgentSession) GetHistory(ctx context.Context) (*Agora.GetHistoryAgentsR
 	}
 	s.mu.RUnlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return s.client.GetHistory(ctx, &Agora.GetHistoryAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
@@ -496,14 +598,26 @@ func (s *AgentSession) GetInfo(ctx context.Context) (*Agora.GetAgentsResponse, e
 	}
 	s.mu.RUnlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return s.client.Get(ctx, &Agora.GetAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
 	}, reqOpts...)
 }
 
-func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsResponse, error) {
+type GetTurnsOptions struct {
+	PageIndex *int
+	PageSize  *int
+}
+
+type GetAllTurnsOptions struct {
+	PageSize *int
+}
+
+func (s *AgentSession) GetTurns(ctx context.Context, opts ...GetTurnsOptions) (*Agora.GetTurnsAgentsResponse, error) {
 	s.mu.RLock()
 	if s.agentID == "" {
 		s.mu.RUnlock()
@@ -511,11 +625,66 @@ func (s *AgentSession) GetTurns(ctx context.Context) (*Agora.GetTurnsAgentsRespo
 	}
 	s.mu.RUnlock()
 
-	reqOpts := s.convoAIRequestOpts(ctx)
-	return s.client.GetTurns(ctx, &Agora.GetTurnsAgentsRequest{
+	req := &Agora.GetTurnsAgentsRequest{
 		Appid:   s.appID,
 		AgentID: s.agentID,
-	}, reqOpts...)
+	}
+	if len(opts) > 0 {
+		req.PageIndex = opts[0].PageIndex
+		req.PageSize = opts[0].PageSize
+	}
+	reqOpts, err := s.convoAIRequestOpts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return s.client.GetTurns(ctx, req, reqOpts...)
+}
+
+func (s *AgentSession) GetAllTurns(ctx context.Context, opts ...GetAllTurnsOptions) (*Agora.GetTurnsAgentsResponse, error) {
+	pageIndex := 1
+	pageSize := 50
+	if len(opts) > 0 && opts[0].PageSize != nil {
+		pageSize = *opts[0].PageSize
+	}
+	all := []*Agora.GetTurnsAgentsResponseTurnsItem{}
+	var latest *Agora.GetTurnsAgentsResponse
+	currentPage := 0
+	for {
+		resp, err := s.GetTurns(ctx, GetTurnsOptions{
+			PageIndex: &pageIndex,
+			PageSize:  &pageSize,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if resp == nil {
+			return &Agora.GetTurnsAgentsResponse{Turns: all}, nil
+		}
+		latest = resp
+		all = append(all, resp.Turns...)
+		if resp.Pagination != nil {
+			if resp.Pagination.IsLastPage != nil && *resp.Pagination.IsLastPage {
+				latest.Turns = all
+				return latest, nil
+			}
+			if resp.Pagination.TotalPages != nil && pageIndex >= *resp.Pagination.TotalPages {
+				latest.Turns = all
+				return latest, nil
+			}
+			if resp.Pagination.PageIndex != nil {
+				if *resp.Pagination.PageIndex <= currentPage {
+					return nil, fmt.Errorf("getAllTurns pagination did not advance: requested page %d, received page %d", pageIndex, *resp.Pagination.PageIndex)
+				}
+				currentPage = *resp.Pagination.PageIndex
+			} else {
+				currentPage = pageIndex
+			}
+		} else {
+			latest.Turns = all
+			return latest, nil
+		}
+		pageIndex++
+	}
 }
 
 func (s *AgentSession) On(event string, handler EventHandler) {

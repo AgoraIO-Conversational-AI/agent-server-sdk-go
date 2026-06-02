@@ -6,7 +6,7 @@ description: Complete API reference for all vendor constructors and configuratio
 
 # Vendors Reference
 
-Package: `github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentkit/vendors`
+Package: `github.com/AgoraIO/agora-agents-go/v2/agentkit/vendors`
 
 ## SampleRate
 
@@ -62,13 +62,13 @@ type Avatar interface {
 func NewOpenAI(opts OpenAIOptions) *OpenAI
 ```
 
-Panics if `APIKey` is empty unless `Model` is one of the supported preset-backed OpenAI models (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-5-nano`, `gpt-5-mini`) and `BaseURL` / `Vendor` are not set.
+Panics if `APIKey` is empty unless `Model` is one of the supported Agora-managed OpenAI models (`gpt-4o-mini`, `gpt-4.1-mini`, `gpt-5-nano`, `gpt-5-mini`) and `BaseURL` / `Vendor` are not set.
 
 #### OpenAIOptions
 
 | Field             | Type                       | Required | Default                                        | Description             |
 | ----------------- | -------------------------- | -------- | ---------------------------------------------- | ----------------------- |
-| `APIKey`          | `string`                   | No       | —                                              | OpenAI API key. Optional for supported preset-backed OpenAI models. |
+| `APIKey`          | `string`                   | No       | —                                              | OpenAI API key. Optional for supported Agora-managed OpenAI models. |
 | `Model`           | `string`                   | No       | `"gpt-4o-mini"`                                | Model identifier        |
 | `BaseURL`         | `string`                   | No       | `"https://api.openai.com/v1/chat/completions"` | API endpoint            |
 | `Temperature`     | `*float64`                 | No       | —                                              | Sampling temperature    |
@@ -101,6 +101,7 @@ Panics if `APIKey`, `Endpoint`, or `DeploymentName` is empty.
 | `Endpoint`        | `string`                   | Yes      | —                      | Azure endpoint URL   |
 | `DeploymentName`  | `string`                   | Yes      | —                      | Deployment name      |
 | `APIVersion`      | `string`                   | No       | `"2024-08-01-preview"` | API version          |
+| `Model`           | `string`                   | No       | —                      | Deployment's base model name (e.g., `"gpt-4o"`). Emitted as `params.model` for parity with the TypeScript SDK. |
 | `Temperature`     | `*float64`                 | No       | —                      | Sampling temperature |
 | `TopP`            | `*float64`                 | No       | —                      | Nucleus sampling     |
 | `MaxTokens`       | `*int`                     | No       | —                      | Max tokens           |
@@ -171,6 +172,18 @@ Panics if `APIKey` is empty.
 | `GreetingConfigs` | `map[string]interface{}`   | No       | —                        | Greeting playback configuration |
 | `TemplateVariables` | `map[string]string`      | No       | —                        | Template variables for messages |
 
+### Other LLM vendors
+
+The SDK also includes named helpers for the remaining Agora-supported LLM providers. These helpers choose the correct request format internally.
+
+| Constructor | Options Struct | Required Fields |
+|---|---|---|
+| `NewGroq` | `GroqOptions` | `APIKey` |
+| `NewVertexAILLM` | `VertexAILLMOptions` | `APIKey`, `ProjectID`, `Location` |
+| `NewAmazonBedrock` | `AmazonBedrockOptions` | `APIKey`, `URL`, `Model` |
+| `NewDify` | `DifyOptions` | `APIKey`, `URL` |
+| `NewCustomLLM` | `CustomLLMOptions` | `APIKey`, `BaseURL`, `Model` |
+
 ---
 
 ## TTS Vendors
@@ -221,13 +234,13 @@ Panics if `Key`, `Region`, or `VoiceName` is empty.
 func NewOpenAITTS(opts OpenAITTSOptions) *OpenAITTS
 ```
 
-Panics if `Voice` is empty. `APIKey` is optional for the preset-backed `tts-1` path. Always returns `SampleRate24kHz` from `GetSampleRate()`.
+Panics if `Voice` is empty. `APIKey` is optional for the Agora-managed `tts-1` path. Always returns `SampleRate24kHz` from `GetSampleRate()`.
 
 #### OpenAITTSOptions
 
 | Field            | Type       | Required | Description                        |
 | ---------------- | ---------- | -------- | ---------------------------------- |
-| `APIKey`         | `string`   | No       | OpenAI API key. Optional for the preset-backed `tts-1` path. |
+| `APIKey`         | `string`   | No       | OpenAI API key. Optional for the Agora-managed `tts-1` path. |
 | `Voice`          | `string`   | Yes      | Voice name                         |
 | `Model`          | `string`   | No       | Model identifier                   |
 | `ResponseFormat` | `string`   | No       | Audio format (e.g., `"pcm"`)       |
@@ -372,13 +385,13 @@ Panics if `Key` or `ReferenceID` is empty.
 func NewMiniMaxTTS(opts MiniMaxTTSOptions) *MiniMaxTTS
 ```
 
-Panics if `Model` is empty. `Key` is optional for supported preset-backed MiniMax models (`speech-2.6-turbo`, `speech_2_6_turbo`, `speech-2.8-turbo`, `speech_2_8_turbo`). BYOK still requires `Key` and `GroupID`, and preset-backed mode must not set `GroupID`, `VoiceID`, or `URL`.
+Panics if `Model` is empty. `Key` is optional for supported Agora-managed MiniMax models (`speech-2.6-turbo`, `speech_2_6_turbo`, `speech-2.8-turbo`, `speech_2_8_turbo`). BYOK still requires `Key` and `GroupID`, and Agora-managed mode must not set `GroupID`, `VoiceID`, or `URL`.
 
 #### MiniMaxTTSOptions
 
 | Field          | Type     | Required | Description                               |
 | -------------- | -------- | -------- | ----------------------------------------- |
-| `Key`          | `string` | No       | MiniMax API key. Optional for supported preset-backed MiniMax models. |
+| `Key`          | `string` | No       | MiniMax API key. Optional for supported Agora-managed MiniMax models. |
 | `GroupID`      | `string` | No       | MiniMax group ID. Required for BYOK.      |
 | `Model`        | `string` | Yes      | Model name (e.g., `speech-02-turbo`)      |
 | `VoiceID`      | `string` | No       | Voice style identifier. BYOK only.        |
@@ -600,6 +613,7 @@ Panics if `APIKey` is empty.
 | `Model`           | `string`   | No       | `"gpt-4o-realtime-preview"` | Model identifier                                   |
 | `URL`             | `string`   | No       | —                           | Custom realtime WebSocket URL                      |
 | `GreetingMessage` | `string`                   | No       | —                           | Initial greeting                                   |
+| `FailureMessage`  | `string`                   | No       | —                           | Fallback message                                   |
 | `InputModalities` | `[]string`                 | No       | —                           | Input modalities                                   |
 | `OutputModalities` | `[]string`                | No       | —                           | Output modalities                                  |
 | `Messages`        | `[]map[string]interface{}` | No       | —                           | Conversation messages for short-term memory        |
@@ -621,14 +635,57 @@ Panics if `APIKey` or `Model` is empty.
 | ------------------ | -------------------------- | -------- | ------- | ----------- |
 | `APIKey`           | `string`                   | Yes      | —       | Google AI API key |
 | `Model`            | `string`                   | Yes      | —       | Gemini Live model identifier |
+| `URL`              | `string`                   | No       | —       | Custom realtime WebSocket URL |
 | `Instructions`     | `string`                   | No       | —       | System instruction |
 | `Voice`            | `string`                   | No       | —       | Voice name |
 | `GreetingMessage`  | `string`                   | No       | —       | Initial greeting |
+| `FailureMessage`   | `string`                   | No       | —       | Fallback message |
 | `InputModalities`  | `[]string`                 | No       | —       | Input modalities |
 | `OutputModalities` | `[]string`                 | No       | —       | Output modalities |
 | `Messages`         | `[]map[string]interface{}` | No       | —       | Conversation messages |
 | `AdditionalParams` | `map[string]interface{}`   | No       | —       | Additional Gemini params |
 | `TurnDetection`    | `*Agora.StartAgentsRequestPropertiesMllmTurnDetection` | No | — | MLLM turn detection configuration; overrides top-level turn detection |
+
+### NewXaiGrok
+
+<!-- snippet: fragment -->
+```go
+func NewXaiGrok(opts XaiGrokOptions) *XaiGrok
+```
+
+xAI Grok MLLM vendor (`mllm.vendor`: `"xai"`). Panics if `APIKey` is empty. Defaults `URL` to `wss://api.x.ai/v1/realtime`.
+
+> `NewXAIGrok` / `XAIGrokOptions` are deprecated aliases.
+
+#### XaiGrokOptions
+
+Same fields as `XAIGrokOptions` below.
+
+### NewXAIGrok (deprecated)
+
+<!-- snippet: fragment -->
+```go
+func NewXAIGrok(opts XAIGrokOptions) *XAIGrok
+```
+
+Deprecated. Use `NewXaiGrok` instead.
+
+#### XAIGrokOptions
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `APIKey` | `string` | Yes | — | xAI API key |
+| `URL` | `string` | No | `"wss://api.x.ai/v1/realtime"` | Realtime WebSocket URL |
+| `Voice` | `string` | No | — | Voice identifier |
+| `Language` | `string` | No | — | Language code |
+| `SampleRate` | `*int` | No | — | Audio sample rate in Hz |
+| `GreetingMessage` | `string` | No | — | Initial greeting |
+| `FailureMessage` | `string` | No | — | Fallback message |
+| `InputModalities` | `[]string` | No | — | Input modalities |
+| `OutputModalities` | `[]string` | No | — | Output modalities |
+| `Messages` | `[]map[string]interface{}` | No | — | Conversation messages |
+| `Params` | `map[string]interface{}` | No | — | Additional xAI params |
+| `TurnDetection` | `*Agora.StartAgentsRequestPropertiesMllmTurnDetection` | No | — | `agora_vad` / `server_vad` turn detection |
 
 ### NewVertexAI
 
@@ -646,11 +703,13 @@ func NewVertexAI(opts VertexAIOptions) *VertexAI
 | `ProjectID`       | `string`   | Yes      | —                        | GCP project ID                                  |
 | `Location`        | `string`   | No       | `"us-central1"`          | GCP region                                      |
 | `Model`           | `string`   | No       | `"gemini-2.0-flash-exp"` | Model identifier                                |
+| `URL`             | `string`   | No       | —                        | Custom realtime WebSocket URL                   |
 | `ADCredentialsString` | `string` | Yes     | —                        | ADC JSON credentials string                     |
 | `Voice`           | `string`   | No       | —                        | Voice name                                      |
 | `Instructions`    | `string`                   | No       | —                        | System instruction                              |
 | `Messages`        | `[]map[string]interface{}` | No       | —                        | Conversation messages                           |
 | `GreetingMessage` | `string`                   | No       | —                        | Initial greeting                                |
+| `FailureMessage`  | `string`                   | No       | —                        | Fallback message                                |
 | `InputModalities` | `[]string`                 | No       | —                        | Input modalities                                |
 | `OutputModalities` | `[]string`                | No       | —                        | Output modalities                               |
 | `AdditionalParams` | `map[string]interface{}`  | No       | —                        | Additional Vertex/Gemini params                 |
@@ -660,26 +719,26 @@ func NewVertexAI(opts VertexAIOptions) *VertexAI
 
 ## Avatar Vendors
 
-### NewHeyGenAvatar
+### NewLiveAvatarAvatar
 
 <!-- snippet: fragment -->
 ```go
-func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar
+func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
 ```
 
 Panics if `APIKey` or `AgoraUID` is empty, or if `Quality` is not one of `"low"`, `"medium"`, `"high"`.
 
 Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
 
-#### HeyGenAvatarOptions
+#### LiveAvatarAvatarOptions
 
 | Field                 | Type     | Required | Description                                      |
 | --------------------- | -------- | -------- | ------------------------------------------------ |
-| `APIKey`              | `string` | Yes      | HeyGen API key                                   |
+| `APIKey`              | `string` | Yes      | LiveAvatar API key                               |
 | `Quality`             | `string` | Yes      | `"low"`, `"medium"`, or `"high"`                 |
 | `AgoraUID`            | `string` | Yes      | UID for avatar's video stream                    |
-| `AgoraToken`          | `string` | No       | RTC token for avatar authentication              |
-| `AvatarID`            | `string` | No       | HeyGen avatar ID                                 |
+| `AgoraToken`          | `string` | No       | Avatar Agora token. Auto-generated when omitted. |
+| `AvatarID`            | `string` | No       | LiveAvatar avatar ID                             |
 | `Enable`              | `*bool`  | No       | Enable or disable the avatar (default: `true`)   |
 | `DisableIdleTimeout`  | `*bool`  | No       | Disable the idle timeout                         |
 | `ActivityIdleTimeout` | `*int`   | No       | Idle timeout in seconds (default: 120)           |
@@ -704,16 +763,14 @@ Required TTS sample rate: **16kHz** (`SampleRate16kHz`)
 | `Enable`           | `*bool`                  | No       | Enable or disable the avatar |
 | `AdditionalParams` | `map[string]interface{}` | No       | Additional vendor params |
 
-### NewLiveAvatarAvatar
+### NewHeyGenAvatar (deprecated)
 
 <!-- snippet: fragment -->
 ```go
-func NewLiveAvatarAvatar(opts LiveAvatarAvatarOptions) *LiveAvatarAvatar
+func NewHeyGenAvatar(opts HeyGenAvatarOptions) *HeyGenAvatar
 ```
 
-Panics if `APIKey` or `AgoraUID` is empty, or if `Quality` is not one of `"low"`, `"medium"`, `"high"`.
-
-Required TTS sample rate: **24kHz** (`SampleRate24kHz`)
+Deprecated alias for the LiveAvatar-compatible avatar shape. Use `NewLiveAvatarAvatar` for new integrations.
 
 ### NewAnamAvatar
 
@@ -724,6 +781,31 @@ func NewAnamAvatar(opts AnamAvatarOptions) *AnamAvatar
 
 Panics if `APIKey` is empty.
 
+### NewGenericAvatar
+
+<!-- snippet: fragment -->
+```go
+func NewGenericAvatar(opts GenericAvatarOptions) *GenericAvatar
+```
+
+Panics if `APIKey`, `APIBaseURL`, `AvatarID`, or `AgoraUID` is empty. `AgoraAppID`, `AgoraChannel`, and `AgoraToken` are optional; AgentKit fills them from the session on `Start()` when omitted.
+
+Generic avatars do not enforce a fixed TTS sample rate. Use the sample rate required by your avatar provider.
+
+#### GenericAvatarOptions
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `APIKey` | `string` | Yes | Generic avatar vendor API key |
+| `APIBaseURL` | `string` | Yes | Generic avatar API endpoint |
+| `AvatarID` | `string` | Yes | Avatar identifier |
+| `AgoraUID` | `string` | Yes | UID for avatar video stream; use a different UID from `AgentUID` |
+| `AgoraToken` | `string` | No | Avatar token; auto-generated with the same token format as agent tokens when omitted |
+| `AgoraAppID` | `string` | No | Overrides session App ID |
+| `AgoraChannel` | `string` | No | Overrides session channel |
+| `Enable` | `*bool` | No | Enable or disable the avatar |
+| `AdditionalParams` | `map[string]interface{}` | No | Additional vendor params |
+
 ---
 
 ## Sample Rate Constants
@@ -731,7 +813,7 @@ Panics if `APIKey` is empty.
 <!-- snippet: fragment -->
 ```go
 const (
-    HeyGenRequiredSampleRate = SampleRate24kHz  // 24000 Hz
+    LiveAvatarRequiredSampleRate = SampleRate24kHz
     AkoolRequiredSampleRate  = SampleRate16kHz  // 16000 Hz
 )
 ```

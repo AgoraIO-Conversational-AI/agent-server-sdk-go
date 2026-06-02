@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"net/http"
 
-	Agora "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agentmanagement"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/agents"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
-	"github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
+	Agora "github.com/AgoraIO/agora-agents-go/v2"
+	"github.com/AgoraIO/agora-agents-go/v2/agentmanagement"
+	"github.com/AgoraIO/agora-agents-go/v2/agents"
+	"github.com/AgoraIO/agora-agents-go/v2/client"
+	"github.com/AgoraIO/agora-agents-go/v2/core"
+	"github.com/AgoraIO/agora-agents-go/v2/option"
+	"github.com/AgoraIO/agora-agents-go/v2/phonenumbers"
+	"github.com/AgoraIO/agora-agents-go/v2/telephony"
 )
 
 // AuthMode represents the authentication mode for the Agora client.
@@ -48,10 +50,13 @@ type AgoraClientOptions struct {
 // AgoraClient wraps the Fern-generated client with AppID, AppCertificate, and
 // auth mode tracking—providing the same client API as the TypeScript and Python SDKs.
 //
-// Agents is the underlying agents REST client and is available for advanced usage.
+// Agents, AgentManagement, Telephony, and PhoneNumbers expose the underlying
+// REST clients for advanced usage.
 type AgoraClient struct {
 	Agents          *agents.Client
 	AgentManagement *agentmanagement.Client
+	Telephony       *telephony.Client
+	PhoneNumbers    *phonenumbers.Client
 	AppID           string
 	AppCertificate  string
 	AuthMode        AuthMode
@@ -101,6 +106,8 @@ func NewAgoraClient(opts AgoraClientOptions) *AgoraClient {
 	return &AgoraClient{
 		Agents:          c.Agents,
 		AgentManagement: c.AgentManagement,
+		Telephony:       c.Telephony,
+		PhoneNumbers:    c.PhoneNumbers,
 		AppID:           opts.AppID,
 		AppCertificate:  opts.AppCertificate,
 		AuthMode:        authMode,
@@ -131,7 +138,7 @@ func (c *AgoraClient) StopAgent(ctx context.Context, agentID string) error {
 			AppID:          c.AppID,
 			AppCertificate: c.AppCertificate,
 			ChannelName:    "stop",
-			Account:        agentID,
+			UID:            0,
 		})
 		if err != nil {
 			return fmt.Errorf("agentkit: failed to generate token for StopAgent: %w", err)

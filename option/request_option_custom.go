@@ -1,7 +1,7 @@
 package option
 
 import (
-	core "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/core"
+	core "github.com/AgoraIO/agora-agents-go/v2/core"
 )
 
 // WithToken sets the Authorization header to "agora token=<token>" for ConvoAI REST API auth.

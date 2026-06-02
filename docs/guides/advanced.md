@@ -1,184 +1,81 @@
 ---
 sidebar_position: 8
 title: Advanced
-description: Headers, retries, timeouts, raw response, and custom HTTP client.
+description: Timeouts, cancellation, stopping by agent ID, raw responses, and generated-client escape hatches.
 ---
 
 # Advanced
 
-## Additional Headers
-
-Send additional headers with `option.WithHTTPHeader`:
+The default path for realtime agents is still AgentKit with app credentials:
 
 ```go
-package main
-
-import (
-    "net/http"
-
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-func main() {
-    c := client.NewClient(
-        option.WithToken("<your_rest_auth_token>"),
-    )
-
-    headers := http.Header{}
-    headers.Set("X-Custom-Header", "custom value")
-
-    resp, err := c.Agents.Start(ctx, req, option.WithHTTPHeader(headers))
-    _ = resp
-    _ = err
-}
+client := agentkit.NewAgoraClient(agentkit.AgoraClientOptions{
+    Area:           option.AreaUS,
+    AppID:          "your-app-id",
+    AppCertificate: "your-app-certificate",
+})
 ```
 
-## Additional Query Parameters
-
-Use `option.WithQueryParameters`:
-
-```go
-import (
-    "net/url"
-
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-params := url.Values{}
-params.Set("customQueryParamKey", "custom query param value")
-
-resp, err := c.Agents.Start(ctx, req, option.WithQueryParameters(params))
-```
-
-## Retries
-
-The SDK retries automatically with exponential backoff when a request returns:
-
-- **408** (Request Timeout)
-- **429** (Too Many Requests)
-- **5XX** (Internal Server Errors)
-
-Default retry limit: 2. Override with `option.WithMaxAttempts`:
-
-```go
-c := client.NewClient(
-    option.WithToken("<your_rest_auth_token>"),
-    option.WithMaxAttempts(0), // disable retries
-)
-
-// Or per-request:
-resp, err := c.Agents.Start(ctx, req, option.WithMaxAttempts(1))
-```
+That client keeps auth out of your request code: session methods mint ConvoAI REST auth and RTC join tokens from `AppID` and `AppCertificate`.
 
 ## Timeouts
 
-Go uses `context` for request-scoped timeouts. Use `context.WithTimeout`:
+Use `context.WithTimeout` for request-scoped timeouts:
 
 ```go
-package main
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
 
-import (
-    "context"
-    "time"
-
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-)
-
-func main() {
-    c := client.NewClient(option.WithToken("<your_rest_auth_token>"))
-
-    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-    defer cancel()
-
-    resp, err := c.Agents.Start(ctx, req)
-    _ = resp
-    _ = err
+agentID, err := session.Start(ctx)
+if err != nil {
+    return err
 }
+_ = agentID
 ```
 
-For a global default timeout, pass a custom `*http.Client` with `Timeout` set:
+## Cancellation
+
+Use `context.WithCancel` when your server needs to abort work after a client disconnects or workflow cancellation:
 
 ```go
-import (
-    "net/http"
-    "time"
-
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-c := client.NewClient(
-    option.WithToken("<your_rest_auth_token>"),
-    option.WithHTTPClient(&http.Client{
-        Timeout: 60 * time.Second,
-    }),
-)
-```
-
-## Cancelling Requests
-
-Use `context.WithCancel` or `context.WithTimeout` and cancel when needed:
-
-```go
-import (
-    "context"
-    "time"
-)
-
 ctx, cancel := context.WithCancel(context.Background())
 defer cancel()
 
 go func() {
-    time.Sleep(2 * time.Second)
-    cancel() // abort the request
+    <-done
+    cancel()
 }()
 
-resp, err := c.Agents.Start(ctx, req)
+if err := session.Stop(ctx); err != nil {
+    return err
+}
 ```
 
-## Access Raw Response Data
+## Stop Without A Session Handle
 
-Use `client.Agents.WithRawResponse` to get headers and status code:
+Use `StopAgent` when a later request handler only has the agent session ID. It uses the same app credentials to generate the required ConvoAI REST auth header.
 
 ```go
-import (
-    "fmt"
-    "log"
-)
+if err := client.StopAgent(ctx, agentID); err != nil {
+    return err
+}
+```
 
-resp, err := c.Agents.WithRawResponse.Start(ctx, req)
+## Raw Responses
+
+The generated clients expose `WithRawResponse` for advanced debugging of status codes and headers. Keep session lifecycle code on AgentKit unless you specifically need to call a generated REST method.
+
+```go
+resp, err := client.Agents.WithRawResponse.Get(ctx, req)
 if err != nil {
-    log.Fatal(err)
+    return err
 }
 
 fmt.Println(resp.StatusCode)
-fmt.Println(resp.Header.Get("X-My-Header"))
-fmt.Println(resp.Body) // typed response body
+fmt.Println(resp.Header)
+fmt.Println(resp.Body)
 ```
 
-## Custom HTTP Client
+## Generated-Client Options
 
-Pass a custom `*http.Client` for proxies, custom transports, or other options:
-
-```go
-import (
-    "net/http"
-    "net/url"
-
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/client"
-    "github.com/AgoraIO-Conversational-AI/agent-server-sdk-go/option"
-)
-
-proxyURL, _ := url.Parse("http://my.proxy.example.com:8080")
-
-c := client.NewClient(
-    option.WithToken("<your_rest_auth_token>"),
-    option.WithHTTPClient(&http.Client{
-        Transport: &http.Transport{
-            Proxy: http.ProxyURL(proxyURL),
-        },
-        Timeout: 60 * time.Second,
-    }),
-)
-```
+Generated-client request options such as `option.WithMaxAttempts`, `option.WithHTTPHeader`, and `option.WithQueryParameters` are available for low-level REST calls. They are advanced tools and are not needed for the AgentKit session flow.

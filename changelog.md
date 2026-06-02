@@ -4,6 +4,50 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [v2.0.0] — 2026-05-21
+
+AgentKit alignment for Conversational AI v2.7.
+
+### Added
+
+- **Alias parity** — Exported `SttConfig`, session/conversation type aliases, `IsAvatarTokenManaged`, think type aliases, and cross-SDK discovery table in `docs/reference/agent.md`.
+- **`AgoraClient.Telephony` and `AgoraClient.PhoneNumbers`** — AgentKit callers can reach the v2.7 telephony and phone-number REST endpoints without rebuilding the generated client.
+- **`vendors.NewXaiGrok`** — xAI Grok MLLM sessions (`mllm.vendor`: `"xai"`), matching the TypeScript `XaiGrok` shape. `NewXAIGrok` remains as a deprecated alias.
+- **`vendors.NewGenericAvatar` and `IsGenericAvatar`** — Generic avatar wrapper for custom avatar providers.
+- **Avatar parameter enrichment** — Generic avatars get `agora_appid`, `agora_channel`, and `agora_token` from the session when omitted; LiveAvatar and HeyGen get `agora_token` auto-generated when omitted.
+- **`WithGreetingConfigs`** — `llm.greeting_configs`, including v2.7 `interruptable`.
+- **`GetTurnsOptions` and `GetAllTurns`** — Turn pagination helpers. `GetAllTurns` returns the full response with aggregated `Turns`.
+- **Think action constants** — `ThinkOnListeningAction*`, `ThinkOnThinkingAction*`, and `ThinkOnSpeakingAction*` for v2.7 Think actions.
+- **Interruption constants** — `InterruptionModeStartOfSpeech`, `InterruptionModeKeywords`, `InterruptionDisabledStrategyAppend`, and `InterruptionDisabledStrategyIgnore` for the v2.7 `interruption` object.
+- **Speak priority constants** — `SpeakPriorityInterrupt`, `SpeakPriorityAppend`, and `SpeakPriorityIgnore` for `AgentSession.Say`.
+- **MLLM turn detection constants** — `MllmTurnDetectionModeAgoraVad`, `MllmTurnDetectionModeServerVad`, and `MllmTurnDetectionModeSemanticVad` for the MLLM `turn_detection.mode` field.
+- **`AzureOpenAIOptions.Model`** — Emits `params.model` for parity with the TypeScript SDK; Azure ignores the value for chat completions, but downstream tooling and logs surface it.
+
+### Changed
+
+- **Repository and module path** — The repository has been updated to [`AgoraIO/agora-agents-go`](https://github.com/AgoraIO/agora-agents-go) (formerly `AgoraIO-Conversational-AI/agent-server-sdk-go`). Update imports to `github.com/AgoraIO/agora-agents-go/v2`.
+- **Go module v2 path alignment** — `go.mod` now declares `module github.com/AgoraIO/agora-agents-go/v2`, and all SDK imports/examples use `/v2` paths so standard Go module resolution works for `v2.0.0`.
+- **ConvoAI token options** — `GenerateConvoAIToken()` now accepts an integer `UID` and handles the internal token string conversion for users, agents, and avatars.
+- **Avatar token generation** — Removed the dedicated `GenerateAvatarRtcToken()` wrapper; avatar RTC tokens use the existing ConvoAI token helper.
+- **Session lifecycle naming** — Renamed the AgentKit lifecycle type to `AgentSessionLifecycle`; `SessionStatus` is now the generated API status alias.
+- **`AgentSession.Start`** — Sends a map-based join payload after preset resolution, preventing generated structs from reintroducing empty provider-owned fields such as `llm.url`, `llm.api_key`, or `tts.params.key`.
+- **`ToPropertiesMap`** — Builds vendor configs from maps directly for closer parity with Python and TypeScript AgentKit.
+- **`GetTurns`** — Supports `page_index` and `page_size`; callers with more than one page should paginate or call `GetAllTurns`.
+- **`Agent.ToPropertiesMap`** — Rejects MLLM + enabled avatar combinations before generating tokens or building properties; avatars currently require the cascading ASR/LLM/TTS pipeline.
+- **Avatar vendor `ToConfig()`** — HeyGen, LiveAvatar, Akool, Anam, and Generic now spread `AdditionalParams` first so required fields like `api_key`, `quality`, and `agora_uid` always take precedence over caller overrides.
+- **`OpenAIRealtime.ToConfig`** — Explicit `Params["model"]` overrides the named `Model`, matching the TypeScript SDK and the existing Gemini/Vertex AI/xAI Grok behavior.
+
+### Documentation
+
+- Documented v2.7 error `reason` codes, Think default behavior, event `112`, avatar token handling, Generic avatars, xAI Grok, Deepgram TTS, Murf, Anam, LiveAvatar, `pause_state_enabled`, `audio_scenario`, and `pipeline_id`.
+
+### Migration Notes
+
+- Deprecated aliases remain for compatibility. Use `NewXaiGrok` / `XaiGrok` / `XaiGrokOptions` instead of `NewXAIGrok` / `XAIGrok` / `XAIGrokOptions`, and `NewLiveAvatarAvatar` / `LiveAvatarAvatar` / `LiveAvatarAvatarOptions` instead of `NewHeyGenAvatar` / `HeyGenAvatar` / `HeyGenAvatarOptions`.
+- In v2.7, omitting `ThinkOptions.OnListeningAction` uses the server default `interrupt`. Pass `agentkit.ThinkOnListeningActionInject.Ptr()` to preserve inject-style behavior.
+- Avatar `AgoraUID` should be distinct from the session `AgentUID`. The SDK warns on collisions and preserves explicitly provided avatar tokens.
+- Go consumers should install and import via the `/v2` module path, for example: `go get github.com/AgoraIO/agora-agents-go/v2@v2.0.0`.
+
 ## [v1.4.0] — 2026-05-13
 
 ### Added
@@ -23,6 +67,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - **MLLM wrapper shape** — MLLM vendors no longer emit removed fields such as `style`; docs and tests now reflect the v2.6 MLLM contract.
 - **Preset-backed OpenAI TTS** — `NewOpenAITTS` no longer requires `APIKey` when a reseller preset supplies credentials server-side.
 - **AgentKit parity coverage** — Added regression coverage for interruption, MLLM turn detection, Deepgram TTS, LLM headers, and deprecated MLLM flag cleanup.
+
+## [v1.3.4] — 2026-04-28
+
+### Fixed
+
+- **Managed preset payload fields** — AgentKit start payloads now stay in a dynamic map shape after preset resolution so provider-owned fields removed for managed presets do not reappear as generated Go zero values.
+- **Preset inference and stripping** — MiniMax and OpenAI TTS preset fields are inferred and stripped correctly during start request construction.
+- **Keyless ARES ASR payloads** — Preset-backed ARES ASR configurations without explicit credentials are preserved instead of being overwritten by empty struct fields.
+
+## [v1.3.3] — 2026-04-27
+
+### Fixed
+
+- **Region base URL construction** — Corrected geofence/region routing when building the Conversational AI API base URL. Added unit tests for area routing behavior.
+
+## [v1.3.2] — 2026-04-23
+
+### Fixed
+
+- **`GeminiLive` and `VertexAI` MLLM `url` parameter** — The optional WebSocket URL override supported by `OpenAIRealtime` was not exposed on the other two MLLM vendors, making it impossible to point them at a custom endpoint. Both constructors now accept an optional `URL` field that is passed through to the API request.
+- **Reseller API key support** — Preset-backed vendor configurations now correctly handle reseller-managed API keys without requiring caller-supplied credentials.
 
 ## [v1.3.0] — 2026-04-02
 
@@ -71,8 +136,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - **`NewMurfTTS`** — New TTS vendor wrapper for Murf.
 - **`NewSarvamTTS`** — New TTS vendor wrapper for Sarvam.
 - **`NewSarvamSTT`** — New STT vendor wrapper for Sarvam.
-- **`AgentSession.Think()` / `ThinkWithOptions()`** — Send a custom instruction to the agent mid-session. Routes to the `agentManagement` client.
-- **`ThinkOptions`** — Idiomatic Go struct for `Think` call options (`OnListeningAction`, `OnThinkingAction`, `OnSpeakingAction`, `Interruptable`, `Metadata`).
 - All LLM vendors: added `MaxHistory` field for conversation history caching.
 - **`AzureOpenAI`** — Added `Params` escape hatch for arbitrary API parameters.
 - **`Anthropic`** — Added `URL` for custom endpoints and `Params` escape hatch.
@@ -86,7 +149,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [v1.0.0] — 2026-03-11
 
-Initial stable release of the Agora Agent Server SDK for Go.
+Initial stable release of Agora Agents Go.
 
 ### Added
 

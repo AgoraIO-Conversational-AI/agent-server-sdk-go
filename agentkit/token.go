@@ -3,6 +3,7 @@ package agentkit
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/AgoraIO-Community/go-tokenbuilder/rtctokenbuilder2"
 )
@@ -53,15 +54,24 @@ type GenerateTokenOptions struct {
 	ExpirySeconds  int
 }
 
+type GenerateRtcTokenWithAccountOptions struct {
+	AppID          string
+	AppCertificate string
+	Channel        string
+	Account        string
+	Role           int
+	ExpirySeconds  int
+}
+
 // GenerateConvoAITokenOptions configures ConvoAI REST API token generation.
 // The token is used as: Authorization: agora token=<token>
 type GenerateConvoAITokenOptions struct {
 	AppID           string
 	AppCertificate  string
 	ChannelName     string
-	Account         string // Agent UID as string (e.g. "1001")
-	TokenExpire     int    // Seconds until expiry (default 86400)
-	PrivilegeExpire int    // 0 means same as TokenExpire
+	UID             int // Numeric ConvoAI participant UID for a user, agent, or avatar.
+	TokenExpire     int // Seconds until expiry (default 86400)
+	PrivilegeExpire int // 0 means same as TokenExpire
 }
 
 // GenerateRtcToken builds an RTC token for channel access.
@@ -100,6 +110,44 @@ func GenerateRtcToken(opts GenerateTokenOptions) (string, error) {
 	)
 }
 
+// GenerateRtcTokenWithAccount builds an RTC token for a string account.
+func GenerateRtcTokenWithAccount(opts GenerateRtcTokenWithAccountOptions) (string, error) {
+	if opts.AppID == "" {
+		return "", fmt.Errorf("app_id is required")
+	}
+	if opts.AppCertificate == "" {
+		return "", fmt.Errorf("app_certificate is required")
+	}
+	if opts.Channel == "" {
+		return "", fmt.Errorf("channel is required")
+	}
+	if opts.Account == "" {
+		return "", fmt.Errorf("account is required")
+	}
+	if opts.ExpirySeconds <= 0 {
+		opts.ExpirySeconds = DefaultExpirySeconds
+	}
+	if opts.Role == 0 {
+		opts.Role = RolePublisher
+	}
+
+	var role rtctokenbuilder2.Role = rtctokenbuilder2.RolePublisher
+	if opts.Role == RoleSubscriber {
+		role = rtctokenbuilder2.RoleSubscriber
+	}
+
+	expiry := uint32(opts.ExpirySeconds)
+	return rtctokenbuilder2.BuildTokenWithUserAccount(
+		opts.AppID,
+		opts.AppCertificate,
+		opts.Channel,
+		opts.Account,
+		role,
+		expiry,
+		expiry,
+	)
+}
+
 // GenerateConvoAIToken builds a combined RTC + RTM token for ConvoAI REST API authentication.
 // Use the result as: Authorization: agora token=<token>
 //
@@ -114,8 +162,9 @@ func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error) {
 	if opts.ChannelName == "" {
 		return "", fmt.Errorf("channel_name is required")
 	}
-	if opts.Account == "" {
-		return "", fmt.Errorf("account is required")
+	account := convoAIUIDToAccount(opts.UID)
+	if account == "" {
+		return "", fmt.Errorf("uid is required")
 	}
 	if opts.TokenExpire <= 0 {
 		opts.TokenExpire = DefaultExpirySeconds
@@ -129,9 +178,13 @@ func GenerateConvoAIToken(opts GenerateConvoAITokenOptions) (string, error) {
 		opts.AppID,
 		opts.AppCertificate,
 		opts.ChannelName,
-		opts.Account,
+		account,
 		rtctokenbuilder2.RolePublisher,
 		uint32(opts.TokenExpire),
 		uint32(privExpire),
 	)
+}
+
+func convoAIUIDToAccount(uid int) string {
+	return strconv.FormatInt(int64(uid), 10)
 }
